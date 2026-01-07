@@ -1205,8 +1205,14 @@
         .cyber-zone {
             position: absolute;
             transform: translate(-50%, -50%);
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 16;
+            cursor: pointer;
+        }
+
+        .cyber-zone:hover .cyber-icon {
+            opacity: 1;
+            box-shadow: 0 0 20px rgba(255,0,255,0.6);
         }
 
         .cyber-icon {
@@ -1243,6 +1249,132 @@
             font-size: 0.4rem;
             color: #ff00ff;
             opacity: 0.6;
+        }
+
+        /* Cyber Popup */
+        .cyber-popup {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: rgba(10, 5, 15, 0.95);
+            border: 1px solid #ff00ff;
+            min-width: 260px;
+            max-width: 320px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 0, 255, 0.2);
+            pointer-events: auto;
+        }
+
+        .cyber-popup.visible {
+            display: block;
+        }
+
+        .cyber-popup.active {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 0, 255, 0.4);
+        }
+
+        .cyber-popup-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #301030;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cyber-popup-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #ff00ff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .cyber-popup-status {
+            font-size: 0.5rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .cyber-popup-status.dormant { background: #404; color: #a0a; }
+        .cyber-popup-status.active { background: #ff00ff; color: #000; animation: pulse-level 1s infinite; }
+
+        .cyber-popup-apt {
+            padding: 0.5rem 1rem;
+            font-size: 0.65rem;
+            color: #ff80ff;
+            border-bottom: 1px solid #301030;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .cyber-popup-desc {
+            padding: 0.6rem 1rem;
+            font-size: 0.6rem;
+            color: #a080a0;
+            line-height: 1.5;
+            border-bottom: 1px solid #301030;
+        }
+
+        .cyber-popup-info {
+            padding: 0.6rem 1rem;
+        }
+
+        .cyber-popup-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.55rem;
+            padding: 0.2rem 0;
+        }
+
+        .cyber-popup-stat-label {
+            color: #604060;
+        }
+
+        .cyber-popup-stat-value {
+            color: #e8e8e8;
+        }
+
+        .cyber-popup-targets {
+            padding: 0.5rem 1rem;
+            border-top: 1px solid #301030;
+        }
+
+        .cyber-popup-targets-label {
+            font-size: 0.5rem;
+            color: #604060;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .cyber-popup-target-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .cyber-popup-target-tag {
+            font-size: 0.5rem;
+            padding: 0.15rem 0.4rem;
+            background: #301030;
+            color: #ff80ff;
+            border-radius: 2px;
+        }
+
+        .cyber-popup-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: #604060;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+
+        .cyber-popup-close:hover {
+            color: #ff00ff;
         }
 
         /* Layoff tracker */
@@ -2666,10 +2798,54 @@
 
         // Cyber threat regions
         const CYBER_REGIONS = [
-            { id: 'cyber_russia', name: 'RU', lat: 55.75, lon: 45.0, group: 'APT28/29' },
-            { id: 'cyber_china', name: 'CN', lat: 35.0, lon: 105.0, group: 'APT41' },
-            { id: 'cyber_nk', name: 'NK', lat: 39.0, lon: 127.0, group: 'Lazarus' },
-            { id: 'cyber_iran', name: 'IR', lat: 32.0, lon: 53.0, group: 'APT33' }
+            {
+                id: 'cyber_russia',
+                name: 'RU',
+                fullName: 'Russia',
+                lat: 55.75,
+                lon: 45.0,
+                group: 'APT28/29',
+                aka: 'Fancy Bear / Cozy Bear',
+                sponsor: 'GRU / FSB',
+                desc: 'State-sponsored groups linked to Russian intelligence. Known for election interference, government espionage, and critical infrastructure attacks.',
+                targets: ['Government', 'Defense', 'Energy', 'Elections', 'Media']
+            },
+            {
+                id: 'cyber_china',
+                name: 'CN',
+                fullName: 'China',
+                lat: 35.0,
+                lon: 105.0,
+                group: 'APT41',
+                aka: 'Double Dragon / Winnti',
+                sponsor: 'MSS',
+                desc: 'Hybrid espionage and financially motivated group. Conducts state-sponsored intelligence and supply chain attacks.',
+                targets: ['Tech', 'Telecom', 'Healthcare', 'Gaming', 'Supply Chain']
+            },
+            {
+                id: 'cyber_nk',
+                name: 'NK',
+                fullName: 'North Korea',
+                lat: 39.0,
+                lon: 127.0,
+                group: 'Lazarus',
+                aka: 'Hidden Cobra / APT38',
+                sponsor: 'RGB',
+                desc: 'Financially motivated attacks to fund regime. Known for cryptocurrency theft, SWIFT banking attacks, and ransomware.',
+                targets: ['Crypto', 'Banks', 'Defense', 'Media', 'Critical Infra']
+            },
+            {
+                id: 'cyber_iran',
+                name: 'IR',
+                fullName: 'Iran',
+                lat: 32.0,
+                lon: 53.0,
+                group: 'APT33/35',
+                aka: 'Charming Kitten / Elfin',
+                sponsor: 'IRGC',
+                desc: 'Focus on regional adversaries and dissidents. Known for destructive wiper malware and spear-phishing campaigns.',
+                targets: ['Energy', 'Aviation', 'Government', 'Dissidents', 'Israel']
+            }
         ];
 
         // Convert lat/lon to map position (simple equirectangular projection)
@@ -2856,11 +3032,23 @@
             });
 
             // Cyber threat zones
-            const cyberActive = Math.random() > 0.5;
             CYBER_REGIONS.forEach(cz => {
                 const pos = toPercent(cz.lon, cz.lat);
+                // Randomly determine if this zone is "active" (simulated)
+                const isActive = Math.random() > 0.6;
+
+                // Store cyber zone data
+                const czData = encodeURIComponent(JSON.stringify({
+                    ...cz,
+                    isActive
+                }));
+
                 overlaysHTML += `
-                    <div class="cyber-zone ${cyberActive ? 'active' : ''}" style="left: ${pos.x}%; top: ${pos.y}%;">
+                    <div class="cyber-zone ${isActive ? 'active' : ''}"
+                         style="left: ${pos.x}%; top: ${pos.y}%;"
+                         data-cyber-id="${cz.id}"
+                         data-cyber-info="${czData}"
+                         onclick="showCyberPopup(event, '${cz.id}')">
                         <div class="cyber-icon"></div>
                         <div class="cyber-label">${cz.group}</div>
                     </div>
@@ -2961,6 +3149,7 @@
             overlaysHTML += `<div class="hotspot-popup" id="hotspotPopup"></div>`;
             overlaysHTML += `<div class="chokepoint-popup" id="chokepointPopup"></div>`;
             overlaysHTML += `<div class="quake-popup" id="quakePopup"></div>`;
+            overlaysHTML += `<div class="cyber-popup" id="cyberPopup"></div>`;
 
             document.getElementById('mapOverlays').innerHTML = overlaysHTML;
 
@@ -2975,6 +3164,9 @@
                 if (!e.target.closest('.quake') && !e.target.closest('.quake-popup')) {
                     hideQuakePopup();
                 }
+                if (!e.target.closest('.cyber-zone') && !e.target.closest('.cyber-popup')) {
+                    hideCyberPopup();
+                }
             });
         }
 
@@ -2988,6 +3180,7 @@
             // Hide other popups
             hideChokepointPopup();
             hideQuakePopup();
+            hideCyberPopup();
 
             const activityData = JSON.parse(decodeURIComponent(hotspotEl.dataset.hotspotActivity));
             const popup = document.getElementById('hotspotPopup');
@@ -3074,6 +3267,7 @@
             // Hide other popups
             hideHotspotPopup();
             hideQuakePopup();
+            hideCyberPopup();
 
             const cpData = JSON.parse(decodeURIComponent(cpEl.dataset.chokepointInfo));
             const popup = document.getElementById('chokepointPopup');
@@ -3160,6 +3354,7 @@
             // Hide other popups
             hideHotspotPopup();
             hideChokepointPopup();
+            hideCyberPopup();
 
             const eqData = JSON.parse(decodeURIComponent(quakeEl.dataset.quakeInfo));
             const popup = document.getElementById('quakePopup');
@@ -3256,6 +3451,85 @@
             if (minutes < 60) return `${minutes}m ago`;
             if (hours < 24) return `${hours}h ago`;
             return `${days}d ago`;
+        }
+
+        // Show cyber threat popup
+        function showCyberPopup(event, cyberId) {
+            event.stopPropagation();
+
+            const cyberEl = document.querySelector(`[data-cyber-id="${cyberId}"]`);
+            if (!cyberEl) return;
+
+            // Hide other popups
+            hideHotspotPopup();
+            hideChokepointPopup();
+            hideQuakePopup();
+
+            const czData = JSON.parse(decodeURIComponent(cyberEl.dataset.cyberInfo));
+            const popup = document.getElementById('cyberPopup');
+
+            // Build targets HTML
+            const targetsHTML = czData.targets.map(t =>
+                `<span class="cyber-popup-target-tag">${escapeHtml(t)}</span>`
+            ).join('');
+
+            popup.innerHTML = `
+                <button class="cyber-popup-close" onclick="hideCyberPopup()">&times;</button>
+                <div class="cyber-popup-header">
+                    <span class="cyber-popup-title">${escapeHtml(czData.fullName)}</span>
+                    <span class="cyber-popup-status ${czData.isActive ? 'active' : 'dormant'}">${czData.isActive ? 'Active' : 'Dormant'}</span>
+                </div>
+                <div class="cyber-popup-apt">${escapeHtml(czData.group)} — ${escapeHtml(czData.aka)}</div>
+                <div class="cyber-popup-desc">${escapeHtml(czData.desc)}</div>
+                <div class="cyber-popup-info">
+                    <div class="cyber-popup-stat">
+                        <span class="cyber-popup-stat-label">State Sponsor</span>
+                        <span class="cyber-popup-stat-value">${escapeHtml(czData.sponsor)}</span>
+                    </div>
+                    <div class="cyber-popup-stat">
+                        <span class="cyber-popup-stat-label">Coordinates</span>
+                        <span class="cyber-popup-stat-value">${czData.lat.toFixed(1)}°, ${czData.lon.toFixed(1)}°</span>
+                    </div>
+                </div>
+                <div class="cyber-popup-targets">
+                    <div class="cyber-popup-targets-label">Primary Targets</div>
+                    <div class="cyber-popup-target-tags">${targetsHTML}</div>
+                </div>
+            `;
+
+            // Set popup class
+            popup.className = `cyber-popup visible ${czData.isActive ? 'active' : ''}`;
+
+            // Position popup
+            const cyberRect = cyberEl.getBoundingClientRect();
+            const mapContainer = document.getElementById('worldMapContainer');
+            const mapRect = mapContainer.getBoundingClientRect();
+
+            let left = cyberRect.left - mapRect.left + 25;
+            let top = cyberRect.top - mapRect.top - 10;
+
+            const popupWidth = 280;
+            const popupHeight = 300;
+
+            if (left + popupWidth > mapRect.width) {
+                left = cyberRect.left - mapRect.left - popupWidth - 25;
+            }
+            if (top + popupHeight > mapRect.height) {
+                top = mapRect.height - popupHeight - 10;
+            }
+            if (top < 10) top = 10;
+            if (left < 10) left = 10;
+
+            popup.style.left = left + 'px';
+            popup.style.top = top + 'px';
+        }
+
+        // Hide cyber threat popup
+        function hideCyberPopup() {
+            const popup = document.getElementById('cyberPopup');
+            if (popup) {
+                popup.classList.remove('visible');
+            }
         }
 
         // Fetch Congressional trades - uses news RSS since APIs are locked down
