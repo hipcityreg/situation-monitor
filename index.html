@@ -2601,6 +2601,497 @@
             background: #0a3020;
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
         }
+
+        /* Custom Monitors */
+        .monitors-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .monitors-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 0.75rem;
+        }
+
+        .monitor-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            border-radius: 2px;
+        }
+
+        .monitor-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .monitor-item-name {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .monitor-item-color {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .monitor-item-keywords {
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .monitor-item-location {
+            font-size: 0.5rem;
+            color: var(--green);
+            margin-top: 0.15rem;
+        }
+
+        .monitor-item-actions {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .monitor-item-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            width: 22px;
+            height: 22px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .monitor-item-btn:hover {
+            border-color: var(--text);
+            color: var(--text);
+        }
+
+        .monitor-item-btn.delete:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .add-monitor-btn {
+            width: 100%;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px dashed var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-monitor-btn:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        /* Monitor Form Modal */
+        .monitor-form-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .monitor-form-overlay.open {
+            display: flex;
+        }
+
+        .monitor-form {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .monitor-form-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .monitor-form-field {
+            margin-bottom: 1rem;
+        }
+
+        .monitor-form-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .monitor-form-input {
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.75rem;
+        }
+
+        .monitor-form-input:focus {
+            outline: none;
+            border-color: var(--green);
+        }
+
+        .monitor-form-hint {
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            margin-top: 0.3rem;
+        }
+
+        .monitor-form-colors {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .monitor-color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .monitor-color-option:hover {
+            transform: scale(1.2);
+        }
+
+        .monitor-color-option.selected {
+            border-color: var(--text);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .monitor-form-location {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .monitor-form-location input {
+            flex: 1;
+        }
+
+        .monitor-form-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .monitor-form-actions button {
+            flex: 1;
+            padding: 0.6rem;
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .monitor-save-btn {
+            background: var(--green);
+            color: var(--bg);
+            border: none;
+        }
+
+        .monitor-save-btn:hover {
+            opacity: 0.8;
+        }
+
+        .monitor-cancel-btn {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+
+        .monitor-cancel-btn:hover {
+            border-color: var(--text);
+            color: var(--text);
+        }
+
+        /* Custom Hotspot (user-created) */
+        .custom-hotspot {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            z-index: 21;
+            cursor: pointer;
+        }
+
+        .custom-hotspot-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: relative;
+            border: 2px solid;
+            box-shadow: 0 0 10px currentColor;
+            transition: all 0.2s;
+        }
+
+        .custom-hotspot-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: custom-pulse 2s ease-out infinite;
+            background: currentColor;
+        }
+
+        @keyframes custom-pulse {
+            0% { width: 100%; height: 100%; opacity: 0.6; }
+            100% { width: 250%; height: 250%; opacity: 0; }
+        }
+
+        .custom-hotspot:hover .custom-hotspot-dot {
+            transform: scale(1.4);
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .custom-hotspot-label {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.5rem;
+            font-family: 'SF Mono', monospace;
+            white-space: nowrap;
+            text-shadow: 0 0 5px currentColor;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .custom-hotspot:hover .custom-hotspot-label {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .custom-hotspot-count {
+            font-size: 0.4rem;
+            opacity: 0.7;
+        }
+
+        /* My Monitors Panel */
+        .monitor-match {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .monitor-match:hover {
+            background: var(--surface);
+        }
+
+        .monitor-match-header {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .monitor-match-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .monitor-match-name {
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .monitor-match-title {
+            font-size: 0.75rem;
+            color: var(--text);
+            text-decoration: none;
+            display: block;
+        }
+
+        .monitor-match-title:hover {
+            color: var(--accent);
+        }
+
+        .monitor-match-source {
+            font-size: 0.5rem;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+        }
+
+        .monitors-empty {
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.7rem;
+        }
+
+        .monitors-empty-hint {
+            font-size: 0.6rem;
+            margin-top: 0.5rem;
+            opacity: 0.7;
+        }
+
+        /* Custom Hotspot Popup */
+        .custom-hotspot-popup {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: rgba(5, 10, 8, 0.95);
+            border: 1px solid var(--border);
+            min-width: 280px;
+            max-width: 350px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .custom-hotspot-popup.visible {
+            display: block;
+        }
+
+        .custom-hotspot-popup-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .custom-hotspot-popup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .custom-hotspot-popup-name {
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .custom-hotspot-popup-count {
+            margin-left: auto;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            background: var(--surface);
+        }
+
+        .custom-hotspot-popup-keywords {
+            padding: 0.5rem 1rem;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .custom-hotspot-popup-coords {
+            padding: 0.4rem 1rem;
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            font-family: 'SF Mono', monospace;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .custom-hotspot-popup-matches {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .custom-hotspot-popup-match {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .custom-hotspot-popup-match:last-child {
+            border-bottom: none;
+        }
+
+        .custom-hotspot-popup-match a {
+            font-size: 0.7rem;
+            color: var(--text);
+            text-decoration: none;
+            display: block;
+        }
+
+        .custom-hotspot-popup-match a:hover {
+            color: var(--accent);
+        }
+
+        .custom-hotspot-popup-match-source {
+            font-size: 0.5rem;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+        }
+
+        .custom-hotspot-popup-empty {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .custom-hotspot-popup-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+
+        .custom-hotspot-popup-close:hover {
+            color: var(--text);
+        }
     </style>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
@@ -2635,7 +3126,46 @@
                 <div class="settings-hint" style="margin-bottom: 0.5rem;">Drag panel headers to reorder</div>
                 <button class="settings-reset" onclick="resetPanelOrder()">Reset Layout</button>
             </div>
+            <div class="settings-section monitors-section">
+                <div class="settings-section-title">Custom Monitors</div>
+                <div class="settings-hint" style="margin-bottom: 0.5rem;">Track keywords with optional map locations</div>
+                <div class="monitors-list" id="monitorsList"></div>
+                <button class="add-monitor-btn" onclick="openMonitorForm()">+ Add Monitor</button>
+            </div>
             <button class="settings-close" onclick="toggleSettings()">Close</button>
+        </div>
+    </div>
+
+    <!-- Monitor Form Modal -->
+    <div class="monitor-form-overlay" id="monitorFormOverlay" onclick="if(event.target === this) closeMonitorForm()">
+        <div class="monitor-form">
+            <div class="monitor-form-title" id="monitorFormTitle">Add Monitor</div>
+            <input type="hidden" id="monitorEditId">
+            <div class="monitor-form-field">
+                <label class="monitor-form-label">Name</label>
+                <input type="text" class="monitor-form-input" id="monitorName" placeholder="e.g., TSMC Supply Chain">
+            </div>
+            <div class="monitor-form-field">
+                <label class="monitor-form-label">Keywords</label>
+                <input type="text" class="monitor-form-input" id="monitorKeywords" placeholder="e.g., tsmc, taiwan semiconductor, chip">
+                <div class="monitor-form-hint">Comma-separated. Matches headlines containing any keyword.</div>
+            </div>
+            <div class="monitor-form-field">
+                <label class="monitor-form-label">Color</label>
+                <div class="monitor-form-colors" id="monitorColors"></div>
+            </div>
+            <div class="monitor-form-field">
+                <label class="monitor-form-label">Map Location (Optional)</label>
+                <div class="monitor-form-location">
+                    <input type="text" class="monitor-form-input" id="monitorLat" placeholder="Latitude">
+                    <input type="text" class="monitor-form-input" id="monitorLon" placeholder="Longitude">
+                </div>
+                <div class="monitor-form-hint">Leave blank for keyword-only monitoring. Add coords to show on map.</div>
+            </div>
+            <div class="monitor-form-actions">
+                <button class="monitor-cancel-btn" onclick="closeMonitorForm()">Cancel</button>
+                <button class="monitor-save-btn" onclick="saveMonitor()">Save</button>
+            </div>
         </div>
     </div>
 
@@ -2862,6 +3392,20 @@
             </div>
         </section>
 
+        <!-- My Monitors -->
+        <section class="panel" data-panel="monitors">
+            <div class="panel-header">
+                <span class="panel-title">My Monitors</span>
+                <span class="panel-count" id="monitorsCount">-</span>
+            </div>
+            <div class="panel-content" id="monitorsPanel">
+                <div class="monitors-empty">
+                    No monitors configured
+                    <div class="monitors-empty-hint">Click Settings → Add Monitor to get started</div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <script>
@@ -2874,6 +3418,7 @@
             gov: { name: 'Government / Policy', priority: 2 },
             heatmap: { name: 'Sector Heatmap', priority: 1 },
             markets: { name: 'Markets', priority: 1 },
+            monitors: { name: 'My Monitors', priority: 1 },
             commodities: { name: 'Commodities / VIX', priority: 2 },
             polymarket: { name: 'Polymarket', priority: 2 },
             congress: { name: 'Congress Trades', priority: 3 },
@@ -2939,6 +3484,7 @@
             modal.classList.toggle('open');
             if (modal.classList.contains('open')) {
                 updateSettingsUI();
+                renderMonitorsList();
                 // Load saved livestream URL
                 const savedUrl = localStorage.getItem('livestreamUrl') || 'https://www.youtube.com/watch?v=jWEZa9WEnIo';
                 document.getElementById('livestreamUrl').value = savedUrl;
@@ -4148,11 +4694,42 @@
                 `;
             });
 
+            // Custom monitor hotspots (user-created)
+            const customHotspots = getMonitorHotspots(allNews);
+            customHotspots.forEach(monitor => {
+                const pos = toPercent(monitor.lon, monitor.lat);
+                const matchData = encodeURIComponent(JSON.stringify({
+                    id: monitor.id,
+                    name: monitor.name,
+                    color: monitor.color,
+                    keywords: monitor.keywords,
+                    lat: monitor.lat,
+                    lon: monitor.lon,
+                    matchCount: monitor.matchCount,
+                    matches: monitor.matches.slice(0, 5)
+                }));
+
+                overlaysHTML += `
+                    <div class="custom-hotspot"
+                         style="left: ${pos.x}%; top: ${pos.y}%; color: ${monitor.color};"
+                         data-monitor-id="${monitor.id}"
+                         data-monitor-info="${matchData}"
+                         onclick="showCustomHotspotPopup(event, '${monitor.id}')">
+                        <div class="custom-hotspot-dot" style="background: ${monitor.color}; border-color: ${monitor.color};"></div>
+                        <div class="custom-hotspot-label" style="color: ${monitor.color};">
+                            ${monitor.name}
+                            <span class="custom-hotspot-count">${monitor.matchCount > 0 ? ` (${monitor.matchCount})` : ''}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
             // Add popup containers
             overlaysHTML += `<div class="hotspot-popup" id="hotspotPopup"></div>`;
             overlaysHTML += `<div class="chokepoint-popup" id="chokepointPopup"></div>`;
             overlaysHTML += `<div class="quake-popup" id="quakePopup"></div>`;
             overlaysHTML += `<div class="cyber-popup" id="cyberPopup"></div>`;
+            overlaysHTML += `<div class="custom-hotspot-popup" id="customHotspotPopup"></div>`;
 
             // Layer toggle buttons
             overlaysHTML += `
@@ -4192,6 +4769,9 @@
                 if (!e.target.closest('.cyber-zone') && !e.target.closest('.cyber-popup')) {
                     hideCyberPopup();
                 }
+                if (!e.target.closest('.custom-hotspot') && !e.target.closest('.custom-hotspot-popup')) {
+                    hideCustomHotspotPopup();
+                }
             });
         }
 
@@ -4206,6 +4786,7 @@
             hideChokepointPopup();
             hideQuakePopup();
             hideCyberPopup();
+            hideCustomHotspotPopup();
 
             const activityData = JSON.parse(decodeURIComponent(hotspotEl.dataset.hotspotActivity));
             const popup = document.getElementById('hotspotPopup');
@@ -4293,6 +4874,7 @@
             hideHotspotPopup();
             hideQuakePopup();
             hideCyberPopup();
+            hideCustomHotspotPopup();
 
             const cpData = JSON.parse(decodeURIComponent(cpEl.dataset.chokepointInfo));
             const popup = document.getElementById('chokepointPopup');
@@ -4380,6 +4962,7 @@
             hideHotspotPopup();
             hideChokepointPopup();
             hideCyberPopup();
+            hideCustomHotspotPopup();
 
             const eqData = JSON.parse(decodeURIComponent(quakeEl.dataset.quakeInfo));
             const popup = document.getElementById('quakePopup');
@@ -4489,6 +5072,7 @@
             hideHotspotPopup();
             hideChokepointPopup();
             hideQuakePopup();
+            hideCustomHotspotPopup();
 
             const czData = JSON.parse(decodeURIComponent(cyberEl.dataset.cyberInfo));
             const popup = document.getElementById('cyberPopup');
@@ -4557,6 +5141,83 @@
             }
         }
 
+        // Show custom hotspot popup
+        function showCustomHotspotPopup(event, monitorId) {
+            event.stopPropagation();
+
+            const hotspotEl = document.querySelector(`[data-monitor-id="${monitorId}"]`);
+            if (!hotspotEl) return;
+
+            // Hide other popups
+            hideHotspotPopup();
+            hideChokepointPopup();
+            hideQuakePopup();
+            hideCyberPopup();
+
+            const monitorData = JSON.parse(decodeURIComponent(hotspotEl.dataset.monitorInfo));
+            const popup = document.getElementById('customHotspotPopup');
+            if (!popup) return;
+
+            let matchesHTML = '';
+            if (monitorData.matches && monitorData.matches.length > 0) {
+                matchesHTML = monitorData.matches.map(m => `
+                    <div class="custom-hotspot-popup-match">
+                        <a href="${m.link}" target="_blank">${m.title}</a>
+                        <div class="custom-hotspot-popup-match-source">${m.source || 'News'}</div>
+                    </div>
+                `).join('');
+            } else {
+                matchesHTML = '<div class="custom-hotspot-popup-empty">No matching headlines</div>';
+            }
+
+            popup.innerHTML = `
+                <button class="custom-hotspot-popup-close" onclick="hideCustomHotspotPopup()">×</button>
+                <div class="custom-hotspot-popup-header">
+                    <div class="custom-hotspot-popup-dot" style="background: ${monitorData.color};"></div>
+                    <div class="custom-hotspot-popup-name" style="color: ${monitorData.color};">${monitorData.name}</div>
+                    <div class="custom-hotspot-popup-count">${monitorData.matchCount} matches</div>
+                </div>
+                <div class="custom-hotspot-popup-keywords">
+                    <strong>Keywords:</strong> ${monitorData.keywords.join(', ')}
+                </div>
+                <div class="custom-hotspot-popup-coords">
+                    📍 ${monitorData.lat.toFixed(4)}, ${monitorData.lon.toFixed(4)}
+                </div>
+                <div class="custom-hotspot-popup-matches">
+                    ${matchesHTML}
+                </div>
+            `;
+
+            // Position the popup
+            const container = document.getElementById('worldMapContainer');
+            const containerRect = container.getBoundingClientRect();
+            const hotspotRect = hotspotEl.getBoundingClientRect();
+
+            let left = hotspotRect.left - containerRect.left + 20;
+            let top = hotspotRect.top - containerRect.top;
+
+            // Keep within bounds
+            if (left + 300 > containerRect.width) {
+                left = hotspotRect.left - containerRect.left - 310;
+            }
+            if (top + 250 > containerRect.height) {
+                top = containerRect.height - 260;
+            }
+            if (top < 10) top = 10;
+
+            popup.style.left = left + 'px';
+            popup.style.top = top + 'px';
+            popup.classList.add('visible');
+        }
+
+        // Hide custom hotspot popup
+        function hideCustomHotspotPopup() {
+            const popup = document.getElementById('customHotspotPopup');
+            if (popup) {
+                popup.classList.remove('visible');
+            }
+        }
+
         // Calculate news density for each region
         function calculateNewsDensity(allNews) {
             const scores = {};
@@ -4597,6 +5258,279 @@
             }
             // Note: In a real implementation, this would fetch historical data
             // For now, it just updates the display as a UI demonstration
+        }
+
+        // ========== CUSTOM MONITORS ==========
+
+        const MONITOR_COLORS = [
+            '#00ff88', '#ff6600', '#00aaff', '#ff00ff', '#ffcc00',
+            '#ff3366', '#33ccff', '#99ff33', '#ff6699', '#00ffcc'
+        ];
+
+        // Load monitors from localStorage
+        function loadMonitors() {
+            try {
+                const data = localStorage.getItem('customMonitors');
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error('Failed to load monitors:', e);
+                return [];
+            }
+        }
+
+        // Save monitors to localStorage
+        function saveMonitors(monitors) {
+            try {
+                localStorage.setItem('customMonitors', JSON.stringify(monitors));
+            } catch (e) {
+                console.error('Failed to save monitors:', e);
+            }
+        }
+
+        // Render monitors list in settings
+        function renderMonitorsList() {
+            const monitors = loadMonitors();
+            const container = document.getElementById('monitorsList');
+            if (!container) return;
+
+            if (monitors.length === 0) {
+                container.innerHTML = '<div style="font-size: 0.6rem; color: var(--text-dim); padding: 0.5rem 0;">No monitors yet</div>';
+                return;
+            }
+
+            container.innerHTML = monitors.map(m => `
+                <div class="monitor-item">
+                    <div class="monitor-item-info">
+                        <div class="monitor-item-name">
+                            <div class="monitor-item-color" style="background: ${m.color};"></div>
+                            ${m.name}
+                        </div>
+                        <div class="monitor-item-keywords">${m.keywords.join(', ')}</div>
+                        ${m.lat && m.lon ? `<div class="monitor-item-location">📍 ${m.lat.toFixed(2)}, ${m.lon.toFixed(2)}</div>` : ''}
+                    </div>
+                    <div class="monitor-item-actions">
+                        <button class="monitor-item-btn" onclick="editMonitor('${m.id}')" title="Edit">✎</button>
+                        <button class="monitor-item-btn delete" onclick="deleteMonitor('${m.id}')" title="Delete">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open monitor form (for add or edit)
+        function openMonitorForm(monitorId = null) {
+            const overlay = document.getElementById('monitorFormOverlay');
+            const titleEl = document.getElementById('monitorFormTitle');
+            const editIdEl = document.getElementById('monitorEditId');
+            const nameEl = document.getElementById('monitorName');
+            const keywordsEl = document.getElementById('monitorKeywords');
+            const latEl = document.getElementById('monitorLat');
+            const lonEl = document.getElementById('monitorLon');
+            const colorsContainer = document.getElementById('monitorColors');
+
+            // Render color options
+            colorsContainer.innerHTML = MONITOR_COLORS.map((c, i) =>
+                `<div class="monitor-color-option" style="background: ${c};" data-color="${c}" onclick="selectMonitorColor('${c}')"></div>`
+            ).join('');
+
+            if (monitorId) {
+                // Edit mode
+                const monitors = loadMonitors();
+                const monitor = monitors.find(m => m.id === monitorId);
+                if (monitor) {
+                    titleEl.textContent = 'Edit Monitor';
+                    editIdEl.value = monitorId;
+                    nameEl.value = monitor.name;
+                    keywordsEl.value = monitor.keywords.join(', ');
+                    latEl.value = monitor.lat || '';
+                    lonEl.value = monitor.lon || '';
+                    selectMonitorColor(monitor.color);
+                }
+            } else {
+                // Add mode
+                titleEl.textContent = 'Add Monitor';
+                editIdEl.value = '';
+                nameEl.value = '';
+                keywordsEl.value = '';
+                latEl.value = '';
+                lonEl.value = '';
+                selectMonitorColor(MONITOR_COLORS[0]);
+            }
+
+            overlay.classList.add('open');
+        }
+
+        // Close monitor form
+        function closeMonitorForm() {
+            document.getElementById('monitorFormOverlay').classList.remove('open');
+        }
+
+        // Select a monitor color
+        function selectMonitorColor(color) {
+            document.querySelectorAll('.monitor-color-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.color === color);
+            });
+        }
+
+        // Get currently selected color
+        function getSelectedMonitorColor() {
+            const selected = document.querySelector('.monitor-color-option.selected');
+            return selected ? selected.dataset.color : MONITOR_COLORS[0];
+        }
+
+        // Save monitor (add or update)
+        function saveMonitor() {
+            const editId = document.getElementById('monitorEditId').value;
+            const name = document.getElementById('monitorName').value.trim();
+            const keywordsRaw = document.getElementById('monitorKeywords').value.trim();
+            const lat = parseFloat(document.getElementById('monitorLat').value);
+            const lon = parseFloat(document.getElementById('monitorLon').value);
+            const color = getSelectedMonitorColor();
+
+            if (!name) {
+                alert('Please enter a name');
+                return;
+            }
+            if (!keywordsRaw) {
+                alert('Please enter at least one keyword');
+                return;
+            }
+
+            const keywords = keywordsRaw.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+
+            const monitor = {
+                id: editId || `monitor_${Date.now()}`,
+                name,
+                keywords,
+                color,
+                lat: isNaN(lat) ? null : lat,
+                lon: isNaN(lon) ? null : lon,
+                createdAt: editId ? undefined : new Date().toISOString()
+            };
+
+            const monitors = loadMonitors();
+            if (editId) {
+                // Update existing
+                const idx = monitors.findIndex(m => m.id === editId);
+                if (idx !== -1) {
+                    monitor.createdAt = monitors[idx].createdAt;
+                    monitors[idx] = monitor;
+                }
+            } else {
+                // Add new
+                monitors.push(monitor);
+            }
+
+            saveMonitors(monitors);
+            closeMonitorForm();
+            renderMonitorsList();
+            refreshAll(); // Refresh to show on map and in panel
+        }
+
+        // Edit a monitor
+        function editMonitor(id) {
+            openMonitorForm(id);
+        }
+
+        // Delete a monitor
+        function deleteMonitor(id) {
+            if (!confirm('Delete this monitor?')) return;
+            const monitors = loadMonitors().filter(m => m.id !== id);
+            saveMonitors(monitors);
+            renderMonitorsList();
+            refreshAll();
+        }
+
+        // Scan news for monitor matches
+        function scanMonitorsForMatches(allNews) {
+            const monitors = loadMonitors();
+            const results = {};
+
+            monitors.forEach(monitor => {
+                const matches = [];
+                allNews.forEach(item => {
+                    const title = (item.title || '').toLowerCase();
+                    const matched = monitor.keywords.some(kw => title.includes(kw));
+                    if (matched) {
+                        matches.push({
+                            title: item.title,
+                            link: item.link,
+                            source: item.source,
+                            monitorId: monitor.id,
+                            monitorName: monitor.name,
+                            monitorColor: monitor.color
+                        });
+                    }
+                });
+                results[monitor.id] = {
+                    monitor,
+                    matches: matches.slice(0, 10), // Limit per monitor
+                    count: matches.length
+                };
+            });
+
+            return results;
+        }
+
+        // Render the My Monitors panel
+        function renderMonitorsPanel(allNews) {
+            const panel = document.getElementById('monitorsPanel');
+            const countEl = document.getElementById('monitorsCount');
+            if (!panel) return;
+
+            const monitors = loadMonitors();
+            if (monitors.length === 0) {
+                panel.innerHTML = `
+                    <div class="monitors-empty">
+                        No monitors configured
+                        <div class="monitors-empty-hint">Click Settings → Add Monitor to get started</div>
+                    </div>
+                `;
+                countEl.textContent = '-';
+                return;
+            }
+
+            const results = scanMonitorsForMatches(allNews);
+            let allMatches = [];
+
+            Object.values(results).forEach(r => {
+                allMatches = allMatches.concat(r.matches);
+            });
+
+            if (allMatches.length === 0) {
+                panel.innerHTML = `
+                    <div class="monitors-empty">
+                        No matches found
+                        <div class="monitors-empty-hint">Your ${monitors.length} monitor(s) found no matching headlines</div>
+                    </div>
+                `;
+                countEl.textContent = '0';
+                return;
+            }
+
+            // Sort by most recent (based on order in allNews)
+            countEl.textContent = allMatches.length;
+            panel.innerHTML = allMatches.slice(0, 20).map(match => `
+                <div class="monitor-match">
+                    <div class="monitor-match-header">
+                        <div class="monitor-match-dot" style="background: ${match.monitorColor};"></div>
+                        <span class="monitor-match-name">${match.monitorName}</span>
+                    </div>
+                    <a href="${match.link}" target="_blank" class="monitor-match-title">${match.title}</a>
+                    <div class="monitor-match-source">${match.source || 'News'}</div>
+                </div>
+            `).join('');
+        }
+
+        // Get monitor data for map hotspots
+        function getMonitorHotspots(allNews) {
+            const monitors = loadMonitors().filter(m => m.lat && m.lon);
+            const results = scanMonitorsForMatches(allNews);
+
+            return monitors.map(m => ({
+                ...m,
+                matchCount: results[m.id]?.count || 0,
+                matches: results[m.id]?.matches || []
+            }));
         }
 
         // Fetch Congressional trades - uses news RSS since APIs are locked down
@@ -5706,6 +6640,11 @@
                         subtitle: 'US-Denmark tensions over Arctic territory',
                         criticalKeywords: ['purchase', 'trump', 'military', 'takeover', 'independence', 'referendum']
                     });
+                }
+
+                // Render My Monitors panel with all news
+                if (isPanelEnabled('monitors')) {
+                    renderMonitorsPanel(allNews);
                 }
 
                 const now = new Date();
