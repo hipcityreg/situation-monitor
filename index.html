@@ -9,6 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            caret-color: transparent;
         }
 
         :root {
@@ -21,6 +22,11 @@
             --red: #ff4444;
             --green: #44ff88;
             --yellow: #ffaa00;
+        }
+
+        ::selection {
+            background: var(--green);
+            color: var(--bg);
         }
 
         body {
