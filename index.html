@@ -8286,6 +8286,7 @@
                     .filter(f => f.properties.mag >= 4.0) // Only M4.0+
                     .slice(0, 15)
                     .map(f => ({
+                        id: f.id,
                         mag: f.properties.mag,
                         place: f.properties.place,
                         time: f.properties.time,
