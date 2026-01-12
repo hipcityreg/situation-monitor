@@ -23,7 +23,7 @@
 	let isInitialized = $state(false);
 	let initError = $state<string | null>(null);
 	let showArcs = $state(true);
-	let legendExpanded = $state(false);
+	let legendExpanded = $state(true); // Start expanded so users can see the legend
 
 	// Interaction state - prevents rotation during user interaction
 	let isUserInteracting = $state(false);
@@ -53,16 +53,16 @@
 		level?: string;
 	}
 
-	// Get points data
+	// Get points data - sizes match design system (smaller dots with glow)
 	function getPointsData(): PointData[] {
 		const points: PointData[] = [];
 
-		// Add hotspots
+		// Add hotspots - scaled for visibility without overwhelming
 		HOTSPOTS.forEach((h) => {
 			points.push({
 				lat: h.lat,
 				lng: h.lon,
-				size: h.level === 'critical' ? 0.8 : h.level === 'high' ? 0.6 : 0.4,
+				size: h.level === 'critical' ? 0.5 : h.level === 'high' ? 0.4 : 0.3,
 				color: THREAT_COLORS[h.level],
 				label: h.name,
 				type: 'hotspot',
@@ -71,59 +71,59 @@
 			});
 		});
 
-		// Add chokepoints
+		// Add chokepoints - cyan accent
 		CHOKEPOINTS.forEach((cp) => {
 			points.push({
 				lat: cp.lat,
 				lng: cp.lon,
-				size: 0.3,
-				color: '#00aaff',
+				size: 0.25,
+				color: '#06b6d4', // cyan-500 from design system
 				label: cp.name,
 				type: 'chokepoint',
 				desc: cp.desc
 			});
 		});
 
-		// Add cable landings
+		// Add cable landings - purple
 		CABLE_LANDINGS.forEach((cl) => {
 			points.push({
 				lat: cl.lat,
 				lng: cl.lon,
-				size: 0.25,
-				color: '#aa44ff',
+				size: 0.2,
+				color: '#a855f7', // purple-500
 				label: cl.name,
 				type: 'cable',
 				desc: cl.desc
 			});
 		});
 
-		// Add nuclear sites
+		// Add nuclear sites - amber warning
 		NUCLEAR_SITES.forEach((ns) => {
 			points.push({
 				lat: ns.lat,
 				lng: ns.lon,
-				size: 0.35,
-				color: '#ffff00',
+				size: 0.3,
+				color: '#f59e0b', // amber-500 from design system
 				label: ns.name,
 				type: 'nuclear',
 				desc: ns.desc
 			});
 		});
 
-		// Add military bases
+		// Add military bases - magenta
 		MILITARY_BASES.forEach((mb) => {
 			points.push({
 				lat: mb.lat,
 				lng: mb.lon,
-				size: 0.4,
-				color: '#ff00ff',
+				size: 0.3,
+				color: '#ec4899', // pink-500
 				label: mb.name,
 				type: 'military',
 				desc: mb.desc
 			});
 		});
 
-		// Add custom monitors
+		// Add custom monitors - cyan accent
 		monitors
 			.filter((m) => m.enabled && m.location)
 			.forEach((m) => {
@@ -131,8 +131,8 @@
 					points.push({
 						lat: m.location.lat,
 						lng: m.location.lon,
-						size: 0.5,
-						color: m.color || '#00ffff',
+						size: 0.35,
+						color: m.color || '#06b6d4', // cyan-500
 						label: m.name,
 						type: 'monitor',
 						desc: `Custom monitor: ${m.keywords?.join(', ') || 'No keywords'}`
@@ -414,13 +414,13 @@
 				.atmosphereAltitude(0.15)
 				// Show subtle graticules (lat/lon grid)
 				.showGraticules(true)
-				// Points - improved visibility and larger hit area for interaction
+				// Points - smaller dots with glow effect per design system
 				.pointsData(getPointsData())
-				.pointAltitude((d: PointData) => d.size * 0.04)
+				.pointAltitude((d: PointData) => d.size * 0.02) // Lower altitude for subtler dots
 				.pointColor('color')
-				.pointRadius(1.2) // Increased from 0.5 for easier targeting
+				.pointRadius(0.8) // Balanced size for visibility and targeting
 				.pointsMerge(false)
-				.pointResolution(16) // Higher resolution for smoother points
+				.pointResolution(12) // Good resolution for smooth circles
 				// Point interaction - hover and click
 				.onPointHover(handlePointHover)
 				.onPointClick(handlePointClick)
@@ -798,7 +798,7 @@
 	/* Globe Tooltip Styles - following Aegis design system */
 	.globe-tooltip {
 		position: absolute;
-		z-index: 100;
+		z-index: 200; /* Above all page overlays */
 		background: rgb(15 23 42 / 0.95);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
@@ -1067,24 +1067,28 @@
 	}
 
 	.legend-marker.chokepoint {
-		background: #00aaff;
+		background: #06b6d4; /* cyan-500 */
+		box-shadow: 0 0 4px #06b6d4;
 	}
 
 	.legend-marker.cable {
-		background: #aa44ff;
+		background: #a855f7; /* purple-500 */
+		box-shadow: 0 0 4px #a855f7;
 	}
 
 	.legend-marker.nuclear {
-		background: #ffff00;
+		background: #f59e0b; /* amber-500 */
+		box-shadow: 0 0 4px #f59e0b;
 	}
 
 	.legend-marker.military {
-		background: #ff00ff;
+		background: #ec4899; /* pink-500 */
+		box-shadow: 0 0 4px #ec4899;
 	}
 
 	.legend-marker.monitor {
-		background: #00ffff;
-		box-shadow: 0 0 4px #00ffff;
+		background: #06b6d4; /* cyan-500 */
+		box-shadow: 0 0 6px #06b6d4;
 	}
 
 	.legend-desc {

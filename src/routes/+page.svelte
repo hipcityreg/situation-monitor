@@ -352,22 +352,6 @@
 						</div>
 					</div>
 
-					<!-- Legend overlay -->
-					<div class="globe-legend">
-						<div class="legend-item">
-							<span class="legend-dot critical"></span>
-							<span class="legend-label">CRITICAL</span>
-						</div>
-						<div class="legend-item">
-							<span class="legend-dot high"></span>
-							<span class="legend-label">HIGH</span>
-						</div>
-						<div class="legend-item">
-							<span class="legend-dot medium"></span>
-							<span class="legend-label">MEDIUM</span>
-						</div>
-					</div>
-
 					<!-- Alert overlay at bottom -->
 					<div class="alert-overlay">
 						<div class="alert-content">
@@ -832,59 +816,6 @@
 		font-weight: 700;
 		letter-spacing: 0.15em;
 		color: white;
-		text-transform: uppercase;
-	}
-
-	/* Globe Legend */
-	.globe-legend {
-		position: absolute;
-		top: 0.75rem;
-		right: 0.75rem;
-		z-index: 15;
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		background: rgb(15 23 42 / 0.9);
-		backdrop-filter: blur(8px);
-		padding: 0.5rem 0.75rem;
-		border: 1px solid rgb(51 65 85 / 0.5);
-		border-radius: 2px;
-		pointer-events: none;
-	}
-
-	.legend-item {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.legend-dot {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-	}
-
-	.legend-dot.critical {
-		background: rgb(239 68 68);
-		box-shadow: 0 0 8px rgb(239 68 68);
-	}
-
-	.legend-dot.high {
-		background: rgb(251 191 36);
-		box-shadow: 0 0 8px rgb(251 191 36 / 0.5);
-	}
-
-	.legend-dot.medium {
-		background: rgb(34 211 238);
-		box-shadow: 0 0 8px rgb(34 211 238 / 0.5);
-	}
-
-	.legend-label {
-		font-size: 0.5625rem;
-		font-weight: 700;
-		font-family: 'SF Mono', Monaco, monospace;
-		letter-spacing: 0.1em;
-		color: rgb(148 163 184);
 		text-transform: uppercase;
 	}
 
