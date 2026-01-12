@@ -17,129 +17,51 @@
 		showDescription = false,
 		compact = false
 	}: Props = $props();
+
+	const isAlertItem = $derived(showAlert && item.isAlert);
 </script>
 
-<div class="news-item" class:alert={showAlert && item.isAlert} class:compact>
+<div
+	class="cursor-pointer transition-colors hover:bg-white/5 {compact ? 'py-1.5' : 'py-2'} {isAlertItem
+		? 'bg-red-950/50 border-l-2 border-red-500 -mx-2 px-2 rounded-sm'
+		: 'border-b border-slate-800 last:border-b-0'}"
+>
 	{#if showSource}
-		<div class="item-source">
+		<div class="text-[10px] font-mono text-slate-400 uppercase tracking-wide mb-0.5 flex items-center gap-1.5">
 			{item.source}
-			{#if showAlert && item.isAlert}
-				<span class="alert-tag">ALERT</span>
+			{#if isAlertItem}
+				<span class="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-sm font-bold tracking-wide">
+					ALERT
+				</span>
 			{/if}
 		</div>
 	{/if}
 
-	<a class="item-title" href={item.link} target="_blank" rel="noopener noreferrer">
+	<a
+		class="block text-xs font-bold leading-snug text-slate-200 no-underline transition-colors hover:text-cyan-400 {compact
+			? 'text-[11px]'
+			: ''}"
+		href={item.link}
+		target="_blank"
+		rel="noopener noreferrer"
+	>
 		{item.title}
 	</a>
 
 	{#if showDescription && item.description}
-		<p class="item-description">{item.description}</p>
+		<p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed border-l-2 border-slate-700 pl-2">
+			{item.description}
+		</p>
 	{/if}
 
-	<div class="item-meta">
-		<span class="item-time">{timeAgo(item.timestamp)}</span>
+	<div class="flex items-center gap-2 mt-1">
+		<span class="text-[10px] font-mono text-slate-500">{timeAgo(item.timestamp)}</span>
 		{#if item.region}
-			<span class="item-region">{item.region}</span>
+			<span
+				class="text-[9px] font-mono text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded-sm border border-cyan-400/30 uppercase tracking-wide"
+			>
+				{item.region}
+			</span>
 		{/if}
 	</div>
 </div>
-
-<style>
-	.news-item {
-		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border-divider);
-		transition: background-color 0.15s;
-	}
-
-	.news-item:last-child {
-		border-bottom: none;
-	}
-
-	.news-item.compact {
-		padding: 0.35rem 0;
-	}
-
-	.news-item.alert {
-		background: var(--critical-bg);
-		margin: 0 -0.5rem;
-		padding: 0.5rem;
-		border-radius: 2px;
-		border: 1px solid var(--critical-border);
-		border-bottom: 1px solid var(--critical-border);
-	}
-
-	.item-source {
-		font-size: 0.5625rem;
-		font-family: 'SF Mono', Monaco, monospace;
-		color: var(--text-dim);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.2rem;
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-	}
-
-	.alert-tag {
-		background: var(--danger);
-		color: white;
-		font-size: 0.5rem;
-		padding: 0.1rem 0.3rem;
-		border-radius: 2px;
-		font-weight: 700;
-		letter-spacing: 0.05em;
-	}
-
-	.item-title {
-		display: block;
-		font-size: 0.7rem;
-		line-height: 1.35;
-		color: var(--text);
-		text-decoration: none;
-		transition: color 0.15s;
-	}
-
-	.item-title:hover {
-		color: var(--accent);
-	}
-
-	.compact .item-title {
-		font-size: 0.65rem;
-		line-height: 1.3;
-	}
-
-	.item-description {
-		font-size: 0.6rem;
-		color: var(--text-secondary);
-		margin: 0.3rem 0 0;
-		line-height: 1.4;
-		border-left: 2px solid var(--border-default);
-		padding-left: 0.5rem;
-	}
-
-	.item-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-top: 0.25rem;
-	}
-
-	.item-time {
-		font-size: 0.5625rem;
-		font-family: 'SF Mono', Monaco, monospace;
-		color: var(--text-muted);
-	}
-
-	.item-region {
-		font-size: 0.5rem;
-		font-family: 'SF Mono', Monaco, monospace;
-		color: var(--accent);
-		background: rgba(34, 211, 238, 0.1);
-		padding: 0.1rem 0.375rem;
-		border-radius: 2px;
-		border: 1px solid var(--accent-border);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-</style>

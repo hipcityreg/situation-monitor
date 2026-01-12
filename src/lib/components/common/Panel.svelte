@@ -93,17 +93,18 @@
 
 <style>
 	.panel {
-		/* Glass morphism effect */
-		background: var(--surface);
-		backdrop-filter: blur(12px);
+		/* Glass morphism effect - Aegis design system */
+		background: rgb(2 6 23 / 0.8); /* bg-slate-950/80 */
+		backdrop-filter: blur(12px); /* backdrop-blur-md */
 		-webkit-backdrop-filter: blur(12px);
-		border: 1px solid var(--border);
+		border: 1px solid rgb(51 65 85 / 0.5); /* border-slate-700/50 */
 		border-radius: 2px;
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
 		position: relative;
 		isolation: isolate;
+		/* shadow-2xl */
 		box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 	}
 
@@ -115,7 +116,7 @@
 		cursor: grabbing;
 	}
 
-	/* Tech Corner Decorations */
+	/* Tech Corner Decorations - using cyan-400/60 per design system */
 	.tech-corner {
 		position: absolute;
 		width: 8px;
@@ -127,39 +128,39 @@
 	.tech-corner.top-left {
 		top: 0;
 		left: 0;
-		border-top: 2px solid var(--accent-border);
-		border-left: 2px solid var(--accent-border);
+		border-top: 2px solid rgb(34 211 238 / 0.6); /* cyan-400/60 */
+		border-left: 2px solid rgb(34 211 238 / 0.6);
 	}
 
 	.tech-corner.top-right {
 		top: 0;
 		right: 0;
-		border-top: 2px solid var(--accent-border);
-		border-right: 2px solid var(--accent-border);
+		border-top: 2px solid rgb(34 211 238 / 0.6);
+		border-right: 2px solid rgb(34 211 238 / 0.6);
 	}
 
 	.tech-corner.bottom-left {
 		bottom: 0;
 		left: 0;
-		border-bottom: 2px solid var(--accent-border);
-		border-left: 2px solid var(--accent-border);
+		border-bottom: 2px solid rgb(34 211 238 / 0.6);
+		border-left: 2px solid rgb(34 211 238 / 0.6);
 	}
 
 	.tech-corner.bottom-right {
 		bottom: 0;
 		right: 0;
-		border-bottom: 2px solid var(--accent-border);
-		border-right: 2px solid var(--accent-border);
+		border-bottom: 2px solid rgb(34 211 238 / 0.6);
+		border-right: 2px solid rgb(34 211 238 / 0.6);
 	}
 
 	.panel-header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 0.5rem 0.75rem;
-		background: var(--surface-solid);
-		border-bottom: 1px solid var(--border-divider);
-		min-height: 2rem;
+		padding: 0.5rem; /* p-2 (8px) per design system */
+		background: rgb(15 23 42 / 0.9); /* slate-900/90 */
+		border-bottom: 1px solid rgb(51 65 85 / 0.5); /* border-slate-700/50 */
+		min-height: 2.5rem;
 	}
 
 	.panel-title-row {
@@ -169,30 +170,33 @@
 	}
 
 	.panel-title {
-		font-size: 0.65rem;
+		/* text-sm (14px), font-bold, uppercase, tracking-widest per design system */
+		font-size: 0.875rem; /* 14px */
 		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: 0.15em;
-		color: var(--text-primary);
+		letter-spacing: 0.1em; /* tracking-widest */
+		color: rgb(226 232 240); /* text-slate-200 */
 		margin: 0;
 	}
 
 	.panel-count {
-		font-size: 0.625rem;
+		/* text-[10px] for metadata per design system */
+		font-size: 0.625rem; /* 10px */
 		font-weight: 700;
 		font-family: 'SF Mono', Monaco, monospace;
-		color: var(--accent);
-		background: rgba(34, 211, 238, 0.1);
-		padding: 0.1rem 0.4rem;
+		color: rgb(34 211 238); /* cyan-400 */
+		background: rgb(34 211 238 / 0.1); /* cyan-400/10 */
+		padding: 0.125rem 0.5rem;
 		border-radius: 2px;
-		border: 1px solid var(--accent-border);
+		border: 1px solid rgb(34 211 238 / 0.3); /* cyan-400/30 */
 	}
 
 	.panel-status {
-		font-size: 0.625rem;
+		/* text-[10px] for metadata per design system */
+		font-size: 0.625rem; /* 10px */
 		font-weight: 700;
 		font-family: 'SF Mono', Monaco, monospace;
-		padding: 0.1rem 0.4rem;
+		padding: 0.125rem 0.5rem;
 		border-radius: 2px;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
@@ -200,28 +204,28 @@
 	}
 
 	.panel-status.monitoring {
-		color: var(--text-dim);
-		background: rgba(100, 116, 139, 0.1);
-		border-color: var(--border);
+		color: rgb(148 163 184); /* slate-400 */
+		background: rgb(100 116 139 / 0.1); /* slate-500/10 */
+		border-color: rgb(71 85 105 / 0.5); /* slate-600/50 */
 	}
 
 	.panel-status.elevated {
-		color: var(--warning);
-		background: var(--warning-bg);
-		border-color: var(--warning-border);
+		color: rgb(251 191 36); /* amber-400 */
+		background: rgb(251 191 36 / 0.1); /* amber-400/10 */
+		border-color: rgb(251 191 36 / 0.3); /* amber-400/30 */
 	}
 
 	.panel-status.critical {
-		color: var(--danger);
-		background: var(--critical-bg);
-		border-color: var(--critical-border);
+		color: rgb(248 113 113); /* red-400 */
+		background: rgb(248 113 113 / 0.1); /* red-400/10 */
+		border-color: rgb(248 113 113 / 0.3); /* red-400/30 */
 	}
 
 	.panel-loading {
-		width: 12px;
-		height: 12px;
-		border: 2px solid var(--border-default);
-		border-top-color: var(--accent);
+		width: 14px;
+		height: 14px;
+		border: 2px solid rgb(51 65 85); /* slate-700 */
+		border-top-color: rgb(34 211 238); /* cyan-400 */
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
@@ -235,28 +239,30 @@
 	.panel-actions {
 		display: flex;
 		align-items: center;
-		gap: 0.25rem;
+		gap: 0.375rem;
 	}
 
 	.panel-collapse-btn {
 		background: none;
 		border: none;
-		color: var(--text-dim);
+		color: rgb(148 163 184); /* slate-400 */
 		cursor: pointer;
 		padding: 0.25rem;
-		font-size: 0.5rem;
+		font-size: 0.625rem; /* 10px */
 		line-height: 1;
 		transition: color 0.15s;
 	}
 
 	.panel-collapse-btn:hover {
-		color: var(--accent);
+		color: rgb(34 211 238); /* cyan-400 */
 	}
 
 	.panel-content {
 		flex: 1;
 		overflow-y: auto;
-		padding: 0.5rem;
+		padding: 1rem; /* p-4 (16px) per design system */
+		/* text-xs (12px) for content per design system */
+		font-size: 0.75rem;
 	}
 
 	.panel-content.hidden {
@@ -264,18 +270,18 @@
 	}
 
 	.error-msg {
-		color: var(--danger);
+		color: rgb(248 113 113); /* red-400 */
 		text-align: center;
 		padding: 1rem;
-		font-size: 0.7rem;
+		font-size: 0.75rem; /* text-xs (12px) */
 		font-family: 'SF Mono', Monaco, monospace;
 	}
 
 	.loading-msg {
-		color: var(--text-dim);
+		color: rgb(148 163 184); /* slate-400 */
 		text-align: center;
 		padding: 1rem;
-		font-size: 0.7rem;
+		font-size: 0.75rem; /* text-xs (12px) */
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 	}

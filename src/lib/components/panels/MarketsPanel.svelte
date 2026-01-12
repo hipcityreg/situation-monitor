@@ -10,26 +10,12 @@
 
 <Panel id="markets" title="Markets" {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No market data available</div>
+		<div class="text-center text-slate-400 text-xs py-4">No market data available</div>
 	{:else}
-		<div class="markets-list">
+		<div class="flex flex-col">
 			{#each items as item (item.symbol)}
 				<MarketItem {item} />
 			{/each}
 		</div>
 	{/if}
 </Panel>
-
-<style>
-	.markets-list {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.empty-state {
-		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
-		padding: 1rem;
-	}
-</style>

@@ -44,6 +44,9 @@
 			<span class="btn-label">SETTINGS</span>
 		</button>
 	</div>
+
+	<!-- Gradient accent line -->
+	<div class="accent-line"></div>
 </header>
 
 <style>
@@ -61,6 +64,18 @@
 		z-index: 100;
 		gap: 1rem;
 		isolation: isolate;
+		position: relative;
+	}
+
+	/* Gradient accent line at the bottom */
+	.accent-line {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: linear-gradient(to right, transparent, var(--accent), transparent);
+		opacity: 0.6;
 	}
 
 	/* Tech Corner Decorations */
@@ -100,13 +115,15 @@
 
 	.logo-icon {
 		color: var(--accent);
-		font-size: 0.75rem;
+		font-size: 0.875rem; /* Match logo size */
+		transition: color 0.2s ease;
 	}
 
 	.logo {
-		font-size: 0.75rem;
-		font-weight: 700;
-		letter-spacing: 0.15em;
+		font-size: 0.875rem; /* text-sm (14px) per Aegis design system */
+		font-weight: 700; /* font-bold */
+		letter-spacing: 0.1em; /* tracking-widest */
+		text-transform: uppercase;
 		color: var(--text-primary);
 		margin: 0;
 	}
@@ -130,11 +147,12 @@
 		height: 6px;
 		border-radius: 50%;
 		background: var(--text-muted);
+		transition: background-color 0.2s ease, box-shadow 0.2s ease;
 	}
 
 	.status-dot.active {
 		background: var(--accent);
-		box-shadow: 0 0 10px var(--accent-glow);
+		box-shadow: 0 0 10px cyan; /* Proper glow effect per Aegis design system */
 		animation: pulse 1.5s ease-in-out infinite;
 	}
 
@@ -148,14 +166,15 @@
 	}
 
 	.status-text {
-		font-size: 0.625rem;
-		font-family: 'SF Mono', Monaco, monospace;
+		font-size: 10px; /* text-[10px] per Aegis design system */
+		font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace; /* font-mono */
 		color: var(--text-muted);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		transition: color 0.2s ease;
 	}
 
 	.status-text.active {
@@ -180,9 +199,9 @@
 		border-radius: 2px;
 		color: var(--text-dim);
 		cursor: pointer;
-		transition: all 0.15s ease;
-		font-size: 0.625rem;
-		font-family: 'SF Mono', Monaco, monospace;
+		transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+		font-size: 10px; /* text-[10px] per Aegis design system */
+		font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace; /* font-mono */
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 	}
@@ -191,6 +210,11 @@
 		background: var(--surface-hover);
 		border-color: var(--accent);
 		color: var(--accent);
+	}
+
+	.header-btn:focus-visible {
+		outline: 1px solid var(--accent);
+		outline-offset: 2px;
 	}
 
 	.btn-icon {
