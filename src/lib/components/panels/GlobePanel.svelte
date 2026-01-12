@@ -17,13 +17,18 @@
 	let { monitors = [] }: Props = $props();
 
 	let globeContainer: HTMLDivElement;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let globe: any = null;
 	let resizeObserver: ResizeObserver | null = null;
 	let isInitialized = $state(false);
 	let initError = $state<string | null>(null);
 	let showArcs = $state(true);
-	let isHovering = $state(false);
 	let legendExpanded = $state(false);
+
+	// Interaction state - prevents rotation during user interaction
+	let isUserInteracting = $state(false);
+	let tooltipLocked = $state(false);
+	let hoverResumeTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	// Tooltip state
 	let tooltipVisible = $state(false);
@@ -160,12 +165,12 @@
 			// Taiwan Strait tensions
 			{ from: 'Beijing', to: 'Taipei', color: 'rgba(251, 191, 36, 0.4)' },
 			// North Korea threat
-			{ from: 'Pyongyang', to: 'Tokyo', color: 'rgba(251, 191, 36, 0.4)' },
+			{ from: 'Pyongyang', to: 'Tokyo', color: 'rgba(251, 191, 36, 0.4)' }
 		];
 
-		const hotspotMap = new Map(HOTSPOTS.map(h => [h.name, h]));
+		const hotspotMap = new Map(HOTSPOTS.map((h) => [h.name, h]));
 
-		arcConnections.forEach(conn => {
+		arcConnections.forEach((conn) => {
 			const from = hotspotMap.get(conn.from);
 			const to = hotspotMap.get(conn.to);
 			if (from && to) {
@@ -206,7 +211,14 @@
 	}
 
 	// Handle point hover for tooltip - pauses rotation for better interaction
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	function handlePointHover(point: PointData | null, _prevPoint: PointData | null) {
+		// Clear any pending resume timeout
+		if (hoverResumeTimeout) {
+			clearTimeout(hoverResumeTimeout);
+			hoverResumeTimeout = null;
+		}
+
 		if (point) {
 			tooltipData = {
 				label: point.label,
@@ -215,17 +227,33 @@
 				level: point.level
 			};
 			tooltipVisible = true;
-			isHovering = true;
+			isUserInteracting = true;
 			// Pause auto-rotation when hovering over a point
 			pauseRotation();
+			// Change cursor to pointer to indicate clickable
+			if (globeContainer) {
+				const canvas = globeContainer.querySelector('canvas');
+				if (canvas) canvas.style.cursor = 'pointer';
+			}
 		} else {
-			tooltipVisible = false;
-			isHovering = false;
-			// Resume rotation after a short delay
-			setTimeout(() => {
-				if (!isHovering) resumeRotation();
-			}, 500);
+			// Don't hide tooltip if it's locked by click
+			if (!tooltipLocked) {
+				tooltipVisible = false;
+				tooltipData = null;
+			}
+			// Restore grab cursor
+			if (globeContainer) {
+				const canvas = globeContainer.querySelector('canvas');
+				if (canvas) canvas.style.cursor = 'grab';
+			}
+			// Resume rotation after a longer delay only if not locked
+			hoverResumeTimeout = setTimeout(() => {
+				if (!tooltipLocked && !isUserInteracting) {
+					resumeRotation();
+				}
+			}, 2000); // Increased from 500ms to 2000ms for better UX
 		}
+		isUserInteracting = !!point;
 	}
 
 	// Handle point click - locks the tooltip and pauses rotation
@@ -238,8 +266,30 @@
 				level: point.level
 			};
 			tooltipVisible = true;
+			tooltipLocked = true; // Lock tooltip on click
+			isUserInteracting = true;
 			// Keep rotation paused on click
 			pauseRotation();
+		} else {
+			// Clicking empty space unlocks the tooltip
+			if (tooltipLocked) {
+				tooltipLocked = false;
+				tooltipVisible = false;
+				tooltipData = null;
+				// Resume rotation after unlocking, with delay
+				hoverResumeTimeout = setTimeout(() => {
+					if (!isUserInteracting) resumeRotation();
+				}, 1500);
+			}
+		}
+	}
+
+	// Handle clicking empty space on globe to unlock tooltip
+	function handleGlobeClick() {
+		if (tooltipLocked) {
+			tooltipLocked = false;
+			tooltipVisible = false;
+			tooltipData = null;
 		}
 	}
 
@@ -265,26 +315,31 @@
 
 	// Handle container mouse enter/leave for rotation control
 	function handleContainerEnter() {
-		// Slow down rotation when mouse enters
+		// Stop rotation entirely when mouse enters to allow exploration
 		if (globe) {
-			const controls = globe.controls();
-			if (controls) {
-				controls.autoRotateSpeed = 0.1;
-			}
+			pauseRotation();
 		}
 	}
 
 	function handleContainerLeave() {
-		// Resume normal rotation when mouse leaves
-		if (globe) {
-			const controls = globe.controls();
-			if (controls) {
-				controls.autoRotate = true;
-				controls.autoRotateSpeed = 0.3;
-			}
+		// Clear any pending timeouts
+		if (hoverResumeTimeout) {
+			clearTimeout(hoverResumeTimeout);
+			hoverResumeTimeout = null;
 		}
-		tooltipVisible = false;
-		isHovering = false;
+
+		// Only resume if tooltip not locked
+		if (!tooltipLocked) {
+			tooltipVisible = false;
+			tooltipData = null;
+			isUserInteracting = false;
+			// Resume rotation after a delay when mouse leaves completely
+			hoverResumeTimeout = setTimeout(() => {
+				if (!tooltipLocked) {
+					resumeRotation();
+				}
+			}, 1000);
+		}
 	}
 
 	// Toggle arcs visibility
@@ -359,16 +414,18 @@
 				.atmosphereAltitude(0.15)
 				// Show subtle graticules (lat/lon grid)
 				.showGraticules(true)
-				// Points - improved visibility and size
+				// Points - improved visibility and larger hit area for interaction
 				.pointsData(getPointsData())
-				.pointAltitude((d: PointData) => d.size * 0.03)
+				.pointAltitude((d: PointData) => d.size * 0.04)
 				.pointColor('color')
-				.pointRadius(0.5)
+				.pointRadius(1.2) // Increased from 0.5 for easier targeting
 				.pointsMerge(false)
-				.pointResolution(12)
+				.pointResolution(16) // Higher resolution for smoother points
 				// Point interaction - hover and click
 				.onPointHover(handlePointHover)
 				.onPointClick(handlePointClick)
+				// Globe click to dismiss locked tooltip
+				.onGlobeClick(handleGlobeClick)
 				// Labels - only show for critical/high to reduce clutter
 				.labelsData(getLabelsData())
 				.labelText('text')
@@ -410,6 +467,7 @@
 			const scene = globe.scene();
 			if (scene) {
 				// The globe.gl library sets up lighting, we can enhance it
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				scene.traverse((obj: any) => {
 					if (obj.type === 'AmbientLight') {
 						obj.intensity = 0.8;
@@ -471,6 +529,10 @@
 	});
 
 	onDestroy(() => {
+		// Clean up timeout
+		if (hoverResumeTimeout) {
+			clearTimeout(hoverResumeTimeout);
+		}
 		if (resizeObserver) {
 			resizeObserver.disconnect();
 		}
@@ -513,18 +575,10 @@
 			>
 				<span class="control-icon">⌇</span>
 			</button>
-			<button
-				class="control-btn"
-				onclick={() => resumeRotation()}
-				title="Resume rotation"
-			>
+			<button class="control-btn" onclick={() => resumeRotation()} title="Resume rotation">
 				<span class="control-icon">↻</span>
 			</button>
-			<button
-				class="control-btn"
-				onclick={() => pauseRotation()}
-				title="Pause rotation"
-			>
+			<button class="control-btn" onclick={() => pauseRotation()} title="Pause rotation">
 				<span class="control-icon">⏸</span>
 			</button>
 		</div>
@@ -533,14 +587,14 @@
 	<!-- Globe Legend -->
 	{#if isInitialized}
 		<div class="globe-legend" class:expanded={legendExpanded}>
-			<button class="legend-toggle" onclick={() => legendExpanded = !legendExpanded}>
+			<button class="legend-toggle" onclick={() => (legendExpanded = !legendExpanded)}>
 				<span class="legend-toggle-text">LEGEND</span>
 				<span class="legend-toggle-icon">{legendExpanded ? '▼' : '▲'}</span>
 			</button>
 			{#if legendExpanded}
 				<div class="legend-content">
 					<div class="legend-section">
-						<span class="legend-section-title">THREAT LEVELS</span>
+						<span class="legend-section-title">THREAT LEVELS (HOTSPOTS)</span>
 						<div class="legend-items">
 							<div class="legend-item">
 								<span class="legend-dot critical"></span>
@@ -561,15 +615,15 @@
 						</div>
 					</div>
 					<div class="legend-section">
-						<span class="legend-section-title">MARKERS</span>
+						<span class="legend-section-title">INFRASTRUCTURE MARKERS</span>
 						<div class="legend-items">
 							<div class="legend-item">
 								<span class="legend-marker chokepoint"></span>
-								<span class="legend-label">Chokepoint</span>
+								<span class="legend-label">Shipping Chokepoint</span>
 							</div>
 							<div class="legend-item">
 								<span class="legend-marker cable"></span>
-								<span class="legend-label">Cable Landing</span>
+								<span class="legend-label">Undersea Cable</span>
 							</div>
 							<div class="legend-item">
 								<span class="legend-marker nuclear"></span>
@@ -579,23 +633,49 @@
 								<span class="legend-marker military"></span>
 								<span class="legend-label">Military Base</span>
 							</div>
+							<div class="legend-item">
+								<span class="legend-marker monitor"></span>
+								<span class="legend-label">Custom Monitor</span>
+							</div>
 						</div>
 					</div>
 					<div class="legend-section">
-						<span class="legend-section-title">FEATURES</span>
-						<div class="legend-items">
+						<span class="legend-section-title">TENSION CORRIDORS</span>
+						<div class="legend-desc">
+							Animated arcs show intel/influence flows between geopolitically connected high-threat
+							areas:
+						</div>
+						<div class="legend-items arc-list">
 							<div class="legend-item">
-								<span class="legend-arc"></span>
-								<span class="legend-label">Tension Corridor</span>
+								<span class="legend-arc red"></span>
+								<span class="legend-label">Moscow ↔ Kyiv</span>
 							</div>
 							<div class="legend-item">
+								<span class="legend-arc red"></span>
+								<span class="legend-label">Tehran ↔ Tel Aviv</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-arc amber"></span>
+								<span class="legend-label">Beijing ↔ Taipei</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-arc amber"></span>
+								<span class="legend-label">Pyongyang ↔ Tokyo</span>
+							</div>
+						</div>
+					</div>
+					<div class="legend-section">
+						<span class="legend-section-title">ALERTS</span>
+						<div class="legend-items">
+							<div class="legend-item">
 								<span class="legend-ring"></span>
-								<span class="legend-label">Critical Alert Ring</span>
+								<span class="legend-label">Critical Hotspot Pulse</span>
 							</div>
 						</div>
 					</div>
 					<div class="legend-hint">
-						Hover over markers for details. Click to lock tooltip. Drag to rotate.
+						Hover markers for details. Click to lock tooltip. Click empty space to unlock. Drag to
+						rotate globe.
 					</div>
 				</div>
 			{/if}
@@ -604,16 +684,23 @@
 
 	<!-- Interactive Tooltip -->
 	{#if tooltipVisible && tooltipData}
-		<div
-			class="globe-tooltip"
-			style="left: {tooltipX}px; top: {tooltipY}px;"
-		>
+		<div class="globe-tooltip" style="left: {tooltipX}px; top: {tooltipY}px;">
 			<div class="tooltip-header">
-				<span class="tooltip-type" class:critical={tooltipData.level === 'critical'} class:high={tooltipData.level === 'high'} class:elevated={tooltipData.level === 'elevated'}>
+				<span
+					class="tooltip-type"
+					class:critical={tooltipData.level === 'critical'}
+					class:high={tooltipData.level === 'high'}
+					class:elevated={tooltipData.level === 'elevated'}
+				>
 					{getTypeLabel(tooltipData.type)}
 				</span>
 				{#if tooltipData.level}
-					<span class="tooltip-level" class:critical={tooltipData.level === 'critical'} class:high={tooltipData.level === 'high'} class:elevated={tooltipData.level === 'elevated'}>
+					<span
+						class="tooltip-level"
+						class:critical={tooltipData.level === 'critical'}
+						class:high={tooltipData.level === 'high'}
+						class:elevated={tooltipData.level === 'elevated'}
+					>
 						{tooltipData.level.toUpperCase()}
 					</span>
 				{/if}
@@ -878,8 +965,10 @@
 		-webkit-backdrop-filter: blur(12px);
 		border: 1px solid rgb(51 65 85 / 0.5);
 		border-radius: 2px;
-		min-width: 140px;
-		max-width: 200px;
+		min-width: 160px;
+		max-width: 240px;
+		max-height: 70%;
+		overflow-y: auto;
 	}
 
 	.legend-toggle {
@@ -993,12 +1082,73 @@
 		background: #ff00ff;
 	}
 
+	.legend-marker.monitor {
+		background: #00ffff;
+		box-shadow: 0 0 4px #00ffff;
+	}
+
+	.legend-desc {
+		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: rgb(148 163 184);
+		line-height: 1.4;
+		margin: 0.25rem 0;
+	}
+
+	.legend-items.arc-list {
+		margin-top: 0.25rem;
+	}
+
 	.legend-arc {
 		width: 16px;
 		height: 2px;
-		background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.6), transparent);
 		border-radius: 1px;
 		flex-shrink: 0;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.legend-arc::after {
+		content: '';
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		animation: arc-flow 1.5s linear infinite;
+	}
+
+	.legend-arc.red {
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			rgba(239, 68, 68, 0.7) 50%,
+			transparent 100%
+		);
+	}
+
+	.legend-arc.red::after {
+		background: linear-gradient(90deg, transparent, rgba(255, 100, 100, 0.9), transparent);
+	}
+
+	.legend-arc.amber {
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			rgba(251, 191, 36, 0.7) 50%,
+			transparent 100%
+		);
+	}
+
+	.legend-arc.amber::after {
+		background: linear-gradient(90deg, transparent, rgba(255, 220, 100, 0.9), transparent);
+	}
+
+	@keyframes arc-flow {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
 	}
 
 	.legend-ring {
@@ -1011,7 +1161,8 @@
 	}
 
 	@keyframes legend-pulse {
-		0%, 100% {
+		0%,
+		100% {
 			opacity: 1;
 			transform: scale(1);
 		}
@@ -1041,12 +1192,16 @@
 	/* Responsive adjustments for legend */
 	@media (max-width: 480px) {
 		.globe-legend {
-			min-width: 120px;
-			max-width: 160px;
+			min-width: 140px;
+			max-width: 200px;
 		}
 
 		.legend-label {
 			font-size: 0.5rem;
+		}
+
+		.legend-desc {
+			font-size: 0.4375rem;
 		}
 	}
 </style>

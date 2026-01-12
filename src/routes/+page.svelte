@@ -23,7 +23,18 @@
 		WorldLeadersPanel,
 		PrinterPanel
 	} from '$lib/components/panels';
-	import { news, markets, monitors, settings, refresh, allNewsItems, layoutSettings, leftPanels, rightPanels, bottomPanels } from '$lib/stores';
+	import {
+		news,
+		markets,
+		monitors,
+		settings,
+		refresh,
+		allNewsItems,
+		layoutSettings,
+		leftPanels,
+		rightPanels,
+		bottomPanels
+	} from '$lib/stores';
 	import { DropZone } from '$lib/components/common';
 	import {
 		fetchAllNewsWithErrors,
@@ -298,8 +309,16 @@
 								title: 'Iran Crisis',
 								subtitle: 'Revolution protests, regime instability & nuclear program',
 								criticalKeywords: [
-									'protest', 'uprising', 'revolution', 'crackdown', 'killed',
-									'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
+									'protest',
+									'uprising',
+									'revolution',
+									'crackdown',
+									'killed',
+									'nuclear',
+									'strike',
+									'attack',
+									'irgc',
+									'khamenei'
 								]
 							}}
 							news={$allNewsItems.filter(
@@ -456,8 +475,16 @@
 								title: 'Iran Crisis',
 								subtitle: 'Revolution protests, regime instability & nuclear program',
 								criticalKeywords: [
-									'protest', 'uprising', 'revolution', 'crackdown', 'killed',
-									'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
+									'protest',
+									'uprising',
+									'revolution',
+									'crackdown',
+									'killed',
+									'nuclear',
+									'strike',
+									'attack',
+									'irgc',
+									'khamenei'
 								]
 							}}
 							news={$allNewsItems.filter(
@@ -556,8 +583,16 @@
 						title: 'Iran Crisis',
 						subtitle: 'Revolution protests, regime instability & nuclear program',
 						criticalKeywords: [
-							'protest', 'uprising', 'revolution', 'crackdown', 'killed',
-							'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
+							'protest',
+							'uprising',
+							'revolution',
+							'crackdown',
+							'killed',
+							'nuclear',
+							'strike',
+							'attack',
+							'irgc',
+							'khamenei'
 						]
 					}}
 					news={$allNewsItems.filter(
@@ -619,7 +654,12 @@
 	.gradient-overlay {
 		position: fixed;
 		inset: 0;
-		background: linear-gradient(45deg, transparent 25%, rgba(6, 182, 212, 0.02) 50%, transparent 75%);
+		background: linear-gradient(
+			45deg,
+			transparent 25%,
+			rgba(6, 182, 212, 0.02) 50%,
+			transparent 75%
+		);
 		pointer-events: none;
 		z-index: 2;
 	}

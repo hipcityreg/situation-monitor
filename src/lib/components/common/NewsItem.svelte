@@ -22,15 +22,21 @@
 </script>
 
 <div
-	class="cursor-pointer transition-colors hover:bg-white/5 {compact ? 'py-1.5' : 'py-2'} {isAlertItem
+	class="cursor-pointer transition-colors hover:bg-white/5 {compact
+		? 'py-1.5'
+		: 'py-2'} {isAlertItem
 		? 'bg-red-950/50 border-l-2 border-red-500 -mx-2 px-2 rounded-sm'
 		: 'border-b border-slate-800 last:border-b-0'}"
 >
 	{#if showSource}
-		<div class="text-[10px] font-mono text-slate-400 uppercase tracking-wide mb-0.5 flex items-center gap-1.5">
+		<div
+			class="text-[10px] font-mono text-slate-400 uppercase tracking-wide mb-0.5 flex items-center gap-1.5"
+		>
 			{item.source}
 			{#if isAlertItem}
-				<span class="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-sm font-bold tracking-wide">
+				<span
+					class="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-sm font-bold tracking-wide"
+				>
 					ALERT
 				</span>
 			{/if}

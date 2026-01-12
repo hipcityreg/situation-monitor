@@ -43,7 +43,7 @@ export default {
 				'success-border': 'rgb(6 95 70 / 0.5)', // emerald-800/50
 
 				// Info (Cyan alias)
-				info: 'rgb(34 211 238)', // cyan-400
+				info: 'rgb(34 211 238)' // cyan-400
 			},
 			fontFamily: {
 				sans: ['Geist Sans', 'SF Pro Display', 'system-ui', 'sans-serif'],
@@ -51,21 +51,21 @@ export default {
 			},
 			fontSize: {
 				'2xs': '0.65rem',
-				'micro': '0.625rem', // 10px
-				'nano': '0.5625rem', // 9px
+				micro: '0.625rem', // 10px
+				nano: '0.5625rem' // 9px
 			},
 			borderRadius: {
-				'sm': '2px',
-				DEFAULT: '4px',
+				sm: '2px',
+				DEFAULT: '4px'
 			},
 			boxShadow: {
 				'glow-cyan': '0 0 10px rgb(6 182 212)',
 				'glow-amber': '0 0 15px rgba(245, 158, 11, 0.5)',
-				'glow-red': '0 0 10px rgba(239, 68, 68, 0.5)',
+				'glow-red': '0 0 10px rgba(239, 68, 68, 0.5)'
 			},
 			animation: {
 				shimmer: 'shimmer 1.5s infinite',
-				pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			},
 			keyframes: {
 				shimmer: {

@@ -19,7 +19,10 @@
 		settings.reset();
 	}
 
-	function handleLayoutChange(key: 'leftColumnWidth' | 'rightColumnWidth' | 'bottomPanelHeight', value: number) {
+	function handleLayoutChange(
+		key: 'leftColumnWidth' | 'rightColumnWidth' | 'bottomPanelHeight',
+		value: number
+	) {
 		settings.updateLayout({ [key]: value });
 	}
 
@@ -77,7 +80,8 @@
 						max="350"
 						step="10"
 						value={$settings.layout.bottomPanelHeight}
-						oninput={(e) => handleLayoutChange('bottomPanelHeight', parseInt(e.currentTarget.value))}
+						oninput={(e) =>
+							handleLayoutChange('bottomPanelHeight', parseInt(e.currentTarget.value))}
 						class="range-slider"
 					/>
 				</label>

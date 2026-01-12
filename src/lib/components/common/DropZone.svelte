@@ -16,9 +16,7 @@
 	let isOver = $state(false);
 	let dropIndex = $state(0);
 
-	const isTargeted = $derived(
-		$currentDropTarget?.zone === zone && $isDragging
-	);
+	const isTargeted = $derived($currentDropTarget?.zone === zone && $isDragging);
 
 	function handleDragOver(event: DragEvent) {
 		if (!$isDragging) return;

@@ -14,12 +14,18 @@
 			: '--:--'
 	);
 
-	let currentTime = $state(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+	let currentTime = $state(
+		new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+	);
 
 	// Update time every second
 	$effect(() => {
 		const interval = setInterval(() => {
-			currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+			currentTime = new Date().toLocaleTimeString([], {
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit'
+			});
 		}, 1000);
 		return () => clearInterval(interval);
 	});
@@ -246,7 +252,9 @@
 		height: clamp(5px, 1vw, 6px);
 		border-radius: 50%;
 		background: var(--text-muted);
-		transition: background-color 0.2s ease, box-shadow 0.2s ease;
+		transition:
+			background-color 0.2s ease,
+			box-shadow 0.2s ease;
 	}
 
 	.status-dot.active {
@@ -261,7 +269,8 @@
 	}
 
 	@keyframes pulse {
-		0%, 100% {
+		0%,
+		100% {
 			opacity: 1;
 		}
 		50% {

@@ -124,7 +124,12 @@ a:hover {
 
 /* Shimmer loading animation */
 .shimmer {
-	background: linear-gradient(90deg, var(--surface-solid) 25%, var(--border-default) 50%, var(--surface-solid) 75%);
+	background: linear-gradient(
+		90deg,
+		var(--surface-solid) 25%,
+		var(--border-default) 50%,
+		var(--surface-solid) 75%
+	);
 	background-size: 200% 100%;
 	animation: shimmer 1.5s infinite;
 }
@@ -193,16 +198,15 @@ a:hover {
 		/* Top left */
 		linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 0,
 		linear-gradient(to bottom, var(--accent-border) 8px, transparent 8px) 0 0,
-		/* Top right */
-		linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 0,
+		/* Top right */ linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 0,
 		linear-gradient(to bottom, var(--accent-border) 8px, transparent 8px) 100% 0,
-		/* Bottom left */
-		linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 100%,
+		/* Bottom left */ linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 100%,
 		linear-gradient(to top, var(--accent-border) 8px, transparent 8px) 0 100%,
-		/* Bottom right */
-		linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 100%,
+		/* Bottom right */ linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 100%,
 		linear-gradient(to top, var(--accent-border) 8px, transparent 8px) 100% 100%;
-	background-size: 8px 2px, 2px 8px;
+	background-size:
+		8px 2px,
+		2px 8px;
 	background-repeat: no-repeat;
 }
 
@@ -407,7 +411,8 @@ a:hover {
 }
 
 @keyframes pulse {
-	0%, 100% {
+	0%,
+	100% {
 		opacity: 1;
 	}
 	50% {

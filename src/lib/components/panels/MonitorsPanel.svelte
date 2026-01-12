@@ -57,7 +57,10 @@
 						<div class="monitor-header">
 							<div class="monitor-info">
 								{#if monitor.color}
-									<span class="monitor-color" style="background: {monitor.color}; box-shadow: 0 0 8px {monitor.color}"></span>
+									<span
+										class="monitor-color"
+										style="background: {monitor.color}; box-shadow: 0 0 8px {monitor.color}"
+									></span>
 								{/if}
 								<span class="monitor-name">{monitor.name}</span>
 								{#if monitor.matchCount > 0}

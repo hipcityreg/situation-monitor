@@ -26,7 +26,9 @@
 </script>
 
 <span
-	class="inline-flex items-center font-mono uppercase tracking-wider rounded-sm border {sizeClasses[size]} {classes}"
+	class="inline-flex items-center font-mono uppercase tracking-wider rounded-sm border {sizeClasses[
+		size
+	]} {classes}"
 >
 	{text}
 </span>

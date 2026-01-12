@@ -19,7 +19,10 @@
 			{#each items as coin, i (coin.id)}
 				{@const isPositive = coin.price_change_percentage_24h >= 0}
 				<div
-					class="flex justify-between items-center py-2 px-1 hover:bg-white/5 transition-colors {i < items.length - 1 ? 'border-b border-slate-800' : ''}"
+					class="flex justify-between items-center py-2 px-1 hover:bg-white/5 transition-colors {i <
+					items.length - 1
+						? 'border-b border-slate-800'
+						: ''}"
 				>
 					<div class="flex flex-col gap-0.5">
 						<div class="text-xs font-bold text-white">{coin.name}</div>
@@ -30,7 +33,9 @@
 							{formatCurrency(coin.current_price)}
 						</div>
 						<div
-							class="text-[10px] font-mono tabular-nums {isPositive ? 'text-emerald-500' : 'text-red-500'}"
+							class="text-[10px] font-mono tabular-nums {isPositive
+								? 'text-emerald-500'
+								: 'text-red-500'}"
 						>
 							{formatPercentChange(coin.price_change_percentage_24h)}
 						</div>
