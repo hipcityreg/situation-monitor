@@ -69,3 +69,17 @@ export {
 	type StageConfig,
 	type RefreshState
 } from './refresh';
+
+// Panel Layout store (drag-drop)
+export {
+	panelLayout,
+	leftPanels,
+	rightPanels,
+	bottomPanels,
+	isDragging,
+	draggedPanelId,
+	currentDropTarget,
+	type PanelZone,
+	type PanelPosition,
+	type PanelLayoutState
+} from './panelLayout';

@@ -23,9 +23,10 @@
 		WorldLeadersPanel,
 		PrinterPanel
 	} from '$lib/components/panels';
-	import { news, markets, monitors, settings, refresh, allNewsItems, layoutSettings } from '$lib/stores';
+	import { news, markets, monitors, settings, refresh, allNewsItems, layoutSettings, leftPanels, rightPanels, bottomPanels } from '$lib/stores';
+	import { DropZone } from '$lib/components/common';
 	import {
-		fetchAllNews,
+		fetchAllNewsWithErrors,
 		fetchAllMarkets,
 		fetchPolymarket,
 		fetchWhaleTransactions,
@@ -68,9 +69,18 @@
 		categories.forEach((cat) => news.setLoading(cat, true));
 
 		try {
-			const data = await fetchAllNews();
-			Object.entries(data).forEach(([category, items]) => {
-				news.setItems(category as keyof typeof data, items);
+			const result = await fetchAllNewsWithErrors();
+
+			// Set items for each category
+			Object.entries(result.data).forEach(([category, items]) => {
+				news.setItems(category as keyof typeof result.data, items);
+			});
+
+			// Set errors for categories that failed
+			Object.entries(result.errors).forEach(([category, errorMsg]) => {
+				if (errorMsg && result.data[category as keyof typeof result.data].length === 0) {
+					news.setError(category as keyof typeof result.data, errorMsg);
+				}
 			});
 		} catch (error) {
 			categories.forEach((cat) => news.setError(cat, String(error)));
@@ -150,6 +160,11 @@
 		return $settings.enabled[id] !== false;
 	}
 
+	// Get panels for each column from the layout store, filtered by visibility
+	const leftColumnPanels = $derived($leftPanels.filter((id) => isPanelVisible(id)));
+	const rightColumnPanels = $derived($rightPanels.filter((id) => isPanelVisible(id)));
+	const bottomRowPanels = $derived($bottomPanels.filter((id) => isPanelVisible(id)));
+
 	function handleSelectPreset(presetId: string) {
 		settings.applyPreset(presetId);
 		onboardingOpen = false;
@@ -201,32 +216,102 @@
 	<main class="main-layout">
 		<!-- Left Panel Column -->
 		<aside class="panel-column left-column">
-			<div class="column-scroll">
-				<!-- Intelligence & News -->
-				{#if isPanelVisible('politics')}
-					<NewsPanel category="politics" panelId="politics" title="Politics" />
-				{/if}
-
-				{#if isPanelVisible('tech')}
-					<NewsPanel category="tech" panelId="tech" title="Tech" />
-				{/if}
-
-				{#if isPanelVisible('finance')}
-					<NewsPanel category="finance" panelId="finance" title="Finance" />
-				{/if}
-
-				{#if isPanelVisible('intel')}
-					<IntelPanel />
-				{/if}
-
-				{#if isPanelVisible('correlation')}
-					<CorrelationPanel news={$allNewsItems} />
-				{/if}
-
-				{#if isPanelVisible('narrative')}
-					<NarrativePanel news={$allNewsItems} />
-				{/if}
-			</div>
+			<DropZone zone="left" panels={leftColumnPanels} class="column-scroll">
+				{#each leftColumnPanels as panelId (panelId)}
+					{#if panelId === 'politics'}
+						<NewsPanel category="politics" panelId="politics" title="Politics" />
+					{:else if panelId === 'tech'}
+						<NewsPanel category="tech" panelId="tech" title="Tech" />
+					{:else if panelId === 'finance'}
+						<NewsPanel category="finance" panelId="finance" title="Finance" />
+					{:else if panelId === 'intel'}
+						<IntelPanel />
+					{:else if panelId === 'correlation'}
+						<CorrelationPanel news={$allNewsItems} />
+					{:else if panelId === 'narrative'}
+						<NarrativePanel news={$allNewsItems} />
+					{:else if panelId === 'gov'}
+						<NewsPanel category="gov" panelId="gov" title="Government" />
+					{:else if panelId === 'ai'}
+						<NewsPanel category="ai" panelId="ai" title="AI" />
+					{:else if panelId === 'leaders'}
+						<WorldLeadersPanel {leaders} loading={leadersLoading} />
+					{:else if panelId === 'markets'}
+						<MarketsPanel />
+					{:else if panelId === 'heatmap'}
+						<HeatmapPanel />
+					{:else if panelId === 'crypto'}
+						<CryptoPanel />
+					{:else if panelId === 'commodities'}
+						<CommoditiesPanel />
+					{:else if panelId === 'whales'}
+						<WhalePanel {whales} />
+					{:else if panelId === 'polymarket'}
+						<PolymarketPanel {predictions} />
+					{:else if panelId === 'contracts'}
+						<ContractsPanel {contracts} />
+					{:else if panelId === 'layoffs'}
+						<LayoffsPanel {layoffs} />
+					{:else if panelId === 'printer'}
+						<PrinterPanel />
+					{:else if panelId === 'monitors'}
+						<MonitorsPanel
+							monitors={$monitors.monitors}
+							matches={$monitors.matches}
+							onCreateMonitor={handleCreateMonitor}
+							onEditMonitor={handleEditMonitor}
+							onDeleteMonitor={handleDeleteMonitor}
+							onToggleMonitor={handleToggleMonitor}
+						/>
+					{:else if panelId === 'venezuela'}
+						<SituationPanel
+							panelId="venezuela"
+							config={{
+								title: 'Venezuela Watch',
+								subtitle: 'Humanitarian crisis monitoring',
+								criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('venezuela') ||
+									n.title.toLowerCase().includes('maduro')
+							)}
+						/>
+					{:else if panelId === 'greenland'}
+						<SituationPanel
+							panelId="greenland"
+							config={{
+								title: 'Greenland Watch',
+								subtitle: 'Arctic geopolitics monitoring',
+								criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('greenland') ||
+									n.title.toLowerCase().includes('arctic')
+							)}
+						/>
+					{:else if panelId === 'iran'}
+						<SituationPanel
+							panelId="iran"
+							config={{
+								title: 'Iran Crisis',
+								subtitle: 'Revolution protests, regime instability & nuclear program',
+								criticalKeywords: [
+									'protest', 'uprising', 'revolution', 'crackdown', 'killed',
+									'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
+								]
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('iran') ||
+									n.title.toLowerCase().includes('tehran') ||
+									n.title.toLowerCase().includes('irgc')
+							)}
+						/>
+					{/if}
+				{/each}
+			</DropZone>
 		</aside>
 
 		<!-- Center Globe Column -->
@@ -289,124 +374,202 @@
 
 		<!-- Right Panel Column -->
 		<aside class="panel-column right-column">
-			<div class="column-scroll">
-				<!-- Markets & Data -->
-				{#if isPanelVisible('markets')}
-					<MarketsPanel />
-				{/if}
-
-				{#if isPanelVisible('heatmap')}
-					<HeatmapPanel />
-				{/if}
-
-				{#if isPanelVisible('crypto')}
-					<CryptoPanel />
-				{/if}
-
-				{#if isPanelVisible('commodities')}
-					<CommoditiesPanel />
-				{/if}
-
-				{#if isPanelVisible('whales')}
-					<WhalePanel {whales} />
-				{/if}
-
-				{#if isPanelVisible('polymarket')}
-					<PolymarketPanel {predictions} />
-				{/if}
-
-				{#if isPanelVisible('contracts')}
-					<ContractsPanel {contracts} />
-				{/if}
-
-				{#if isPanelVisible('layoffs')}
-					<LayoffsPanel {layoffs} />
-				{/if}
-			</div>
+			<DropZone zone="right" panels={rightColumnPanels} class="column-scroll">
+				{#each rightColumnPanels as panelId (panelId)}
+					{#if panelId === 'politics'}
+						<NewsPanel category="politics" panelId="politics" title="Politics" />
+					{:else if panelId === 'tech'}
+						<NewsPanel category="tech" panelId="tech" title="Tech" />
+					{:else if panelId === 'finance'}
+						<NewsPanel category="finance" panelId="finance" title="Finance" />
+					{:else if panelId === 'intel'}
+						<IntelPanel />
+					{:else if panelId === 'correlation'}
+						<CorrelationPanel news={$allNewsItems} />
+					{:else if panelId === 'narrative'}
+						<NarrativePanel news={$allNewsItems} />
+					{:else if panelId === 'gov'}
+						<NewsPanel category="gov" panelId="gov" title="Government" />
+					{:else if panelId === 'ai'}
+						<NewsPanel category="ai" panelId="ai" title="AI" />
+					{:else if panelId === 'leaders'}
+						<WorldLeadersPanel {leaders} loading={leadersLoading} />
+					{:else if panelId === 'markets'}
+						<MarketsPanel />
+					{:else if panelId === 'heatmap'}
+						<HeatmapPanel />
+					{:else if panelId === 'crypto'}
+						<CryptoPanel />
+					{:else if panelId === 'commodities'}
+						<CommoditiesPanel />
+					{:else if panelId === 'whales'}
+						<WhalePanel {whales} />
+					{:else if panelId === 'polymarket'}
+						<PolymarketPanel {predictions} />
+					{:else if panelId === 'contracts'}
+						<ContractsPanel {contracts} />
+					{:else if panelId === 'layoffs'}
+						<LayoffsPanel {layoffs} />
+					{:else if panelId === 'printer'}
+						<PrinterPanel />
+					{:else if panelId === 'monitors'}
+						<MonitorsPanel
+							monitors={$monitors.monitors}
+							matches={$monitors.matches}
+							onCreateMonitor={handleCreateMonitor}
+							onEditMonitor={handleEditMonitor}
+							onDeleteMonitor={handleDeleteMonitor}
+							onToggleMonitor={handleToggleMonitor}
+						/>
+					{:else if panelId === 'venezuela'}
+						<SituationPanel
+							panelId="venezuela"
+							config={{
+								title: 'Venezuela Watch',
+								subtitle: 'Humanitarian crisis monitoring',
+								criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('venezuela') ||
+									n.title.toLowerCase().includes('maduro')
+							)}
+						/>
+					{:else if panelId === 'greenland'}
+						<SituationPanel
+							panelId="greenland"
+							config={{
+								title: 'Greenland Watch',
+								subtitle: 'Arctic geopolitics monitoring',
+								criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('greenland') ||
+									n.title.toLowerCase().includes('arctic')
+							)}
+						/>
+					{:else if panelId === 'iran'}
+						<SituationPanel
+							panelId="iran"
+							config={{
+								title: 'Iran Crisis',
+								subtitle: 'Revolution protests, regime instability & nuclear program',
+								criticalKeywords: [
+									'protest', 'uprising', 'revolution', 'crackdown', 'killed',
+									'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
+								]
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('iran') ||
+									n.title.toLowerCase().includes('tehran') ||
+									n.title.toLowerCase().includes('irgc')
+							)}
+						/>
+					{/if}
+				{/each}
+			</DropZone>
 		</aside>
 	</main>
 
 	<!-- Bottom Panels Row (situational awareness) -->
-	<div class="bottom-panels">
-		{#if isPanelVisible('gov')}
-			<NewsPanel category="gov" panelId="gov" title="Government" />
-		{/if}
-
-		{#if isPanelVisible('ai')}
-			<NewsPanel category="ai" panelId="ai" title="AI" />
-		{/if}
-
-		{#if isPanelVisible('leaders')}
-			<WorldLeadersPanel {leaders} loading={leadersLoading} />
-		{/if}
-
-		{#if isPanelVisible('venezuela')}
-			<SituationPanel
-				panelId="venezuela"
-				config={{
-					title: 'Venezuela Watch',
-					subtitle: 'Humanitarian crisis monitoring',
-					criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
-				}}
-				news={$allNewsItems.filter(
-					(n) =>
-						n.title.toLowerCase().includes('venezuela') ||
-						n.title.toLowerCase().includes('maduro')
-				)}
-			/>
-		{/if}
-
-		{#if isPanelVisible('greenland')}
-			<SituationPanel
-				panelId="greenland"
-				config={{
-					title: 'Greenland Watch',
-					subtitle: 'Arctic geopolitics monitoring',
-					criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
-				}}
-				news={$allNewsItems.filter(
-					(n) =>
-						n.title.toLowerCase().includes('greenland') ||
-						n.title.toLowerCase().includes('arctic')
-				)}
-			/>
-		{/if}
-
-		{#if isPanelVisible('iran')}
-			<SituationPanel
-				panelId="iran"
-				config={{
-					title: 'Iran Crisis',
-					subtitle: 'Revolution protests, regime instability & nuclear program',
-					criticalKeywords: [
-						'protest', 'uprising', 'revolution', 'crackdown', 'killed',
-						'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
-					]
-				}}
-				news={$allNewsItems.filter(
-					(n) =>
-						n.title.toLowerCase().includes('iran') ||
-						n.title.toLowerCase().includes('tehran') ||
-						n.title.toLowerCase().includes('irgc')
-				)}
-			/>
-		{/if}
-
-		{#if isPanelVisible('printer')}
-			<PrinterPanel />
-		{/if}
-
-		{#if isPanelVisible('monitors')}
-			<MonitorsPanel
-				monitors={$monitors.monitors}
-				matches={$monitors.matches}
-				onCreateMonitor={handleCreateMonitor}
-				onEditMonitor={handleEditMonitor}
-				onDeleteMonitor={handleDeleteMonitor}
-				onToggleMonitor={handleToggleMonitor}
-			/>
-		{/if}
-	</div>
+	<DropZone zone="bottom" panels={bottomRowPanels} class="bottom-panels">
+		{#each bottomRowPanels as panelId (panelId)}
+			{#if panelId === 'politics'}
+				<NewsPanel category="politics" panelId="politics" title="Politics" />
+			{:else if panelId === 'tech'}
+				<NewsPanel category="tech" panelId="tech" title="Tech" />
+			{:else if panelId === 'finance'}
+				<NewsPanel category="finance" panelId="finance" title="Finance" />
+			{:else if panelId === 'intel'}
+				<IntelPanel />
+			{:else if panelId === 'correlation'}
+				<CorrelationPanel news={$allNewsItems} />
+			{:else if panelId === 'narrative'}
+				<NarrativePanel news={$allNewsItems} />
+			{:else if panelId === 'gov'}
+				<NewsPanel category="gov" panelId="gov" title="Government" />
+			{:else if panelId === 'ai'}
+				<NewsPanel category="ai" panelId="ai" title="AI" />
+			{:else if panelId === 'leaders'}
+				<WorldLeadersPanel {leaders} loading={leadersLoading} />
+			{:else if panelId === 'markets'}
+				<MarketsPanel />
+			{:else if panelId === 'heatmap'}
+				<HeatmapPanel />
+			{:else if panelId === 'crypto'}
+				<CryptoPanel />
+			{:else if panelId === 'commodities'}
+				<CommoditiesPanel />
+			{:else if panelId === 'whales'}
+				<WhalePanel {whales} />
+			{:else if panelId === 'polymarket'}
+				<PolymarketPanel {predictions} />
+			{:else if panelId === 'contracts'}
+				<ContractsPanel {contracts} />
+			{:else if panelId === 'layoffs'}
+				<LayoffsPanel {layoffs} />
+			{:else if panelId === 'printer'}
+				<PrinterPanel />
+			{:else if panelId === 'monitors'}
+				<MonitorsPanel
+					monitors={$monitors.monitors}
+					matches={$monitors.matches}
+					onCreateMonitor={handleCreateMonitor}
+					onEditMonitor={handleEditMonitor}
+					onDeleteMonitor={handleDeleteMonitor}
+					onToggleMonitor={handleToggleMonitor}
+				/>
+			{:else if panelId === 'venezuela'}
+				<SituationPanel
+					panelId="venezuela"
+					config={{
+						title: 'Venezuela Watch',
+						subtitle: 'Humanitarian crisis monitoring',
+						criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
+					}}
+					news={$allNewsItems.filter(
+						(n) =>
+							n.title.toLowerCase().includes('venezuela') ||
+							n.title.toLowerCase().includes('maduro')
+					)}
+				/>
+			{:else if panelId === 'greenland'}
+				<SituationPanel
+					panelId="greenland"
+					config={{
+						title: 'Greenland Watch',
+						subtitle: 'Arctic geopolitics monitoring',
+						criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
+					}}
+					news={$allNewsItems.filter(
+						(n) =>
+							n.title.toLowerCase().includes('greenland') ||
+							n.title.toLowerCase().includes('arctic')
+					)}
+				/>
+			{:else if panelId === 'iran'}
+				<SituationPanel
+					panelId="iran"
+					config={{
+						title: 'Iran Crisis',
+						subtitle: 'Revolution protests, regime instability & nuclear program',
+						criticalKeywords: [
+							'protest', 'uprising', 'revolution', 'crackdown', 'killed',
+							'nuclear', 'strike', 'attack', 'irgc', 'khamenei'
+						]
+					}}
+					news={$allNewsItems.filter(
+						(n) =>
+							n.title.toLowerCase().includes('iran') ||
+							n.title.toLowerCase().includes('tehran') ||
+							n.title.toLowerCase().includes('irgc')
+					)}
+				/>
+			{/if}
+		{/each}
+	</DropZone>
 
 	<!-- Modals -->
 	<SettingsModal
@@ -486,7 +649,7 @@
 		gap: 0.25rem;
 	}
 
-	.app.compact .column-scroll {
+	.app.compact :global(.column-scroll) {
 		gap: 0.25rem;
 	}
 
@@ -494,7 +657,7 @@
 		gap: 0.25rem;
 	}
 
-	.app.compact .bottom-panels {
+	.app.compact :global(.bottom-panels) {
 		gap: 0.25rem;
 		padding: 0 0.375rem 0.375rem;
 	}
@@ -508,7 +671,7 @@
 		pointer-events: auto;
 	}
 
-	.column-scroll {
+	:global(.column-scroll) {
 		flex: 1;
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -737,7 +900,7 @@
 	}
 
 	/* Bottom Panels - horizontal scrollable row */
-	.bottom-panels {
+	:global(.bottom-panels) {
 		display: flex;
 		gap: 0.5rem;
 		padding: 0 0.75rem 0.75rem;
@@ -746,29 +909,31 @@
 		overflow-x: auto;
 		overflow-y: hidden;
 		flex-shrink: 0;
+		min-height: var(--bottom-height, 220px);
 	}
 
-	.bottom-panels > :global(*) {
-		flex: 0 0 280px;
-		max-height: var(--bottom-height, 220px);
+	:global(.bottom-panels) > :global(*) {
+		flex: 0 0 320px;
+		min-height: var(--bottom-height, 200px);
+		max-height: var(--bottom-height, 280px);
 		overflow: hidden;
 	}
 
 	/* Custom scrollbar for bottom panels */
-	.bottom-panels::-webkit-scrollbar {
+	:global(.bottom-panels)::-webkit-scrollbar {
 		height: 4px;
 	}
 
-	.bottom-panels::-webkit-scrollbar-track {
+	:global(.bottom-panels)::-webkit-scrollbar-track {
 		background: rgb(15 23 42);
 	}
 
-	.bottom-panels::-webkit-scrollbar-thumb {
+	:global(.bottom-panels)::-webkit-scrollbar-thumb {
 		background: rgb(51 65 85);
 		border-radius: 2px;
 	}
 
-	.bottom-panels::-webkit-scrollbar-thumb:hover {
+	:global(.bottom-panels)::-webkit-scrollbar-thumb:hover {
 		background: rgb(71 85 105);
 	}
 
@@ -790,7 +955,7 @@
 			display: none;
 		}
 
-		.bottom-panels > :global(*) {
+		:global(.bottom-panels) > :global(*) {
 			flex: 0 0 260px;
 		}
 	}
@@ -809,11 +974,11 @@
 			min-height: 350px;
 		}
 
-		.bottom-panels {
+		:global(.bottom-panels) {
 			padding: 0.5rem;
 		}
 
-		.bottom-panels > :global(*) {
+		:global(.bottom-panels) > :global(*) {
 			flex: 0 0 240px;
 		}
 	}
@@ -829,20 +994,20 @@
 	}
 
 	/* Custom Scrollbar for columns */
-	.column-scroll::-webkit-scrollbar {
+	:global(.column-scroll)::-webkit-scrollbar {
 		width: 4px;
 	}
 
-	.column-scroll::-webkit-scrollbar-track {
+	:global(.column-scroll)::-webkit-scrollbar-track {
 		background: rgb(15 23 42);
 	}
 
-	.column-scroll::-webkit-scrollbar-thumb {
+	:global(.column-scroll)::-webkit-scrollbar-thumb {
 		background: rgb(51 65 85);
 		border-radius: 2px;
 	}
 
-	.column-scroll::-webkit-scrollbar-thumb:hover {
+	:global(.column-scroll)::-webkit-scrollbar-thumb:hover {
 		background: rgb(71 85 105);
 	}
 </style>

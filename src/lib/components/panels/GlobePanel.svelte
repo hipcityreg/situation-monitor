@@ -22,16 +22,32 @@
 	let isInitialized = $state(false);
 	let initError = $state<string | null>(null);
 
+	// Tooltip state
+	let tooltipVisible = $state(false);
+	let tooltipX = $state(0);
+	let tooltipY = $state(0);
+	let tooltipData = $state<{
+		label: string;
+		type: string;
+		desc?: string;
+		level?: string;
+	} | null>(null);
+
+	// Point data interface for tooltip
+	interface PointData {
+		lat: number;
+		lng: number;
+		size: number;
+		color: string;
+		label: string;
+		type: string;
+		desc?: string;
+		level?: string;
+	}
+
 	// Get points data
-	function getPointsData() {
-		const points: Array<{
-			lat: number;
-			lng: number;
-			size: number;
-			color: string;
-			label: string;
-			type: string;
-		}> = [];
+	function getPointsData(): PointData[] {
+		const points: PointData[] = [];
 
 		// Add hotspots
 		HOTSPOTS.forEach((h) => {
@@ -41,7 +57,9 @@
 				size: h.level === 'critical' ? 0.8 : h.level === 'high' ? 0.6 : 0.4,
 				color: THREAT_COLORS[h.level],
 				label: h.name,
-				type: 'hotspot'
+				type: 'hotspot',
+				desc: h.desc,
+				level: h.level
 			});
 		});
 
@@ -53,7 +71,8 @@
 				size: 0.3,
 				color: '#00aaff',
 				label: cp.name,
-				type: 'chokepoint'
+				type: 'chokepoint',
+				desc: cp.desc
 			});
 		});
 
@@ -65,7 +84,8 @@
 				size: 0.25,
 				color: '#aa44ff',
 				label: cl.name,
-				type: 'cable'
+				type: 'cable',
+				desc: cl.desc
 			});
 		});
 
@@ -77,7 +97,8 @@
 				size: 0.35,
 				color: '#ffff00',
 				label: ns.name,
-				type: 'nuclear'
+				type: 'nuclear',
+				desc: ns.desc
 			});
 		});
 
@@ -89,7 +110,8 @@
 				size: 0.4,
 				color: '#ff00ff',
 				label: mb.name,
-				type: 'military'
+				type: 'military',
+				desc: mb.desc
 			});
 		});
 
@@ -104,7 +126,8 @@
 						size: 0.5,
 						color: m.color || '#00ffff',
 						label: m.name,
-						type: 'monitor'
+						type: 'monitor',
+						desc: `Custom monitor: ${m.keywords?.join(', ') || 'No keywords'}`
 					});
 				}
 			});
@@ -162,6 +185,53 @@
 		}));
 	}
 
+	// Handle point hover for tooltip
+	function handlePointHover(point: PointData | null, _prevPoint: PointData | null) {
+		if (point) {
+			tooltipData = {
+				label: point.label,
+				type: point.type,
+				desc: point.desc,
+				level: point.level
+			};
+			tooltipVisible = true;
+		} else {
+			tooltipVisible = false;
+		}
+	}
+
+	// Handle mouse move to position tooltip
+	function handleMouseMove(event: MouseEvent) {
+		if (tooltipVisible && globeContainer) {
+			const rect = globeContainer.getBoundingClientRect();
+			tooltipX = event.clientX - rect.left + 15;
+			tooltipY = event.clientY - rect.top + 15;
+
+			// Prevent tooltip from going off-screen
+			const tooltipWidth = 280;
+			const tooltipHeight = 100;
+			if (tooltipX + tooltipWidth > rect.width) {
+				tooltipX = event.clientX - rect.left - tooltipWidth - 15;
+			}
+			if (tooltipY + tooltipHeight > rect.height) {
+				tooltipY = event.clientY - rect.top - tooltipHeight - 15;
+			}
+		}
+	}
+
+	// Get type label for display
+	function getTypeLabel(type: string): string {
+		const labels: Record<string, string> = {
+			hotspot: 'GEOPOLITICAL HOTSPOT',
+			chokepoint: 'SHIPPING CHOKEPOINT',
+			cable: 'UNDERSEA CABLE',
+			nuclear: 'NUCLEAR SITE',
+			military: 'MILITARY BASE',
+			monitor: 'CUSTOM MONITOR'
+		};
+		return labels[type] || type.toUpperCase();
+	}
+
 	async function initGlobe() {
 		if (typeof window === 'undefined' || !globeContainer) return;
 
@@ -196,6 +266,8 @@
 				.pointColor('color')
 				.pointRadius(0.3)
 				.pointsMerge(false)
+				// Point interaction
+				.onPointHover(handlePointHover)
 				// Labels
 				.labelsData(getLabelsData())
 				.labelText('text')
@@ -279,7 +351,7 @@
 	});
 </script>
 
-<div class="globe-container" bind:this={globeContainer}>
+<div class="globe-container" bind:this={globeContainer} onmousemove={handleMouseMove} role="application" aria-label="Interactive 3D globe showing global hotspots and regions">
 	{#if !isInitialized && !initError}
 		<div class="globe-loading">
 			<div class="loading-spinner"></div>
@@ -290,6 +362,29 @@
 		<div class="globe-error">
 			<span class="error-icon">⚠</span>
 			<span class="error-text">{initError}</span>
+		</div>
+	{/if}
+
+	<!-- Interactive Tooltip -->
+	{#if tooltipVisible && tooltipData}
+		<div
+			class="globe-tooltip"
+			style="left: {tooltipX}px; top: {tooltipY}px;"
+		>
+			<div class="tooltip-header">
+				<span class="tooltip-type" class:critical={tooltipData.level === 'critical'} class:high={tooltipData.level === 'high'} class:elevated={tooltipData.level === 'elevated'}>
+					{getTypeLabel(tooltipData.type)}
+				</span>
+				{#if tooltipData.level}
+					<span class="tooltip-level" class:critical={tooltipData.level === 'critical'} class:high={tooltipData.level === 'high'} class:elevated={tooltipData.level === 'elevated'}>
+						{tooltipData.level.toUpperCase()}
+					</span>
+				{/if}
+			</div>
+			<div class="tooltip-name">{tooltipData.label}</div>
+			{#if tooltipData.desc}
+				<div class="tooltip-desc">{tooltipData.desc}</div>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -363,5 +458,121 @@
 		color: rgb(251 191 36);
 		max-width: 200px;
 		text-align: center;
+	}
+
+	/* Globe Tooltip Styles - following Aegis design system */
+	.globe-tooltip {
+		position: absolute;
+		z-index: 100;
+		background: rgb(15 23 42 / 0.95);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border: 1px solid rgb(51 65 85 / 0.5);
+		border-radius: 2px;
+		padding: 0.75rem;
+		max-width: 280px;
+		min-width: 180px;
+		pointer-events: none;
+		box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+	}
+
+	/* Tech corners for tooltip */
+	.globe-tooltip::before,
+	.globe-tooltip::after {
+		content: '';
+		position: absolute;
+		width: 6px;
+		height: 6px;
+		pointer-events: none;
+	}
+
+	.globe-tooltip::before {
+		top: 0;
+		left: 0;
+		border-top: 2px solid rgb(6 182 212 / 0.5);
+		border-left: 2px solid rgb(6 182 212 / 0.5);
+	}
+
+	.globe-tooltip::after {
+		top: 0;
+		right: 0;
+		border-top: 2px solid rgb(6 182 212 / 0.5);
+		border-right: 2px solid rgb(6 182 212 / 0.5);
+	}
+
+	.tooltip-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin-bottom: 0.375rem;
+	}
+
+	.tooltip-type {
+		font-size: 0.5625rem; /* 9px - text-nano */
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
+		letter-spacing: 0.1em;
+		color: rgb(148 163 184); /* slate-400 */
+		text-transform: uppercase;
+	}
+
+	.tooltip-type.critical {
+		color: rgb(239 68 68); /* red-500 */
+	}
+
+	.tooltip-type.high {
+		color: rgb(251 191 36); /* amber-400 */
+	}
+
+	.tooltip-type.elevated {
+		color: rgb(34 211 238); /* cyan-400 */
+	}
+
+	.tooltip-level {
+		font-size: 0.5625rem; /* 9px */
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
+		letter-spacing: 0.05em;
+		padding: 0.125rem 0.375rem;
+		border-radius: 2px;
+		text-transform: uppercase;
+		background: rgb(100 116 139 / 0.2);
+		color: rgb(148 163 184);
+		border: 1px solid rgb(71 85 105 / 0.5);
+	}
+
+	.tooltip-level.critical {
+		background: rgb(69 10 10 / 0.5);
+		color: rgb(239 68 68);
+		border-color: rgb(127 29 29 / 0.5);
+	}
+
+	.tooltip-level.high {
+		background: rgb(69 26 3 / 0.5);
+		color: rgb(251 191 36);
+		border-color: rgb(146 64 14 / 0.5);
+	}
+
+	.tooltip-level.elevated {
+		background: rgb(22 78 99 / 0.5);
+		color: rgb(34 211 238);
+		border-color: rgb(8 145 178 / 0.5);
+	}
+
+	.tooltip-name {
+		font-size: 0.75rem; /* 12px - text-xs */
+		font-weight: 700;
+		color: white;
+		margin-bottom: 0.25rem;
+	}
+
+	.tooltip-desc {
+		font-size: 0.625rem; /* 10px */
+		color: rgb(203 213 225); /* slate-300 */
+		line-height: 1.4;
+		border-top: 1px solid rgb(51 65 85 / 0.5);
+		padding-top: 0.375rem;
+		margin-top: 0.25rem;
 	}
 </style>
