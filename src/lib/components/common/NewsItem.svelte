@@ -42,6 +42,11 @@
 		{#if item.region}
 			<span class="item-region">{item.region}</span>
 		{/if}
+		{#if item.cveIds?.length}
+			{#each item.cveIds.slice(0, 2) as cve}
+				<span class="item-cve">{cve}</span>
+			{/each}
+		{/if}
 	</div>
 </div>
 
@@ -128,6 +133,15 @@
 		font-size: 0.5rem;
 		color: var(--accent);
 		background: rgba(var(--accent-rgb), 0.1);
+		padding: 0.1rem 0.3rem;
+		border-radius: 2px;
+		text-transform: uppercase;
+	}
+
+	.item-cve {
+		font-size: 0.5rem;
+		color: var(--danger);
+		background: rgba(255, 68, 68, 0.12);
 		padding: 0.1rem 0.3rem;
 		border-radius: 2px;
 		text-transform: uppercase;

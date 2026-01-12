@@ -19,7 +19,23 @@ export interface NewsState {
 }
 
 // All news categories
-const NEWS_CATEGORIES: NewsCategory[] = ['politics', 'tech', 'finance', 'gov', 'ai', 'intel'];
+const NEWS_CATEGORIES: NewsCategory[] = [
+	'politics',
+	'tech',
+	'security',
+	'finance',
+	'gov',
+	'ai',
+	'intel'
+];
+
+const CVE_REGEX = /\bCVE-\d{4}-\d{4,7}\b/gi;
+
+function extractCveIds(text: string): string[] {
+	const matches = text.match(CVE_REGEX);
+	if (!matches) return [];
+	return Array.from(new Set(matches.map((match) => match.toUpperCase())));
+}
 
 // Create initial state for a category
 function createCategoryState(): CategoryState {
@@ -42,15 +58,17 @@ function createInitialState(): NewsState {
 
 // Enrich news item with analysis
 function enrichNewsItem(item: NewsItem): NewsItem {
-	const text = `${item.title} ${item.description || ''}`;
+	const text = `${item.title} ${item.description || ''} ${item.content || ''}`;
 	const alertResult = containsAlertKeyword(text);
+	const cveIds = item.cveIds ?? extractCveIds(text);
 
 	return {
 		...item,
 		isAlert: alertResult.isAlert,
 		alertKeyword: alertResult.keyword,
 		region: item.region ?? detectRegion(text) ?? undefined,
-		topics: item.topics ?? detectTopics(text)
+		topics: item.topics ?? detectTopics(text),
+		cveIds: cveIds.length > 0 ? cveIds : undefined
 	};
 }
 
@@ -216,6 +234,7 @@ export const news = createNewsStore();
 // Derived stores for each category
 export const politicsNews = derived(news, ($news) => $news.categories.politics);
 export const techNews = derived(news, ($news) => $news.categories.tech);
+export const securityNews = derived(news, ($news) => $news.categories.security);
 export const financeNews = derived(news, ($news) => $news.categories.finance);
 export const govNews = derived(news, ($news) => $news.categories.gov);
 export const aiNews = derived(news, ($news) => $news.categories.ai);

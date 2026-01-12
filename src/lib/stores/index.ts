@@ -28,6 +28,7 @@ export {
 	news,
 	politicsNews,
 	techNews,
+	securityNews,
 	financeNews,
 	govNews,
 	aiNews,

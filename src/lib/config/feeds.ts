@@ -30,6 +30,17 @@ export const FEEDS: Record<NewsCategory, FeedSource[]> = {
 		{ name: 'ArXiv AI', url: 'https://rss.arxiv.org/rss/cs.AI' },
 		{ name: 'OpenAI Blog', url: 'https://openai.com/news/rss.xml' }
 	],
+	security: [
+		{ name: 'NVD CVE Feed', url: 'https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml' },
+		{
+			name: 'CISA Known Exploited Vulnerabilities',
+			url: 'https://www.cisa.gov/feeds/known-exploited-vulnerabilities-catalog.xml'
+		},
+		{ name: 'MSRC Security Updates', url: 'https://msrc.microsoft.com/update-guide/rss' },
+		{ name: 'SANS ISC Diary', url: 'https://isc.sans.edu/rssfeed.xml' },
+		{ name: 'BleepingComputer', url: 'https://www.bleepingcomputer.com/feed/' },
+		{ name: 'The Register Security', url: 'https://www.theregister.com/security/headlines.atom' }
+	],
 	finance: [
 		{ name: 'CNBC', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html' },
 		{ name: 'MarketWatch', url: 'https://feeds.marketwatch.com/marketwatch/topstories' },

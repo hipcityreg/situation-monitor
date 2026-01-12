@@ -26,6 +26,7 @@
 		news,
 		politicsNews,
 		techNews,
+		securityNews,
 		financeNews,
 		govNews,
 		aiNews,
@@ -66,6 +67,7 @@
 	const allNewsItems = $derived([
 		...$politicsNews.items,
 		...$techNews.items,
+		...$securityNews.items,
 		...$financeNews.items,
 		...$govNews.items,
 		...$aiNews.items,
@@ -75,7 +77,7 @@
 	// Data fetching
 	async function loadNews() {
 		// Set loading for all categories
-		const categories = ['politics', 'tech', 'finance', 'gov', 'ai', 'intel'] as const;
+		const categories = ['politics', 'tech', 'security', 'finance', 'gov', 'ai', 'intel'] as const;
 		categories.forEach((cat) => news.setLoading(cat, true));
 
 		try {
@@ -225,6 +227,12 @@
 			{#if isPanelVisible('tech')}
 				<div class="panel-slot">
 					<NewsPanel category="tech" panelId="tech" title="Tech" />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('security')}
+				<div class="panel-slot">
+					<NewsPanel category="security" panelId="security" title="Security / Ops" />
 				</div>
 			{/if}
 

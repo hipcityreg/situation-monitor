@@ -77,10 +77,15 @@ function saveToStorage(key: keyof typeof STORAGE_KEYS, value: unknown): void {
 function createSettingsStore() {
 	const defaults = getDefaultSettings();
 	const saved = loadFromStorage();
+	const savedOrder = (saved.order ?? []).filter((id): id is PanelId => id in PANELS);
+	const mergedOrder =
+		savedOrder.length > 0
+			? [...savedOrder, ...defaults.order.filter((id) => !savedOrder.includes(id))]
+			: defaults.order;
 
 	const initialState: SettingsState = {
 		enabled: { ...defaults.enabled, ...saved.enabled },
-		order: saved.order ?? defaults.order,
+		order: mergedOrder,
 		sizes: { ...defaults.sizes, ...saved.sizes },
 		initialized: false
 	};

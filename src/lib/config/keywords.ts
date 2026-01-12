@@ -69,7 +69,24 @@ export const REGION_KEYWORDS: Record<string, string[]> = {
 };
 
 export const TOPIC_KEYWORDS: Record<string, string[]> = {
-	CYBER: ['cyber', 'hack', 'ransomware', 'malware', 'breach', 'apt', 'vulnerability'],
+	CYBER: [
+		'cyber',
+		'hack',
+		'ransomware',
+		'malware',
+		'breach',
+		'apt',
+		'vulnerability',
+		'cve-',
+		'cve',
+		'zero-day',
+		'zero day',
+		'security advisory',
+		'privilege escalation',
+		'remote code execution',
+		'rce',
+		'exploit'
+	],
 	NUCLEAR: ['nuclear', 'icbm', 'warhead', 'nonproliferation', 'uranium', 'plutonium'],
 	CONFLICT: ['war', 'military', 'troops', 'invasion', 'strike', 'missile', 'combat', 'offensive'],
 	INTEL: ['intelligence', 'espionage', 'spy', 'cia', 'mossad', 'fsb', 'covert'],
