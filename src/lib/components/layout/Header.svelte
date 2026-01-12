@@ -97,7 +97,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 0.5rem 1rem;
+		padding: clamp(0.375rem, 1vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
 		background: var(--surface);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
@@ -105,10 +105,10 @@
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		gap: 1rem;
+		gap: clamp(0.5rem, 2vw, 1rem);
 		isolation: isolate;
 		position: relative;
-		min-height: 48px;
+		min-height: clamp(40px, 8vw, 48px);
 	}
 
 	/* Gradient accent line at the bottom */
@@ -125,8 +125,8 @@
 	/* Tech Corner Decorations */
 	.tech-corner {
 		position: absolute;
-		width: 8px;
-		height: 8px;
+		width: clamp(6px, 1.5vw, 8px);
+		height: clamp(6px, 1.5vw, 8px);
 		pointer-events: none;
 		z-index: 10;
 	}
@@ -154,18 +154,18 @@
 	.logo-container {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: clamp(0.25rem, 1vw, 0.5rem);
 	}
 
 	.logo-icon {
 		color: var(--accent);
-		font-size: 1rem;
+		font-size: clamp(0.875rem, 2.5vw, 1.125rem);
 		text-shadow: 0 0 10px var(--accent-glow);
 		transition: all 0.2s ease;
 	}
 
 	.logo {
-		font-size: 1rem;
+		font-size: clamp(0.875rem, 2.5vw, 1.125rem);
 		font-weight: 700;
 		letter-spacing: 0.15em;
 		text-transform: uppercase;
@@ -174,15 +174,15 @@
 	}
 
 	.logo-subtitle {
-		font-size: 0.5625rem;
+		font-size: clamp(0.5rem, 1.25vw, 0.625rem);
 		font-family: 'SF Mono', Monaco, monospace;
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
 		color: var(--text-muted);
-		padding-left: 0.5rem;
+		padding-left: clamp(0.25rem, 1vw, 0.5rem);
 		border-left: 1px solid var(--border);
-		margin-left: 0.5rem;
+		margin-left: clamp(0.25rem, 1vw, 0.5rem);
 	}
 
 	.header-center {
@@ -196,8 +196,8 @@
 	.status-bar {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
-		padding: 0.25rem 0.75rem;
+		gap: clamp(0.5rem, 1.5vw, 1rem);
+		padding: clamp(0.125rem, 0.5vw, 0.25rem) clamp(0.5rem, 1.5vw, 0.75rem);
 		background: rgba(15, 23, 42, 0.5);
 		border: 1px solid var(--border);
 		border-radius: 2px;
@@ -206,11 +206,11 @@
 	.status-item {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
+		gap: clamp(0.25rem, 0.75vw, 0.375rem);
 	}
 
 	.status-label {
-		font-size: 0.5625rem;
+		font-size: clamp(0.5rem, 1.25vw, 0.625rem);
 		font-family: 'SF Mono', Monaco, monospace;
 		font-weight: 700;
 		letter-spacing: 0.1em;
@@ -219,7 +219,7 @@
 	}
 
 	.status-value {
-		font-size: 0.625rem;
+		font-size: clamp(0.5625rem, 1.35vw, 0.6875rem);
 		font-family: 'SF Mono', Monaco, monospace;
 		font-weight: 700;
 		letter-spacing: 0.05em;
@@ -237,13 +237,13 @@
 
 	.status-divider {
 		width: 1px;
-		height: 16px;
+		height: clamp(12px, 2.5vw, 16px);
 		background: var(--border);
 	}
 
 	.status-dot {
-		width: 6px;
-		height: 6px;
+		width: clamp(5px, 1vw, 6px);
+		height: clamp(5px, 1vw, 6px);
 		border-radius: 50%;
 		background: var(--text-muted);
 		transition: background-color 0.2s ease, box-shadow 0.2s ease;
@@ -272,7 +272,7 @@
 	.header-right {
 		display: flex;
 		align-items: center;
-		gap: 0.375rem;
+		gap: clamp(0.25rem, 0.75vw, 0.375rem);
 		flex-shrink: 0;
 	}
 
@@ -280,17 +280,17 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.375rem;
-		min-height: 32px;
-		min-width: 32px;
-		padding: 0.375rem 0.625rem;
+		gap: clamp(0.25rem, 0.75vw, 0.375rem);
+		min-height: clamp(28px, 5vw, 32px);
+		min-width: clamp(28px, 5vw, 32px);
+		padding: clamp(0.25rem, 0.75vw, 0.375rem) clamp(0.5rem, 1.25vw, 0.625rem);
 		background: transparent;
 		border: 1px solid var(--border);
 		border-radius: 2px;
 		color: var(--text-dim);
 		cursor: pointer;
 		transition: all 0.15s ease;
-		font-size: 0.625rem;
+		font-size: clamp(0.5625rem, 1.35vw, 0.6875rem);
 		font-family: 'SF Mono', Monaco, monospace;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
@@ -313,11 +313,11 @@
 	}
 
 	.refresh-btn {
-		padding: 0.375rem;
+		padding: clamp(0.25rem, 0.75vw, 0.375rem);
 	}
 
 	.btn-icon {
-		font-size: 0.875rem;
+		font-size: clamp(0.75rem, 2vw, 0.9375rem);
 	}
 
 	.btn-icon.spinning {
@@ -334,19 +334,55 @@
 		display: none;
 	}
 
-	@media (min-width: 768px) {
-		.btn-label {
-			display: inline;
+	/* Extra small screens (mobile portrait) */
+	@media (max-width: 480px) {
+		.logo-subtitle {
+			display: none;
 		}
-	}
 
-	@media (max-width: 900px) {
 		.status-bar {
 			display: none;
 		}
+	}
 
+	/* Small screens (mobile landscape / small tablet) */
+	@media (min-width: 481px) and (max-width: 768px) {
 		.logo-subtitle {
 			display: none;
+		}
+
+		.status-bar {
+			display: none;
+		}
+	}
+
+	/* Medium screens (tablet) */
+	@media (min-width: 769px) and (max-width: 1024px) {
+		.btn-label {
+			display: inline;
+		}
+
+		.logo-subtitle {
+			display: inline;
+		}
+
+		.status-bar {
+			display: flex;
+		}
+	}
+
+	/* Large screens (desktop) */
+	@media (min-width: 1025px) {
+		.btn-label {
+			display: inline;
+		}
+
+		.logo-subtitle {
+			display: inline;
+		}
+
+		.status-bar {
+			display: flex;
 		}
 	}
 </style>

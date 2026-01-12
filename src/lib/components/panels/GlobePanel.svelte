@@ -21,6 +21,9 @@
 	let resizeObserver: ResizeObserver | null = null;
 	let isInitialized = $state(false);
 	let initError = $state<string | null>(null);
+	let showArcs = $state(true);
+	let isHovering = $state(false);
+	let legendExpanded = $state(false);
 
 	// Tooltip state
 	let tooltipVisible = $state(false);
@@ -135,8 +138,10 @@
 		return points;
 	}
 
-	// Get arc data for conflict zones / connections
+	// Get arc data for conflict zones / connections - showing intel flow between high-threat areas
 	function getArcsData() {
+		if (!showArcs) return [];
+
 		const arcs: Array<{
 			startLat: number;
 			startLng: number;
@@ -145,19 +150,34 @@
 			color: string;
 		}> = [];
 
-		// Create arcs between hotspots to show connections
-		const criticalHotspots = HOTSPOTS.filter(
-			(h) => h.level === 'critical' || h.level === 'high'
-		);
-		for (let i = 0; i < criticalHotspots.length - 1; i++) {
-			arcs.push({
-				startLat: criticalHotspots[i].lat,
-				startLng: criticalHotspots[i].lon,
-				endLat: criticalHotspots[i + 1].lat,
-				endLng: criticalHotspots[i + 1].lon,
-				color: '#ef444480'
-			});
-		}
+		// Create meaningful arcs between geopolitically connected hotspots
+		// These represent intel/influence corridors between high-threat areas
+		const arcConnections = [
+			// Russia-Ukraine corridor
+			{ from: 'Moscow', to: 'Kyiv', color: 'rgba(239, 68, 68, 0.4)' },
+			// Middle East tensions
+			{ from: 'Tehran', to: 'Tel Aviv', color: 'rgba(239, 68, 68, 0.5)' },
+			// Taiwan Strait tensions
+			{ from: 'Beijing', to: 'Taipei', color: 'rgba(251, 191, 36, 0.4)' },
+			// North Korea threat
+			{ from: 'Pyongyang', to: 'Tokyo', color: 'rgba(251, 191, 36, 0.4)' },
+		];
+
+		const hotspotMap = new Map(HOTSPOTS.map(h => [h.name, h]));
+
+		arcConnections.forEach(conn => {
+			const from = hotspotMap.get(conn.from);
+			const to = hotspotMap.get(conn.to);
+			if (from && to) {
+				arcs.push({
+					startLat: from.lat,
+					startLng: from.lon,
+					endLat: to.lat,
+					endLng: to.lon,
+					color: conn.color
+				});
+			}
+		});
 
 		return arcs;
 	}
@@ -185,7 +205,7 @@
 		}));
 	}
 
-	// Handle point hover for tooltip
+	// Handle point hover for tooltip - pauses rotation for better interaction
 	function handlePointHover(point: PointData | null, _prevPoint: PointData | null) {
 		if (point) {
 			tooltipData = {
@@ -195,8 +215,83 @@
 				level: point.level
 			};
 			tooltipVisible = true;
+			isHovering = true;
+			// Pause auto-rotation when hovering over a point
+			pauseRotation();
 		} else {
 			tooltipVisible = false;
+			isHovering = false;
+			// Resume rotation after a short delay
+			setTimeout(() => {
+				if (!isHovering) resumeRotation();
+			}, 500);
+		}
+	}
+
+	// Handle point click - locks the tooltip and pauses rotation
+	function handlePointClick(point: PointData | null) {
+		if (point) {
+			tooltipData = {
+				label: point.label,
+				type: point.type,
+				desc: point.desc,
+				level: point.level
+			};
+			tooltipVisible = true;
+			// Keep rotation paused on click
+			pauseRotation();
+		}
+	}
+
+	// Pause globe auto-rotation
+	function pauseRotation() {
+		if (globe) {
+			const controls = globe.controls();
+			if (controls) {
+				controls.autoRotate = false;
+			}
+		}
+	}
+
+	// Resume globe auto-rotation
+	function resumeRotation() {
+		if (globe) {
+			const controls = globe.controls();
+			if (controls) {
+				controls.autoRotate = true;
+			}
+		}
+	}
+
+	// Handle container mouse enter/leave for rotation control
+	function handleContainerEnter() {
+		// Slow down rotation when mouse enters
+		if (globe) {
+			const controls = globe.controls();
+			if (controls) {
+				controls.autoRotateSpeed = 0.1;
+			}
+		}
+	}
+
+	function handleContainerLeave() {
+		// Resume normal rotation when mouse leaves
+		if (globe) {
+			const controls = globe.controls();
+			if (controls) {
+				controls.autoRotate = true;
+				controls.autoRotateSpeed = 0.3;
+			}
+		}
+		tooltipVisible = false;
+		isHovering = false;
+	}
+
+	// Toggle arcs visibility
+	function toggleArcs() {
+		showArcs = !showArcs;
+		if (globe && isInitialized) {
+			globe.arcsData(getArcsData());
 		}
 	}
 
@@ -249,40 +344,49 @@
 			const GlobeModule = await import('globe.gl');
 			const Globe = GlobeModule.default;
 
-			// Create globe instance with explicit dimensions
+			// Create globe instance with explicit dimensions and high-quality rendering
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			globe = (Globe as any)()
 				.width(width)
 				.height(height)
-				.backgroundColor('#020305')
+				.backgroundColor('rgba(2, 3, 5, 1)')
+				// High quality night earth texture with city lights
 				.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
 				.bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+				// Enhanced atmosphere for better visual appeal
 				.showAtmosphere(true)
-				.atmosphereColor('#06b6d4')
-				.atmosphereAltitude(0.25)
-				// Points
+				.atmosphereColor('rgba(6, 182, 212, 0.35)')
+				.atmosphereAltitude(0.15)
+				// Show subtle graticules (lat/lon grid)
+				.showGraticules(true)
+				// Points - improved visibility and size
 				.pointsData(getPointsData())
-				.pointAltitude('size')
+				.pointAltitude((d: PointData) => d.size * 0.03)
 				.pointColor('color')
-				.pointRadius(0.3)
+				.pointRadius(0.5)
 				.pointsMerge(false)
-				// Point interaction
+				.pointResolution(12)
+				// Point interaction - hover and click
 				.onPointHover(handlePointHover)
-				// Labels
+				.onPointClick(handlePointClick)
+				// Labels - only show for critical/high to reduce clutter
 				.labelsData(getLabelsData())
 				.labelText('text')
 				.labelSize('size')
 				.labelColor('color')
-				.labelDotRadius(0.3)
-				.labelAltitude(0.01)
-				// Arcs
+				.labelDotRadius(0.4)
+				.labelAltitude(0.015)
+				.labelResolution(3)
+				// Arcs - tension corridors between hotspots (more subtle)
 				.arcsData(getArcsData())
 				.arcColor('color')
-				.arcDashLength(0.4)
-				.arcDashGap(0.2)
-				.arcDashAnimateTime(2000)
-				.arcStroke(0.5)
-				// Rings
+				.arcDashLength(0.5)
+				.arcDashGap(0.25)
+				.arcDashAnimateTime(2500)
+				.arcStroke(0.4)
+				.arcAltitude(0.12)
+				.arcAltitudeAutoScale(0.25)
+				// Rings - pulsing effect on critical hotspots
 				.ringsData(getRingsData())
 				.ringColor('color')
 				.ringMaxRadius('maxR')
@@ -292,17 +396,42 @@
 			// Mount to container
 			globe(globeContainer);
 
-			// Set initial view after mounting
-			globe.pointOfView({ lat: 30, lng: 0, altitude: 2.5 });
+			// Set initial view after mounting - show a good overview
+			globe.pointOfView({ lat: 25, lng: 10, altitude: 2.2 });
 
-			// Enable auto-rotation
+			// Enhance WebGL renderer settings for better quality
+			const renderer = globe.renderer();
+			if (renderer) {
+				renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+				renderer.antialias = true;
+			}
+
+			// Enhance the scene lighting for better visual quality
+			const scene = globe.scene();
+			if (scene) {
+				// The globe.gl library sets up lighting, we can enhance it
+				scene.traverse((obj: any) => {
+					if (obj.type === 'AmbientLight') {
+						obj.intensity = 0.8;
+					}
+					if (obj.type === 'DirectionalLight') {
+						obj.intensity = 0.6;
+					}
+				});
+			}
+
+			// Enable auto-rotation with slower speed for better interaction
 			const controls = globe.controls();
 			if (controls) {
 				controls.autoRotate = true;
-				controls.autoRotateSpeed = 0.3;
+				controls.autoRotateSpeed = 0.15; // Even slower default rotation for better UX
 				controls.enableZoom = true;
 				controls.minDistance = 101;
-				controls.maxDistance = 500;
+				controls.maxDistance = 400;
+				controls.enableDamping = true;
+				controls.dampingFactor = 0.08;
+				controls.rotateSpeed = 0.8;
+				controls.zoomSpeed = 0.8;
 			}
 
 			isInitialized = true;
@@ -351,7 +480,15 @@
 	});
 </script>
 
-<div class="globe-container" bind:this={globeContainer} onmousemove={handleMouseMove} role="application" aria-label="Interactive 3D globe showing global hotspots and regions">
+<div
+	class="globe-container"
+	bind:this={globeContainer}
+	onmousemove={handleMouseMove}
+	onmouseenter={handleContainerEnter}
+	onmouseleave={handleContainerLeave}
+	role="application"
+	aria-label="Interactive 3D globe showing global hotspots and regions"
+>
 	{#if !isInitialized && !initError}
 		<div class="globe-loading">
 			<div class="loading-spinner"></div>
@@ -362,6 +499,106 @@
 		<div class="globe-error">
 			<span class="error-icon">⚠</span>
 			<span class="error-text">{initError}</span>
+		</div>
+	{/if}
+
+	<!-- Globe Controls -->
+	{#if isInitialized}
+		<div class="globe-controls">
+			<button
+				class="control-btn"
+				class:active={showArcs}
+				onclick={toggleArcs}
+				title={showArcs ? 'Hide tension corridors' : 'Show tension corridors'}
+			>
+				<span class="control-icon">⌇</span>
+			</button>
+			<button
+				class="control-btn"
+				onclick={() => resumeRotation()}
+				title="Resume rotation"
+			>
+				<span class="control-icon">↻</span>
+			</button>
+			<button
+				class="control-btn"
+				onclick={() => pauseRotation()}
+				title="Pause rotation"
+			>
+				<span class="control-icon">⏸</span>
+			</button>
+		</div>
+	{/if}
+
+	<!-- Globe Legend -->
+	{#if isInitialized}
+		<div class="globe-legend" class:expanded={legendExpanded}>
+			<button class="legend-toggle" onclick={() => legendExpanded = !legendExpanded}>
+				<span class="legend-toggle-text">LEGEND</span>
+				<span class="legend-toggle-icon">{legendExpanded ? '▼' : '▲'}</span>
+			</button>
+			{#if legendExpanded}
+				<div class="legend-content">
+					<div class="legend-section">
+						<span class="legend-section-title">THREAT LEVELS</span>
+						<div class="legend-items">
+							<div class="legend-item">
+								<span class="legend-dot critical"></span>
+								<span class="legend-label">Critical</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-dot high"></span>
+								<span class="legend-label">High</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-dot elevated"></span>
+								<span class="legend-label">Elevated</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-dot low"></span>
+								<span class="legend-label">Low</span>
+							</div>
+						</div>
+					</div>
+					<div class="legend-section">
+						<span class="legend-section-title">MARKERS</span>
+						<div class="legend-items">
+							<div class="legend-item">
+								<span class="legend-marker chokepoint"></span>
+								<span class="legend-label">Chokepoint</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-marker cable"></span>
+								<span class="legend-label">Cable Landing</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-marker nuclear"></span>
+								<span class="legend-label">Nuclear Site</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-marker military"></span>
+								<span class="legend-label">Military Base</span>
+							</div>
+						</div>
+					</div>
+					<div class="legend-section">
+						<span class="legend-section-title">FEATURES</span>
+						<div class="legend-items">
+							<div class="legend-item">
+								<span class="legend-arc"></span>
+								<span class="legend-label">Tension Corridor</span>
+							</div>
+							<div class="legend-item">
+								<span class="legend-ring"></span>
+								<span class="legend-label">Critical Alert Ring</span>
+							</div>
+						</div>
+					</div>
+					<div class="legend-hint">
+						Hover over markers for details. Click to lock tooltip. Drag to rotate.
+					</div>
+				</div>
+			{/if}
 		</div>
 	{/if}
 
@@ -395,11 +632,22 @@
 		height: 100%;
 		min-height: 400px;
 		position: relative;
-		background: #020305;
+		background: radial-gradient(ellipse at center, #0a0f1a 0%, #020305 70%);
 		overflow: hidden;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		border-radius: 2px;
+	}
+
+	/* Subtle vignette effect */
+	.globe-container::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+		z-index: 1;
 	}
 
 	.globe-container :global(canvas) {
@@ -574,5 +822,231 @@
 		border-top: 1px solid rgb(51 65 85 / 0.5);
 		padding-top: 0.375rem;
 		margin-top: 0.25rem;
+	}
+
+	/* Globe Controls */
+	.globe-controls {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		z-index: 20;
+	}
+
+	.control-btn {
+		width: 28px;
+		height: 28px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgb(15 23 42 / 0.8);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		border: 1px solid rgb(51 65 85 / 0.5);
+		border-radius: 2px;
+		color: rgb(148 163 184);
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.control-btn:hover {
+		background: rgb(51 65 85 / 0.8);
+		border-color: rgb(34 211 238 / 0.5);
+		color: rgb(34 211 238);
+	}
+
+	.control-btn.active {
+		background: rgb(22 78 99 / 0.5);
+		border-color: rgb(34 211 238 / 0.5);
+		color: rgb(34 211 238);
+	}
+
+	.control-icon {
+		font-size: 0.875rem;
+	}
+
+	/* Globe Legend */
+	.globe-legend {
+		position: absolute;
+		bottom: 0.75rem;
+		left: 0.75rem;
+		z-index: 20;
+		background: rgb(15 23 42 / 0.9);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border: 1px solid rgb(51 65 85 / 0.5);
+		border-radius: 2px;
+		min-width: 140px;
+		max-width: 200px;
+	}
+
+	.legend-toggle {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0.625rem;
+		background: transparent;
+		border: none;
+		color: rgb(148 163 184);
+		cursor: pointer;
+		transition: color 0.15s ease;
+	}
+
+	.legend-toggle:hover {
+		color: rgb(34 211 238);
+	}
+
+	.legend-toggle-text {
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.legend-toggle-icon {
+		font-size: 0.5rem;
+	}
+
+	.legend-content {
+		padding: 0 0.625rem 0.625rem;
+		border-top: 1px solid rgb(51 65 85 / 0.3);
+	}
+
+	.legend-section {
+		margin-top: 0.5rem;
+	}
+
+	.legend-section-title {
+		display: block;
+		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: rgb(100 116 139);
+		text-transform: uppercase;
+		margin-bottom: 0.375rem;
+	}
+
+	.legend-items {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.legend-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.legend-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.legend-dot.critical {
+		background: #ff0000;
+		box-shadow: 0 0 6px #ff0000;
+	}
+
+	.legend-dot.high {
+		background: #ff4444;
+		box-shadow: 0 0 6px #ff4444;
+	}
+
+	.legend-dot.elevated {
+		background: #ffcc00;
+		box-shadow: 0 0 6px #ffcc00;
+	}
+
+	.legend-dot.low {
+		background: #00ff88;
+		box-shadow: 0 0 6px #00ff88;
+	}
+
+	.legend-marker {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.legend-marker.chokepoint {
+		background: #00aaff;
+	}
+
+	.legend-marker.cable {
+		background: #aa44ff;
+	}
+
+	.legend-marker.nuclear {
+		background: #ffff00;
+	}
+
+	.legend-marker.military {
+		background: #ff00ff;
+	}
+
+	.legend-arc {
+		width: 16px;
+		height: 2px;
+		background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.6), transparent);
+		border-radius: 1px;
+		flex-shrink: 0;
+	}
+
+	.legend-ring {
+		width: 12px;
+		height: 12px;
+		border: 2px solid rgba(255, 0, 0, 0.6);
+		border-radius: 50%;
+		flex-shrink: 0;
+		animation: legend-pulse 1.5s ease-in-out infinite;
+	}
+
+	@keyframes legend-pulse {
+		0%, 100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.5;
+			transform: scale(0.9);
+		}
+	}
+
+	.legend-label {
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: rgb(203 213 225);
+		white-space: nowrap;
+	}
+
+	.legend-hint {
+		margin-top: 0.5rem;
+		padding-top: 0.5rem;
+		border-top: 1px solid rgb(51 65 85 / 0.3);
+		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: rgb(100 116 139);
+		line-height: 1.4;
+	}
+
+	/* Responsive adjustments for legend */
+	@media (max-width: 480px) {
+		.globe-legend {
+			min-width: 120px;
+			max-width: 160px;
+		}
+
+		.legend-label {
+			font-size: 0.5rem;
+		}
 	}
 </style>
