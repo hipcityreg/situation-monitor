@@ -71,6 +71,17 @@ export interface CryptoItem {
 }
 
 /**
+ * Nifty stock data (for Indian market indices)
+ */
+export interface NiftyStock {
+	symbol: string; // e.g., "RELIANCE"
+	name: string; // e.g., "Reliance Industries"
+	price: number;
+	changePercent: number;
+	logoUrl: string; // Company logo URL
+}
+
+/**
  * Sector heatmap data
  */
 export interface SectorData {

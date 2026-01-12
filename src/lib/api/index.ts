@@ -13,3 +13,4 @@ export {
 export { fetchPolymarket, fetchWhaleTransactions, fetchGovContracts, fetchLayoffs } from './misc';
 export type { Prediction, WhaleTransaction, Contract, Layoff } from './misc';
 export { fetchWorldLeaders } from './leaders';
+export { fetchNifty50, fetchNiftyNext50 } from './nifty';

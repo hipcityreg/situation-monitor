@@ -20,9 +20,11 @@
 		IntelPanel,
 		SituationPanel,
 		WorldLeadersPanel,
-		PrinterPanel
+		PrinterPanel,
+		Nifty50HeatmapPanel,
+		NiftyNext50HeatmapPanel
 	} from '$lib/components/panels';
-	import { news, markets, monitors, settings, refresh, allNewsItems } from '$lib/stores';
+	import { news, markets, monitors, settings, refresh, allNewsItems, nifty50, niftyNext50 } from '$lib/stores';
 	import {
 		fetchAllNews,
 		fetchAllMarkets,
@@ -30,7 +32,9 @@
 		fetchWhaleTransactions,
 		fetchGovContracts,
 		fetchLayoffs,
-		fetchWorldLeaders
+		fetchWorldLeaders,
+		fetchNifty50,
+		fetchNiftyNext50
 	} from '$lib/api';
 	import type { Prediction, WhaleTransaction, Contract, Layoff } from '$lib/api';
 	import type { CustomMonitor, WorldLeader } from '$lib/types';
@@ -107,11 +111,47 @@
 		}
 	}
 
+	async function loadNiftyData() {
+		if (!isPanelVisible('nifty50') && !isPanelVisible('niftynext50')) return;
+
+		try {
+			const promises = [];
+			
+			if (isPanelVisible('nifty50')) {
+				nifty50.setLoading(true);
+				promises.push(
+					fetchNifty50()
+						.then((data) => nifty50.setItems(data))
+						.catch((error) => {
+							console.error('Failed to load Nifty 50:', error);
+							nifty50.setError(String(error));
+						})
+				);
+			}
+
+			if (isPanelVisible('niftynext50')) {
+				niftyNext50.setLoading(true);
+				promises.push(
+					fetchNiftyNext50()
+						.then((data) => niftyNext50.setItems(data))
+						.catch((error) => {
+							console.error('Failed to load Nifty Next 50:', error);
+							niftyNext50.setError(String(error));
+						})
+				);
+			}
+
+			await Promise.all(promises);
+		} catch (error) {
+			console.error('Failed to load Nifty data:', error);
+		}
+	}
+
 	// Refresh handlers
 	async function handleRefresh() {
 		refresh.startRefresh();
 		try {
-			await Promise.all([loadNews(), loadMarkets()]);
+			await Promise.all([loadNews(), loadMarkets(), loadNiftyData()]);
 			refresh.endRefresh();
 		} catch (error) {
 			refresh.endRefresh([String(error)]);
@@ -168,7 +208,7 @@
 		async function initialLoad() {
 			refresh.startRefresh();
 			try {
-				await Promise.all([loadNews(), loadMarkets(), loadMiscData(), loadWorldLeaders()]);
+				await Promise.all([loadNews(), loadMarkets(), loadMiscData(), loadWorldLeaders(), loadNiftyData()]);
 				refresh.endRefresh();
 			} catch (error) {
 				refresh.endRefresh([String(error)]);
@@ -241,6 +281,18 @@
 			{#if isPanelVisible('heatmap')}
 				<div class="panel-slot">
 					<HeatmapPanel />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('nifty50')}
+				<div class="panel-slot">
+					<Nifty50HeatmapPanel />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('niftynext50')}
+				<div class="panel-slot">
+					<NiftyNext50HeatmapPanel />
 				</div>
 			{/if}
 
