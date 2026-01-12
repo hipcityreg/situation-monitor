@@ -48,7 +48,8 @@
 <style>
 	.news-item {
 		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
+		transition: background-color 0.15s;
 	}
 
 	.news-item:last-child {
@@ -60,19 +61,20 @@
 	}
 
 	.news-item.alert {
-		background: rgba(255, 68, 68, 0.08);
+		background: var(--critical-bg);
 		margin: 0 -0.5rem;
 		padding: 0.5rem;
-		border-radius: 4px;
-		border: 1px solid rgba(255, 68, 68, 0.2);
-		border-bottom: 1px solid rgba(255, 68, 68, 0.2);
+		border-radius: 2px;
+		border: 1px solid var(--critical-border);
+		border-bottom: 1px solid var(--critical-border);
 	}
 
 	.item-source {
-		font-size: 0.55rem;
-		color: var(--text-secondary);
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text-dim);
 		text-transform: uppercase;
-		letter-spacing: 0.03em;
+		letter-spacing: 0.05em;
 		margin-bottom: 0.2rem;
 		display: flex;
 		align-items: center;
@@ -85,15 +87,17 @@
 		font-size: 0.5rem;
 		padding: 0.1rem 0.3rem;
 		border-radius: 2px;
-		font-weight: 600;
+		font-weight: 700;
+		letter-spacing: 0.05em;
 	}
 
 	.item-title {
 		display: block;
 		font-size: 0.7rem;
 		line-height: 1.35;
-		color: var(--text-primary);
+		color: var(--text);
 		text-decoration: none;
+		transition: color 0.15s;
 	}
 
 	.item-title:hover {
@@ -110,6 +114,8 @@
 		color: var(--text-secondary);
 		margin: 0.3rem 0 0;
 		line-height: 1.4;
+		border-left: 2px solid var(--border-default);
+		padding-left: 0.5rem;
 	}
 
 	.item-meta {
@@ -120,16 +126,20 @@
 	}
 
 	.item-time {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
 	.item-region {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--accent);
-		background: rgba(var(--accent-rgb), 0.1);
-		padding: 0.1rem 0.3rem;
+		background: rgba(34, 211, 238, 0.1);
+		padding: 0.1rem 0.375rem;
 		border-radius: 2px;
+		border: 1px solid var(--accent-border);
 		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 </style>

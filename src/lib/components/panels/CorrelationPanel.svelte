@@ -136,7 +136,7 @@
 
 	.section {
 		padding-bottom: 0.5rem;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
 	}
 
 	.section:last-child {
@@ -145,11 +145,12 @@
 	}
 
 	.section-title {
-		font-size: 0.6rem;
-		font-weight: 600;
+		font-size: 0.5625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--accent);
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: 0.15em;
 		margin-bottom: 0.4rem;
 	}
 
@@ -166,12 +167,13 @@
 
 	.pattern-topic {
 		font-size: 0.65rem;
-		font-weight: 500;
+		font-weight: 700;
 		color: var(--text-primary);
 	}
 
 	.pattern-sources {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
@@ -181,28 +183,30 @@
 		align-items: center;
 		padding: 0.25rem 0.4rem;
 		margin: 0.2rem 0;
-		border-radius: 4px;
-		background: rgba(255, 255, 255, 0.02);
+		border-radius: 2px;
+		background: var(--card-bg);
+		border-left: 2px solid transparent;
 	}
 
 	.signal-item.signal-strong {
-		background: rgba(255, 165, 0, 0.1);
-		border-left: 2px solid var(--warning);
+		background: var(--warning-bg);
+		border-left-color: var(--warning);
 	}
 
 	.signal-item.signal-medium {
-		background: rgba(68, 255, 136, 0.05);
-		border-left: 2px solid var(--success);
+		background: var(--success-bg);
+		border-left-color: var(--success);
 	}
 
 	.signal-topic {
-		font-size: 0.6rem;
+		font-size: 0.625rem;
 		color: var(--text-primary);
 	}
 
 	.signal-direction {
-		font-size: 0.6rem;
-		font-weight: 600;
+		font-size: 0.625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 	}
 
 	.signal-direction.up {
@@ -218,12 +222,13 @@
 	}
 
 	.correlation-sources {
-		font-size: 0.6rem;
+		font-size: 0.625rem;
 		color: var(--text-secondary);
 	}
 
 	.correlation-topic {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
@@ -232,19 +237,22 @@
 	}
 
 	.predictive-pattern {
-		font-size: 0.6rem;
+		font-size: 0.625rem;
 		color: var(--text-primary);
 	}
 
 	.predictive-confidence {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
 	.empty-state {
 		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		padding: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 </style>

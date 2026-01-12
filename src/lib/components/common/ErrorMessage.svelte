@@ -11,7 +11,7 @@
 	<div class="error-icon">⚠</div>
 	<div class="error-message">{message}</div>
 	{#if retry}
-		<button class="retry-btn" onclick={retry}>Retry</button>
+		<button class="retry-btn" onclick={retry}>RETRY</button>
 	{/if}
 </div>
 
@@ -24,31 +24,41 @@
 		padding: 1rem;
 		gap: 0.5rem;
 		text-align: center;
+		background: var(--critical-bg);
+		border: 1px solid var(--critical-border);
+		border-radius: 2px;
+		margin: 0.5rem;
 	}
 
 	.error-icon {
-		font-size: 1.5rem;
-		opacity: 0.6;
+		font-size: 1.25rem;
+		color: var(--danger);
 	}
 
 	.error-message {
-		font-size: 0.7rem;
+		font-size: 0.65rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--danger);
 	}
 
 	.retry-btn {
-		font-size: 0.6rem;
-		padding: 0.3rem 0.6rem;
-		background: var(--surface);
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		padding: 0.35rem 0.75rem;
+		background: transparent;
 		border: 1px solid var(--border);
-		border-radius: 4px;
-		color: var(--text-secondary);
+		border-radius: 2px;
+		color: var(--text-dim);
 		cursor: pointer;
 		transition: all 0.15s ease;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	.retry-btn:hover {
-		background: var(--border);
-		color: var(--text-primary);
+		background: var(--surface-hover);
+		border-color: var(--accent);
+		color: var(--accent);
 	}
 </style>

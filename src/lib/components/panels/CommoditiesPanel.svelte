@@ -52,8 +52,10 @@
 
 	.empty-state {
 		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		padding: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 </style>

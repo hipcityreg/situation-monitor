@@ -30,11 +30,17 @@
 {#if open}
 	<div class="modal-overlay">
 		<div class="modal onboarding-modal">
+			<!-- Tech Corner Decorations -->
+			<div class="tech-corner top-left"></div>
+			<div class="tech-corner top-right"></div>
+			<div class="tech-corner bottom-left"></div>
+			<div class="tech-corner bottom-right"></div>
+
 			<div class="modal-header">
 				<button class="close-btn" onclick={handleClose} aria-label="Skip onboarding">
 					&times;
 				</button>
-				<h2>Welcome to Situation Monitor</h2>
+				<h2>SITUATION MONITOR</h2>
 				<p class="subtitle">Choose a dashboard configuration to get started</p>
 			</div>
 
@@ -45,7 +51,7 @@
 						<div class="preset-icon">{preset.icon}</div>
 						<div class="preset-name">{preset.name}</div>
 						<div class="preset-description">{preset.description}</div>
-						<div class="preset-panel-count">{preset.panels.length} panels</div>
+						<div class="preset-panel-count">{preset.panels.length} PANELS</div>
 					</button>
 				{/each}
 			</div>
@@ -71,19 +77,61 @@
 
 	.onboarding-modal {
 		background: var(--surface);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 		border: 1px solid var(--border);
-		border-radius: 8px;
+		border-radius: 2px;
 		max-width: 900px;
 		width: 100%;
 		max-height: 90vh;
 		overflow-y: auto;
+		position: relative;
+		isolation: isolate;
+	}
+
+	/* Tech Corner Decorations */
+	.tech-corner {
+		position: absolute;
+		width: 12px;
+		height: 12px;
+		pointer-events: none;
+		z-index: 10;
+	}
+
+	.tech-corner.top-left {
+		top: 0;
+		left: 0;
+		border-top: 2px solid var(--accent-border);
+		border-left: 2px solid var(--accent-border);
+	}
+
+	.tech-corner.top-right {
+		top: 0;
+		right: 0;
+		border-top: 2px solid var(--accent-border);
+		border-right: 2px solid var(--accent-border);
+	}
+
+	.tech-corner.bottom-left {
+		bottom: 0;
+		left: 0;
+		border-bottom: 2px solid var(--accent-border);
+		border-left: 2px solid var(--accent-border);
+	}
+
+	.tech-corner.bottom-right {
+		bottom: 0;
+		right: 0;
+		border-bottom: 2px solid var(--accent-border);
+		border-right: 2px solid var(--accent-border);
 	}
 
 	.modal-header {
 		position: relative;
 		padding: 1.5rem;
 		text-align: center;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
+		background: var(--surface-solid);
 	}
 
 	.close-btn {
@@ -97,29 +145,30 @@
 		justify-content: center;
 		background: transparent;
 		border: 1px solid var(--border);
-		border-radius: 4px;
-		color: var(--text-secondary);
+		border-radius: 2px;
+		color: var(--text-dim);
 		font-size: 1.25rem;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.15s ease;
 	}
 
 	.close-btn:hover {
-		background: var(--bg);
-		color: var(--text-primary);
-		border-color: var(--text-secondary);
+		background: var(--surface-hover);
+		color: var(--accent);
+		border-color: var(--accent);
 	}
 
 	.modal-header h2 {
 		color: var(--text-primary);
-		font-size: 1.25rem;
-		font-weight: 600;
+		font-size: 0.875rem;
+		font-weight: 700;
+		letter-spacing: 0.15em;
 		margin: 0 0 0.5rem;
 	}
 
 	.subtitle {
-		color: var(--text-secondary);
-		font-size: 0.8rem;
+		color: var(--text-dim);
+		font-size: 0.7rem;
 		margin: 0;
 	}
 
@@ -131,57 +180,66 @@
 	}
 
 	.preset-card {
-		background: var(--bg);
+		background: var(--card-bg);
 		border: 1px solid var(--border);
-		border-radius: 6px;
+		border-radius: 2px;
 		padding: 1.25rem;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.15s ease;
 		text-align: left;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		position: relative;
 	}
 
 	.preset-card:hover {
 		border-color: var(--accent);
-		background: rgba(0, 255, 136, 0.05);
+		background: rgba(34, 211, 238, 0.05);
 	}
 
 	.preset-icon {
-		font-size: 2rem;
+		font-size: 1.75rem;
 		margin-bottom: 0.25rem;
 	}
 
 	.preset-name {
-		font-size: 0.9rem;
-		font-weight: 600;
+		font-size: 0.75rem;
+		font-weight: 700;
 		color: var(--text-primary);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	.preset-description {
-		font-size: 0.7rem;
-		color: var(--text-secondary);
+		font-size: 0.65rem;
+		color: var(--text-dim);
 		line-height: 1.4;
 		flex: 1;
 	}
 
 	.preset-panel-count {
-		font-size: 0.65rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--accent);
-		font-weight: 500;
+		font-weight: 700;
+		letter-spacing: 0.1em;
 	}
 
 	.modal-footer {
 		padding: 1rem 1.5rem;
-		border-top: 1px solid var(--border);
+		border-top: 1px solid var(--border-divider);
 		text-align: center;
+		background: var(--surface-solid);
 	}
 
 	.hint {
 		color: var(--text-muted);
-		font-size: 0.7rem;
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		margin: 0;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	@media (max-width: 768px) {
@@ -190,7 +248,7 @@
 		}
 
 		.modal-header h2 {
-			font-size: 1.1rem;
+			font-size: 0.75rem;
 		}
 	}
 </style>

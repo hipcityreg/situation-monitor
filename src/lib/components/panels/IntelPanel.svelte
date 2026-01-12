@@ -107,7 +107,8 @@
 
 	.intel-item {
 		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
+		transition: background-color 0.15s;
 	}
 
 	.intel-item:last-child {
@@ -115,11 +116,11 @@
 	}
 
 	.intel-item.priority {
-		background: rgba(255, 165, 0, 0.08);
+		background: var(--warning-bg);
 		margin: 0 -0.5rem;
 		padding: 0.5rem;
-		border-radius: 4px;
-		border: 1px solid rgba(255, 165, 0, 0.2);
+		border-radius: 2px;
+		border: 1px solid var(--warning-border);
 	}
 
 	.intel-header {
@@ -131,11 +132,12 @@
 	}
 
 	.intel-source {
-		font-size: 0.55rem;
-		font-weight: 600;
-		color: var(--text-secondary);
+		font-size: 0.5625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text-dim);
 		text-transform: uppercase;
-		letter-spacing: 0.03em;
+		letter-spacing: 0.05em;
 	}
 
 	.intel-tags {
@@ -147,9 +149,10 @@
 	.intel-title {
 		display: block;
 		font-size: 0.65rem;
-		color: var(--text-primary);
+		color: var(--text);
 		text-decoration: none;
 		line-height: 1.35;
+		transition: color 0.15s;
 	}
 
 	.intel-title:hover {
@@ -158,14 +161,17 @@
 
 	.intel-meta {
 		margin-top: 0.25rem;
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
 	.empty-state {
 		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		padding: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 </style>

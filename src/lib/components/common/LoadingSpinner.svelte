@@ -25,7 +25,7 @@
 	}
 
 	.spinner {
-		border: 2px solid var(--border);
+		border: 2px solid var(--border-default);
 		border-top-color: var(--accent);
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
@@ -54,15 +54,18 @@
 	}
 
 	.message {
-		font-size: 0.7rem;
-		color: var(--text-secondary);
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text-dim);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	.sm .message {
-		font-size: 0.6rem;
+		font-size: 0.5625rem;
 	}
 
 	.lg .message {
-		font-size: 0.8rem;
+		font-size: 0.7rem;
 	}
 </style>

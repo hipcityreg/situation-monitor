@@ -54,7 +54,8 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
+		transition: background-color 0.15s;
 	}
 
 	.market-item:last-child {
@@ -73,7 +74,7 @@
 
 	.market-name {
 		font-size: 0.7rem;
-		font-weight: 500;
+		font-weight: 700;
 		color: var(--text-primary);
 	}
 
@@ -82,9 +83,11 @@
 	}
 
 	.market-symbol {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	.market-data {
@@ -96,7 +99,8 @@
 
 	.market-price {
 		font-size: 0.7rem;
-		font-weight: 500;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-primary);
 		font-variant-numeric: tabular-nums;
 	}
@@ -106,17 +110,22 @@
 	}
 
 	.market-change {
-		font-size: 0.6rem;
-		font-weight: 500;
+		font-size: 0.625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		font-variant-numeric: tabular-nums;
+		padding: 0.1rem 0.25rem;
+		border-radius: 2px;
 	}
 
 	.market-change.up {
 		color: var(--success);
+		background: var(--success-bg);
 	}
 
 	.market-change.down {
 		color: var(--danger);
+		background: var(--critical-bg);
 	}
 
 	.unavailable {

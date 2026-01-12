@@ -44,7 +44,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
 	}
 
 	.crypto-item:last-child {
@@ -59,13 +59,16 @@
 
 	.crypto-name {
 		font-size: 0.7rem;
-		font-weight: 500;
+		font-weight: 700;
 		color: var(--text-primary);
 	}
 
 	.crypto-symbol {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	.crypto-data {
@@ -77,29 +80,37 @@
 
 	.crypto-price {
 		font-size: 0.7rem;
-		font-weight: 500;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-primary);
 		font-variant-numeric: tabular-nums;
 	}
 
 	.crypto-change {
-		font-size: 0.6rem;
-		font-weight: 500;
+		font-size: 0.625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		font-variant-numeric: tabular-nums;
+		padding: 0.1rem 0.25rem;
+		border-radius: 2px;
 	}
 
 	.crypto-change.up {
 		color: var(--success);
+		background: var(--success-bg);
 	}
 
 	.crypto-change.down {
 		color: var(--danger);
+		background: var(--critical-bg);
 	}
 
 	.empty-state {
 		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		padding: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 </style>
