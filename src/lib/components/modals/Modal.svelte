@@ -63,7 +63,10 @@
 	.modal-backdrop {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.8);
+		/* Aegis backdrop: bg-black/80 backdrop-blur-sm */
+		background: rgb(0 0 0 / 0.8);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -72,11 +75,12 @@
 	}
 
 	.modal {
-		/* Glass morphism effect */
-		background: var(--surface);
+		/* Aegis glass morphism: bg-slate-950/80 backdrop-blur-md */
+		background: rgb(2 6 23 / 0.8);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
-		border: 1px solid var(--border);
+		/* Aegis border: border border-slate-700/50 */
+		border: 1px solid rgb(51 65 85 / 0.5);
 		border-radius: 2px;
 		width: 100%;
 		max-width: 500px;
@@ -86,10 +90,11 @@
 		overflow: hidden;
 		position: relative;
 		isolation: isolate;
-		box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+		/* Aegis shadow: shadow-2xl */
+		box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 	}
 
-	/* Tech Corner Decorations */
+	/* Tech Corner Decorations - 8px x 8px with cyan-500/50 border */
 	.tech-corner {
 		position: absolute;
 		width: 8px;
@@ -101,53 +106,54 @@
 	.tech-corner.top-left {
 		top: 0;
 		left: 0;
-		border-top: 2px solid var(--accent-border);
-		border-left: 2px solid var(--accent-border);
+		border-top: 2px solid rgb(6 182 212 / 0.5);
+		border-left: 2px solid rgb(6 182 212 / 0.5);
 	}
 
 	.tech-corner.top-right {
 		top: 0;
 		right: 0;
-		border-top: 2px solid var(--accent-border);
-		border-right: 2px solid var(--accent-border);
+		border-top: 2px solid rgb(6 182 212 / 0.5);
+		border-right: 2px solid rgb(6 182 212 / 0.5);
 	}
 
 	.tech-corner.bottom-left {
 		bottom: 0;
 		left: 0;
-		border-bottom: 2px solid var(--accent-border);
-		border-left: 2px solid var(--accent-border);
+		border-bottom: 2px solid rgb(6 182 212 / 0.5);
+		border-left: 2px solid rgb(6 182 212 / 0.5);
 	}
 
 	.tech-corner.bottom-right {
 		bottom: 0;
 		right: 0;
-		border-bottom: 2px solid var(--accent-border);
-		border-right: 2px solid var(--accent-border);
+		border-bottom: 2px solid rgb(6 182 212 / 0.5);
+		border-right: 2px solid rgb(6 182 212 / 0.5);
 	}
 
 	.modal-header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		/* Aegis header: p-4 (16px), bg-slate-900, border-b border-slate-800 */
 		padding: 1rem;
-		background: var(--surface-solid);
-		border-bottom: 1px solid var(--border-divider);
+		background: rgb(15 23 42);
+		border-bottom: 1px solid rgb(30 41 59);
 	}
 
 	.modal-title {
-		font-size: 0.75rem;
+		/* Aegis typography: text-lg (18px), font-bold, text-white */
+		font-size: 1.125rem;
+		line-height: 1.75rem;
 		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.15em;
 		margin: 0;
-		color: var(--text-primary);
+		color: rgb(255 255 255);
 	}
 
 	.modal-close {
 		background: none;
-		border: 1px solid var(--border);
-		color: var(--text-dim);
+		border: 1px solid rgb(51 65 85 / 0.5);
+		color: rgb(148 163 184);
 		font-size: 1.25rem;
 		cursor: pointer;
 		padding: 0;
@@ -162,9 +168,10 @@
 	}
 
 	.modal-close:hover {
-		background: var(--surface-hover);
-		border-color: var(--accent);
-		color: var(--accent);
+		background: rgb(30 41 59);
+		border-color: rgb(6 182 212);
+		/* Aegis close button hover: text-cyan-400 */
+		color: rgb(34 211 238);
 	}
 
 	.modal-content {
@@ -175,10 +182,10 @@
 
 	.modal-footer {
 		padding: 1rem;
-		border-top: 1px solid var(--border-divider);
+		border-top: 1px solid rgb(30 41 59);
 		display: flex;
 		justify-content: flex-end;
 		gap: 0.5rem;
-		background: var(--surface-solid);
+		background: rgb(15 23 42);
 	}
 </style>

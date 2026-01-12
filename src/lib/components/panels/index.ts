@@ -16,4 +16,5 @@ export { default as CorrelationPanel } from './CorrelationPanel.svelte';
 export { default as NarrativePanel } from './NarrativePanel.svelte';
 export { default as MonitorsPanel } from './MonitorsPanel.svelte';
 export { default as MapPanel } from './MapPanel.svelte';
+export { default as GlobePanel } from './GlobePanel.svelte';
 export { default as WorldLeadersPanel } from './WorldLeadersPanel.svelte';

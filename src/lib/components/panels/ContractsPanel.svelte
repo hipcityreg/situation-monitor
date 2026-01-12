@@ -28,80 +28,29 @@
 
 <Panel id="contracts" title="Gov Contracts" {count} {loading} {error}>
 	{#if contracts.length === 0 && !loading && !error}
-		<div class="empty-state">No contracts available</div>
+		<div class="text-center text-slate-400 text-xs py-4">No contracts available</div>
 	{:else}
-		<div class="contracts-list">
+		<div class="flex flex-col">
 			{#each contracts as contract, i (contract.vendor + i)}
-				<div class="contract-item">
-					<div class="contract-agency">{contract.agency}</div>
-					<div class="contract-desc">
+				<div
+					class="py-2 border-b border-slate-800 last:border-b-0 hover:bg-white/5 transition-colors"
+				>
+					<div class="text-[10px] font-mono text-slate-400 uppercase tracking-wide mb-1">
+						{contract.agency}
+					</div>
+					<div class="text-xs text-white leading-tight mb-1.5">
 						{contract.description.length > 100
 							? contract.description.substring(0, 100) + '...'
 							: contract.description}
 					</div>
-					<div class="contract-meta">
-						<span class="contract-vendor">{contract.vendor}</span>
-						<span class="contract-value">{formatValue(contract.amount)}</span>
+					<div class="flex justify-between items-center">
+						<span class="text-[10px] font-mono text-slate-500">{contract.vendor}</span>
+						<span class="text-xs font-mono text-emerald-500 tabular-nums"
+							>{formatValue(contract.amount)}</span
+						>
 					</div>
 				</div>
 			{/each}
 		</div>
 	{/if}
 </Panel>
-
-<style>
-	.contracts-list {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.contract-item {
-		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.contract-item:last-child {
-		border-bottom: none;
-	}
-
-	.contract-agency {
-		font-size: 0.55rem;
-		font-weight: 600;
-		color: var(--accent);
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		margin-bottom: 0.2rem;
-	}
-
-	.contract-desc {
-		font-size: 0.65rem;
-		color: var(--text-primary);
-		line-height: 1.3;
-		margin-bottom: 0.3rem;
-	}
-
-	.contract-meta {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-
-	.contract-vendor {
-		font-size: 0.55rem;
-		color: var(--text-secondary);
-	}
-
-	.contract-value {
-		font-size: 0.65rem;
-		font-weight: 600;
-		color: var(--success);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.empty-state {
-		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
-		padding: 1rem;
-	}
-</style>

@@ -30,74 +30,24 @@
 
 <Panel id="polymarket" title="Polymarket" {count} {loading} {error}>
 	{#if predictions.length === 0 && !loading && !error}
-		<div class="empty-state">No predictions available</div>
+		<div class="text-center text-slate-400 text-xs py-4">No predictions available</div>
 	{:else}
-		<div class="predictions-list">
+		<div class="flex flex-col">
 			{#each predictions as pred (pred.id)}
-				<div class="prediction-item">
-					<div class="prediction-info">
-						<div class="prediction-question">{pred.question}</div>
-						<div class="prediction-volume">Vol: {formatVolume(pred.volume)}</div>
+				<div
+					class="flex justify-between items-center py-2 border-b border-slate-800 last:border-b-0 hover:bg-white/5 transition-colors"
+				>
+					<div class="flex-1 min-w-0 mr-2">
+						<div class="text-xs font-bold text-white leading-tight mb-0.5">{pred.question}</div>
+						<div class="text-[10px] font-mono text-slate-500">Vol: {formatVolume(pred.volume)}</div>
 					</div>
-					<div class="prediction-odds">
-						<span class="prediction-yes">{pred.yes}%</span>
+					<div class="ml-2">
+						<span class="text-xs font-mono text-emerald-500 font-bold tabular-nums"
+							>{pred.yes}%</span
+						>
 					</div>
 				</div>
 			{/each}
 		</div>
 	{/if}
 </Panel>
-
-<style>
-	.predictions-list {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.prediction-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.prediction-item:last-child {
-		border-bottom: none;
-	}
-
-	.prediction-info {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.prediction-question {
-		font-size: 0.65rem;
-		color: var(--text-primary);
-		line-height: 1.3;
-		margin-bottom: 0.2rem;
-	}
-
-	.prediction-volume {
-		font-size: 0.55rem;
-		color: var(--text-muted);
-	}
-
-	.prediction-odds {
-		margin-left: 0.5rem;
-	}
-
-	.prediction-yes {
-		font-size: 0.8rem;
-		font-weight: 700;
-		color: var(--success);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.empty-state {
-		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
-		padding: 1rem;
-	}
-</style>

@@ -65,7 +65,7 @@
 
 /* Base styles */
 html {
-	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+	font-family: 'Geist Sans', 'SF Pro Display', system-ui, sans-serif;
 	background-color: var(--bg);
 	color: var(--text);
 }
@@ -76,7 +76,7 @@ body {
 	background-color: var(--bg);
 }
 
-/* Text selection */
+/* Text selection - Aegis cyan */
 ::selection {
 	background-color: rgb(22 78 99); /* cyan-900 */
 	color: white;
@@ -105,6 +105,7 @@ body {
 a {
 	color: inherit;
 	text-decoration: none;
+	transition: color 0.2s ease;
 }
 
 a:hover {
@@ -117,7 +118,11 @@ a:hover {
 	outline-offset: 2px;
 }
 
-/* Utility classes */
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Shimmer loading animation */
 .shimmer {
 	background: linear-gradient(90deg, var(--surface-solid) 25%, var(--border-default) 50%, var(--surface-solid) 75%);
 	background-size: 200% 100%;
@@ -140,7 +145,7 @@ a:hover {
 	-webkit-backdrop-filter: blur(12px);
 }
 
-/* Tech corner decoration utility */
+/* Tech corner decoration utility - top corners only */
 .tech-corners {
 	position: relative;
 }
@@ -153,6 +158,7 @@ a:hover {
 	height: 8px;
 	border-color: var(--accent-border);
 	pointer-events: none;
+	z-index: 10;
 }
 
 .tech-corners::before {
@@ -169,29 +175,35 @@ a:hover {
 	border-right: 2px solid;
 }
 
-/* Additional tech corners (bottom) - use with a wrapper */
-.tech-corners-bottom::before,
-.tech-corners-bottom::after {
+/* Full tech corners (all 4 corners) */
+.tech-corners-full {
+	position: relative;
+}
+
+.tech-corners-full::before {
 	content: '';
 	position: absolute;
-	width: 8px;
-	height: 8px;
-	border-color: var(--accent-border);
-	pointer-events: none;
-}
-
-.tech-corners-bottom::before {
-	bottom: 0;
+	top: 0;
 	left: 0;
-	border-bottom: 2px solid;
-	border-left: 2px solid;
-}
-
-.tech-corners-bottom::after {
-	bottom: 0;
 	right: 0;
-	border-bottom: 2px solid;
-	border-right: 2px solid;
+	bottom: 0;
+	pointer-events: none;
+	z-index: 10;
+	background:
+		/* Top left */
+		linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 0,
+		linear-gradient(to bottom, var(--accent-border) 8px, transparent 8px) 0 0,
+		/* Top right */
+		linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 0,
+		linear-gradient(to bottom, var(--accent-border) 8px, transparent 8px) 100% 0,
+		/* Bottom left */
+		linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 100%,
+		linear-gradient(to top, var(--accent-border) 8px, transparent 8px) 0 100%,
+		/* Bottom right */
+		linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 100%,
+		linear-gradient(to top, var(--accent-border) 8px, transparent 8px) 100% 100%;
+	background-size: 8px 2px, 2px 8px;
+	background-repeat: no-repeat;
 }
 
 /* Status dot with glow */
@@ -210,7 +222,7 @@ a:hover {
 
 .status-dot.warning {
 	background: var(--warning);
-	box-shadow: 0 0 10px var(--warning);
+	box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
 }
 
 .status-dot.success {
@@ -218,7 +230,52 @@ a:hover {
 	box-shadow: 0 0 10px var(--success);
 }
 
-/* D3 Map styles - Aegis themed */
+/* Accent line gradient utility */
+.accent-line {
+	height: 1px;
+	width: 100%;
+	background: linear-gradient(to right, transparent, var(--accent), transparent);
+}
+
+/* ========================================
+   TYPOGRAPHY UTILITIES
+   ======================================== */
+
+/* Panel/section headers */
+.text-heading {
+	font-size: 0.875rem; /* 14px - text-sm */
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--text-primary);
+}
+
+/* Body text */
+.text-body {
+	font-size: 0.75rem; /* 12px - text-xs */
+	color: var(--text);
+	line-height: 1.5;
+}
+
+/* Metadata/labels */
+.text-meta {
+	font-size: 0.625rem; /* 10px */
+	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+	color: var(--text-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* Nano text for tiny labels */
+.text-nano {
+	font-size: 0.5625rem; /* 9px */
+	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+}
+
+/* ========================================
+   MAP STYLES
+   ======================================== */
+
 .map-container {
 	position: relative;
 	background: var(--surface-solid);
@@ -269,9 +326,112 @@ a:hover {
 	max-width: 300px;
 }
 
-/* Accent line gradient utility */
-.accent-line {
-	height: 1px;
-	width: 100%;
-	background: linear-gradient(to right, transparent, var(--accent), transparent);
+/* ========================================
+   CARD PATTERN
+   ======================================== */
+
+.card {
+	padding: 0.75rem;
+	background: var(--card-bg);
+	border: 1px solid var(--border-strong);
+	border-radius: 2px;
+	transition: border-color 0.2s ease;
+	cursor: pointer;
+}
+
+.card:hover {
+	border-color: var(--accent);
+}
+
+/* ========================================
+   BUTTON PATTERNS
+   ======================================== */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	border-radius: 2px;
+	border: 1px solid var(--border-strong);
+	background: var(--interactive-bg);
+	color: var(--text-dim);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn:hover {
+	background: var(--surface-hover);
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.btn-active {
+	background: var(--interactive-bg);
+	border-color: var(--border-strong);
+	color: var(--accent);
+}
+
+/* ========================================
+   DATA DISPLAY PATTERNS
+   ======================================== */
+
+/* Market change indicators */
+.change-up {
+	color: var(--success);
+}
+
+.change-down {
+	color: var(--danger);
+}
+
+.change-neutral {
+	color: var(--text-muted);
+}
+
+/* Tabular numbers for data alignment */
+.tabular-nums {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   ANIMATION KEYFRAMES
+   ======================================== */
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+@keyframes pulse-ring {
+	0% {
+		transform: scale(0.8);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(2);
+		opacity: 0;
+	}
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES
+   ======================================== */
+
+@media (max-width: 768px) {
+	html {
+		font-size: 14px;
+	}
 }
