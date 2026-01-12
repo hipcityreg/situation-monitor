@@ -141,7 +141,7 @@
 
 	.section {
 		padding-bottom: 0.5rem;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
 	}
 
 	.section:last-child {
@@ -150,17 +150,18 @@
 	}
 
 	.section-title {
-		font-size: 0.6rem;
-		font-weight: 600;
+		font-size: 0.5625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--accent);
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: 0.15em;
 		margin-bottom: 0.4rem;
 	}
 
 	.narrative-item {
 		padding: 0.4rem 0;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
 	}
 
 	.narrative-item:last-child {
@@ -176,7 +177,7 @@
 
 	.narrative-name {
 		font-size: 0.65rem;
-		font-weight: 500;
+		font-weight: 700;
 		color: var(--text-primary);
 	}
 
@@ -188,12 +189,14 @@
 	}
 
 	.mention-count {
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-secondary);
 	}
 
 	.narrative-sources {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
@@ -202,11 +205,13 @@
 		border-left: 2px solid var(--warning);
 		padding-left: 0.5rem;
 		margin: 0.25rem 0;
+		background: var(--warning-bg);
+		border-radius: 2px;
 	}
 
 	.crossover-narrative {
-		font-size: 0.6rem;
-		font-weight: 500;
+		font-size: 0.625rem;
+		font-weight: 700;
 		color: var(--text-primary);
 	}
 
@@ -214,7 +219,8 @@
 		display: flex;
 		align-items: center;
 		gap: 0.3rem;
-		font-size: 0.55rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		margin: 0.15rem 0;
 	}
 
@@ -232,6 +238,7 @@
 
 	.crossover-level {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
@@ -246,16 +253,18 @@
 		align-items: center;
 		gap: 0.25rem;
 		padding: 0.2rem 0.4rem;
-		background: rgba(255, 255, 255, 0.05);
-		border-radius: 4px;
-		font-size: 0.55rem;
+		background: var(--card-bg);
+		border: 1px solid var(--border);
+		border-radius: 2px;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-secondary);
 	}
 
 	.theme-count {
 		font-size: 0.5rem;
-		color: var(--text-muted);
-		background: rgba(255, 255, 255, 0.1);
+		color: var(--accent);
+		background: rgba(34, 211, 238, 0.1);
 		padding: 0.1rem 0.2rem;
 		border-radius: 2px;
 	}
@@ -271,20 +280,23 @@
 	}
 
 	.disinfo-name {
-		font-size: 0.6rem;
+		font-size: 0.625rem;
 		color: var(--text-primary);
 	}
 
 	.disinfo-meta {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 		margin-top: 0.1rem;
 	}
 
 	.empty-state {
 		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		padding: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 </style>

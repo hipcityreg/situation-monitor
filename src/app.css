@@ -2,26 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Custom Properties for theming */
+/* Aegis UI Design System - CSS Custom Properties */
 :root {
-	--bg: #0a0a0a;
-	--surface: #141414;
-	--surface-hover: #1a1a1a;
-	--border: #2a2a2a;
-	--border-light: #3a3a3a;
-	--text: #e8e8e8;
-	--text-dim: #888;
-	--text-muted: #666;
-	--accent: #fff;
-	--red: #ff4444;
-	--green: #44ff88;
-	--yellow: #ffaa00;
-	--blue: #4488ff;
+	/* Background Colors */
+	--bg: #050505;
+	--bg-globe: #020305;
+	--surface: rgb(2 6 23 / 0.8); /* slate-950/80 */
+	--surface-solid: rgb(15 23 42); /* slate-900 */
+	--surface-alt: rgb(15 23 42 / 0.8); /* slate-900/80 */
+	--surface-elevated: rgb(15 23 42 / 0.95); /* slate-900/95 */
+	--surface-subtle: rgb(15 23 42 / 0.5); /* slate-900/50 */
+	--surface-hover: rgb(51 65 85 / 0.5); /* slate-700/50 */
+	--card-bg: rgb(30 41 59 / 0.4); /* slate-800/40 */
+	--interactive-bg: rgb(30 41 59 / 0.5); /* slate-800/50 */
+
+	/* Border Colors */
+	--border: rgb(51 65 85 / 0.5); /* slate-700/50 */
+	--border-default: rgb(51 65 85); /* slate-700 */
+	--border-subtle: rgb(51 65 85 / 0.3); /* slate-700/30 */
+	--border-strong: rgb(71 85 105); /* slate-600 */
+	--border-light: rgb(71 85 105); /* slate-600 */
+	--border-divider: rgb(30 41 59); /* slate-800 */
+
+	/* Text Colors */
+	--text: rgb(226 232 240); /* slate-200 - base */
+	--text-primary: #ffffff;
+	--text-secondary: rgb(203 213 225); /* slate-300 */
+	--text-dim: rgb(148 163 184); /* slate-400 - tertiary */
+	--text-muted: rgb(100 116 139); /* slate-500 */
+	--text-disabled: rgb(71 85 105); /* slate-600 */
+
+	/* Primary Accent (Cyan) */
+	--accent: rgb(34 211 238); /* cyan-400 */
+	--accent-solid: rgb(8 145 178); /* cyan-600 */
+	--accent-hover: rgb(6 182 212); /* cyan-500 */
+	--accent-border: rgb(6 182 212 / 0.5); /* cyan-500/50 */
+	--accent-glow: #06b6d4;
+	--accent-rgb: 34, 211, 238;
+
+	/* Semantic: Critical (Red) */
+	--red: rgb(239 68 68); /* red-500 */
+	--danger: rgb(239 68 68); /* red-500 */
+	--critical-bg: rgb(69 10 10 / 0.5); /* red-950/50 */
+	--critical-border: rgb(127 29 29 / 0.5); /* red-800/50 */
+
+	/* Semantic: Warning (Amber) */
+	--yellow: rgb(245 158 11); /* amber-500 */
+	--warning: rgb(245 158 11); /* amber-500 */
+	--warning-bg: rgb(69 26 3 / 0.5); /* amber-950/50 */
+	--warning-border: rgb(146 64 14 / 0.5); /* amber-800/50 */
+
+	/* Semantic: Success (Emerald) */
+	--green: rgb(16 185 129); /* emerald-500 */
+	--success: rgb(16 185 129); /* emerald-500 */
+	--success-bg: rgb(2 44 34 / 0.5); /* emerald-950/50 */
+	--success-border: rgb(6 95 70 / 0.5); /* emerald-800/50 */
+
+	/* Semantic: Info (Cyan) */
+	--blue: rgb(34 211 238); /* cyan-400 */
+	--info: rgb(34 211 238); /* cyan-400 */
 }
 
 /* Base styles */
 html {
-	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+	font-family: 'Geist Sans', 'SF Pro Display', system-ui, sans-serif;
 	background-color: var(--bg);
 	color: var(--text);
 }
@@ -29,35 +73,43 @@ html {
 body {
 	margin: 0;
 	min-height: 100vh;
+	background-color: var(--bg);
 }
 
-/* Scrollbar styling */
+/* Text selection - Aegis cyan */
+::selection {
+	background-color: rgb(22 78 99); /* cyan-900 */
+	color: white;
+}
+
+/* Scrollbar styling - Aegis theme */
 ::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-	background: var(--surface);
+	background: rgb(15 23 42); /* slate-900 */
 }
 
 ::-webkit-scrollbar-thumb {
-	background: var(--border-light);
-	border-radius: 3px;
+	background: rgb(51 65 85); /* slate-700 */
+	border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: var(--text-muted);
+	background: rgb(71 85 105); /* slate-600 */
 }
 
 /* Link styles */
 a {
 	color: inherit;
 	text-decoration: none;
+	transition: color 0.2s ease;
 }
 
 a:hover {
-	text-decoration: underline;
+	color: var(--accent);
 }
 
 /* Focus styles for accessibility */
@@ -66,9 +118,18 @@ a:hover {
 	outline-offset: 2px;
 }
 
-/* Utility classes that are hard to do in Tailwind */
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Shimmer loading animation */
 .shimmer {
-	background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+	background: linear-gradient(
+		90deg,
+		var(--surface-solid) 25%,
+		var(--border-default) 50%,
+		var(--surface-solid) 75%
+	);
 	background-size: 200% 100%;
 	animation: shimmer 1.5s infinite;
 }
@@ -82,11 +143,147 @@ a:hover {
 	}
 }
 
-/* D3 Map styles - keeping here since they're complex */
+/* Glass morphism utility */
+.glass {
+	background: var(--surface);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+/* Tech corner decoration utility - top corners only */
+.tech-corners {
+	position: relative;
+}
+
+.tech-corners::before,
+.tech-corners::after {
+	content: '';
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	border-color: var(--accent-border);
+	pointer-events: none;
+	z-index: 10;
+}
+
+.tech-corners::before {
+	top: 0;
+	left: 0;
+	border-top: 2px solid;
+	border-left: 2px solid;
+}
+
+.tech-corners::after {
+	top: 0;
+	right: 0;
+	border-top: 2px solid;
+	border-right: 2px solid;
+}
+
+/* Full tech corners (all 4 corners) */
+.tech-corners-full {
+	position: relative;
+}
+
+.tech-corners-full::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	pointer-events: none;
+	z-index: 10;
+	background:
+		/* Top left */
+		linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 0,
+		linear-gradient(to bottom, var(--accent-border) 8px, transparent 8px) 0 0,
+		/* Top right */ linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 0,
+		linear-gradient(to bottom, var(--accent-border) 8px, transparent 8px) 100% 0,
+		/* Bottom left */ linear-gradient(to right, var(--accent-border) 8px, transparent 8px) 0 100%,
+		linear-gradient(to top, var(--accent-border) 8px, transparent 8px) 0 100%,
+		/* Bottom right */ linear-gradient(to left, var(--accent-border) 8px, transparent 8px) 100% 100%,
+		linear-gradient(to top, var(--accent-border) 8px, transparent 8px) 100% 100%;
+	background-size:
+		8px 2px,
+		2px 8px;
+	background-repeat: no-repeat;
+}
+
+/* Status dot with glow */
+.status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--accent);
+	box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.status-dot.critical {
+	background: var(--danger);
+	box-shadow: 0 0 10px var(--danger);
+}
+
+.status-dot.warning {
+	background: var(--warning);
+	box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+
+.status-dot.success {
+	background: var(--success);
+	box-shadow: 0 0 10px var(--success);
+}
+
+/* Accent line gradient utility */
+.accent-line {
+	height: 1px;
+	width: 100%;
+	background: linear-gradient(to right, transparent, var(--accent), transparent);
+}
+
+/* ========================================
+   TYPOGRAPHY UTILITIES
+   ======================================== */
+
+/* Panel/section headers */
+.text-heading {
+	font-size: 0.875rem; /* 14px - text-sm */
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--text-primary);
+}
+
+/* Body text */
+.text-body {
+	font-size: 0.75rem; /* 12px - text-xs */
+	color: var(--text);
+	line-height: 1.5;
+}
+
+/* Metadata/labels */
+.text-meta {
+	font-size: 0.625rem; /* 10px */
+	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+	color: var(--text-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* Nano text for tiny labels */
+.text-nano {
+	font-size: 0.5625rem; /* 9px */
+	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+}
+
+/* ========================================
+   MAP STYLES
+   ======================================== */
+
 .map-container {
 	position: relative;
-	background: var(--surface);
-	border-radius: 4px;
+	background: var(--surface-solid);
+	border-radius: 2px;
 	overflow: hidden;
 }
 
@@ -97,14 +294,14 @@ a:hover {
 }
 
 .country {
-	fill: var(--border);
-	stroke: var(--surface);
+	fill: rgb(30 41 59); /* slate-800 */
+	stroke: var(--bg);
 	stroke-width: 0.5;
 	transition: fill 0.2s;
 }
 
 .country:hover {
-	fill: var(--border-light);
+	fill: rgb(51 65 85); /* slate-700 */
 }
 
 .hotspot {
@@ -121,12 +318,125 @@ a:hover {
 
 .hotspot-tooltip {
 	position: absolute;
-	background: var(--surface);
+	background: var(--surface-elevated);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
 	border: 1px solid var(--border);
 	padding: 8px 12px;
-	border-radius: 4px;
+	border-radius: 2px;
 	font-size: 0.75rem;
 	pointer-events: none;
 	z-index: 100;
 	max-width: 300px;
+}
+
+/* ========================================
+   CARD PATTERN
+   ======================================== */
+
+.card {
+	padding: 0.75rem;
+	background: var(--card-bg);
+	border: 1px solid var(--border-strong);
+	border-radius: 2px;
+	transition: border-color 0.2s ease;
+	cursor: pointer;
+}
+
+.card:hover {
+	border-color: var(--accent);
+}
+
+/* ========================================
+   BUTTON PATTERNS
+   ======================================== */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	border-radius: 2px;
+	border: 1px solid var(--border-strong);
+	background: var(--interactive-bg);
+	color: var(--text-dim);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn:hover {
+	background: var(--surface-hover);
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.btn-active {
+	background: var(--interactive-bg);
+	border-color: var(--border-strong);
+	color: var(--accent);
+}
+
+/* ========================================
+   DATA DISPLAY PATTERNS
+   ======================================== */
+
+/* Market change indicators */
+.change-up {
+	color: var(--success);
+}
+
+.change-down {
+	color: var(--danger);
+}
+
+.change-neutral {
+	color: var(--text-muted);
+}
+
+/* Tabular numbers for data alignment */
+.tabular-nums {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   ANIMATION KEYFRAMES
+   ======================================== */
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+@keyframes pulse-ring {
+	0% {
+		transform: scale(0.8);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(2);
+		opacity: 0;
+	}
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES
+   ======================================== */
+
+@media (max-width: 768px) {
+	html {
+		font-size: 14px;
+	}
 }

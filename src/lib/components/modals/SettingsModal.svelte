@@ -18,10 +18,87 @@
 	function handleResetPanels() {
 		settings.reset();
 	}
+
+	function handleLayoutChange(
+		key: 'leftColumnWidth' | 'rightColumnWidth' | 'bottomPanelHeight',
+		value: number
+	) {
+		settings.updateLayout({ [key]: value });
+	}
+
+	function handleCompactModeToggle() {
+		settings.updateLayout({ compactMode: !$settings.layout.compactMode });
+	}
 </script>
 
 <Modal {open} title="Settings" {onClose}>
 	<div class="settings-sections">
+		<!-- Layout Section -->
+		<section class="settings-section">
+			<h3 class="section-title">Layout</h3>
+			<p class="section-desc">Adjust column widths and panel sizes</p>
+
+			<div class="layout-controls">
+				<label class="slider-control">
+					<div class="slider-label">
+						<span>Left Column</span>
+						<span class="slider-value">{$settings.layout.leftColumnWidth}%</span>
+					</div>
+					<input
+						type="range"
+						min="15"
+						max="40"
+						value={$settings.layout.leftColumnWidth}
+						oninput={(e) => handleLayoutChange('leftColumnWidth', parseInt(e.currentTarget.value))}
+						class="range-slider"
+					/>
+				</label>
+
+				<label class="slider-control">
+					<div class="slider-label">
+						<span>Right Column</span>
+						<span class="slider-value">{$settings.layout.rightColumnWidth}%</span>
+					</div>
+					<input
+						type="range"
+						min="15"
+						max="40"
+						value={$settings.layout.rightColumnWidth}
+						oninput={(e) => handleLayoutChange('rightColumnWidth', parseInt(e.currentTarget.value))}
+						class="range-slider"
+					/>
+				</label>
+
+				<label class="slider-control">
+					<div class="slider-label">
+						<span>Bottom Panel Height</span>
+						<span class="slider-value">{$settings.layout.bottomPanelHeight}px</span>
+					</div>
+					<input
+						type="range"
+						min="150"
+						max="350"
+						step="10"
+						value={$settings.layout.bottomPanelHeight}
+						oninput={(e) =>
+							handleLayoutChange('bottomPanelHeight', parseInt(e.currentTarget.value))}
+						class="range-slider"
+					/>
+				</label>
+
+				<label class="compact-toggle" class:enabled={$settings.layout.compactMode}>
+					<input
+						type="checkbox"
+						checked={$settings.layout.compactMode}
+						onchange={handleCompactModeToggle}
+					/>
+					<span>Compact Mode</span>
+					<span class="toggle-hint">Reduce padding and spacing</span>
+				</label>
+			</div>
+		</section>
+
+		<!-- Panels Section -->
 		<section class="settings-section">
 			<h3 class="section-title">Enabled Panels</h3>
 			<p class="section-desc">Toggle panels on/off to customize your dashboard</p>
@@ -46,10 +123,10 @@
 		<section class="settings-section">
 			<h3 class="section-title">Dashboard</h3>
 			{#if onReconfigure}
-				<button class="reconfigure-btn" onclick={onReconfigure}> Reconfigure Dashboard </button>
+				<button class="reconfigure-btn" onclick={onReconfigure}> RECONFIGURE DASHBOARD </button>
 				<p class="btn-hint">Choose a preset profile for your panels</p>
 			{/if}
-			<button class="reset-btn" onclick={handleResetPanels}> Reset All Settings </button>
+			<button class="reset-btn" onclick={handleResetPanels}> RESET ALL SETTINGS </button>
 		</section>
 	</div>
 </Modal>
@@ -68,18 +145,114 @@
 	}
 
 	.section-title {
-		font-size: 0.75rem;
-		font-weight: 600;
+		font-size: 0.625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--text-secondary);
+		letter-spacing: 0.15em;
+		color: var(--accent);
 		margin: 0;
 	}
 
 	.section-desc {
-		font-size: 0.65rem;
+		font-size: 0.625rem;
 		color: var(--text-muted);
 		margin: 0;
+	}
+
+	/* Layout Controls */
+	.layout-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.slider-control {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.slider-label {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 0.625rem;
+		color: var(--text);
+	}
+
+	.slider-value {
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--accent);
+		font-weight: 700;
+	}
+
+	.range-slider {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 4px;
+		background: var(--border);
+		border-radius: 2px;
+		outline: none;
+	}
+
+	.range-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 12px;
+		height: 12px;
+		background: var(--accent);
+		border-radius: 2px;
+		cursor: pointer;
+		transition: box-shadow 0.15s ease;
+	}
+
+	.range-slider::-webkit-slider-thumb:hover {
+		box-shadow: 0 0 8px var(--accent-glow);
+	}
+
+	.range-slider::-moz-range-thumb {
+		width: 12px;
+		height: 12px;
+		background: var(--accent);
+		border-radius: 2px;
+		cursor: pointer;
+		border: none;
+	}
+
+	.compact-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.6rem;
+		background: var(--card-bg);
+		border: 1px solid var(--border);
+		border-radius: 2px;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		font-size: 0.625rem;
+		color: var(--text);
+	}
+
+	.compact-toggle:hover {
+		background: var(--surface-hover);
+		border-color: var(--accent-border);
+	}
+
+	.compact-toggle.enabled {
+		border-color: var(--accent-border);
+		background: rgba(34, 211, 238, 0.1);
+	}
+
+	.compact-toggle input {
+		accent-color: var(--accent);
+	}
+
+	.toggle-hint {
+		margin-left: auto;
+		font-size: 0.5rem;
+		color: var(--text-muted);
 	}
 
 	.panels-grid {
@@ -93,20 +266,21 @@
 		align-items: center;
 		gap: 0.4rem;
 		padding: 0.4rem 0.6rem;
-		background: rgba(255, 255, 255, 0.02);
+		background: var(--card-bg);
 		border: 1px solid var(--border);
-		border-radius: 4px;
+		border-radius: 2px;
 		cursor: pointer;
 		transition: all 0.15s ease;
 	}
 
 	.panel-toggle:hover {
-		background: rgba(255, 255, 255, 0.05);
+		background: var(--surface-hover);
+		border-color: var(--accent-border);
 	}
 
 	.panel-toggle.enabled {
-		border-color: var(--accent);
-		background: rgba(var(--accent-rgb), 0.1);
+		border-color: var(--accent-border);
+		background: rgba(34, 211, 238, 0.1);
 	}
 
 	.panel-toggle input {
@@ -115,52 +289,63 @@
 
 	.panel-name {
 		flex: 1;
-		font-size: 0.65rem;
-		color: var(--text-primary);
+		font-size: 0.625rem;
+		color: var(--text);
 	}
 
 	.panel-priority {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
-		background: rgba(255, 255, 255, 0.05);
+		background: var(--interactive-bg);
 		padding: 0.1rem 0.25rem;
 		border-radius: 2px;
+		border: 1px solid var(--border);
 	}
 
 	.reconfigure-btn {
 		padding: 0.5rem 1rem;
-		background: rgba(0, 255, 136, 0.1);
-		border: 1px solid rgba(0, 255, 136, 0.3);
-		border-radius: 4px;
+		background: rgba(34, 211, 238, 0.1);
+		border: 1px solid var(--accent-border);
+		border-radius: 2px;
 		color: var(--accent);
-		font-size: 0.7rem;
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.1em;
 		cursor: pointer;
 		transition: all 0.15s ease;
 		margin-bottom: 0.25rem;
 	}
 
 	.reconfigure-btn:hover {
-		background: rgba(0, 255, 136, 0.2);
+		background: rgba(34, 211, 238, 0.2);
+		border-color: var(--accent);
 	}
 
 	.btn-hint {
-		font-size: 0.6rem;
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 		margin: 0 0 0.75rem;
 	}
 
 	.reset-btn {
 		padding: 0.5rem 1rem;
-		background: rgba(255, 68, 68, 0.1);
-		border: 1px solid rgba(255, 68, 68, 0.3);
-		border-radius: 4px;
+		background: var(--critical-bg);
+		border: 1px solid var(--critical-border);
+		border-radius: 2px;
 		color: var(--danger);
-		font-size: 0.7rem;
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.1em;
 		cursor: pointer;
 		transition: all 0.15s ease;
 	}
 
 	.reset-btn:hover {
-		background: rgba(255, 68, 68, 0.2);
+		background: rgba(239, 68, 68, 0.2);
+		border-color: var(--danger);
 	}
 </style>

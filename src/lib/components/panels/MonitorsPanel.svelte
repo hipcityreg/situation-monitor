@@ -40,12 +40,12 @@
 			<div class="empty-state">
 				<p>No monitors configured</p>
 				{#if onCreateMonitor}
-					<button class="create-btn" onclick={onCreateMonitor}> + Create Monitor </button>
+					<button class="create-btn" onclick={onCreateMonitor}> + CREATE MONITOR </button>
 				{/if}
 			</div>
 		{:else}
 			<div class="monitors-header">
-				<span class="active-count">{activeMonitors.length} active</span>
+				<span class="active-count">{activeMonitors.length} ACTIVE</span>
 				{#if onCreateMonitor}
 					<button class="add-btn" onclick={onCreateMonitor}>+</button>
 				{/if}
@@ -57,7 +57,10 @@
 						<div class="monitor-header">
 							<div class="monitor-info">
 								{#if monitor.color}
-									<span class="monitor-color" style="background: {monitor.color}"></span>
+									<span
+										class="monitor-color"
+										style="background: {monitor.color}; box-shadow: 0 0 8px {monitor.color}"
+									></span>
 								{/if}
 								<span class="monitor-name">{monitor.name}</span>
 								{#if monitor.matchCount > 0}
@@ -148,12 +151,14 @@
 		justify-content: space-between;
 		align-items: center;
 		padding-bottom: 0.4rem;
-		border-bottom: 1px solid var(--border);
+		border-bottom: 1px solid var(--border-divider);
 	}
 
 	.active-count {
-		font-size: 0.55rem;
-		color: var(--text-secondary);
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text-dim);
+		letter-spacing: 0.1em;
 	}
 
 	.add-btn {
@@ -162,17 +167,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(255, 255, 255, 0.05);
+		background: transparent;
 		border: 1px solid var(--border);
-		border-radius: 4px;
-		color: var(--text-secondary);
+		border-radius: 2px;
+		color: var(--text-dim);
 		font-size: 0.8rem;
 		cursor: pointer;
 		transition: all 0.15s ease;
 	}
 
 	.add-btn:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--surface-hover);
+		border-color: var(--accent);
 		color: var(--accent);
 	}
 
@@ -184,9 +190,14 @@
 
 	.monitor-item {
 		padding: 0.5rem;
-		background: rgba(255, 255, 255, 0.02);
+		background: var(--card-bg);
 		border: 1px solid var(--border);
-		border-radius: 4px;
+		border-radius: 2px;
+		transition: border-color 0.15s;
+	}
+
+	.monitor-item:hover {
+		border-color: var(--accent-border);
 	}
 
 	.monitor-item.disabled {
@@ -214,7 +225,7 @@
 
 	.monitor-name {
 		font-size: 0.65rem;
-		font-weight: 600;
+		font-weight: 700;
 		color: var(--text-primary);
 	}
 
@@ -235,10 +246,11 @@
 		font-size: 0.65rem;
 		cursor: pointer;
 		border-radius: 2px;
+		transition: all 0.15s;
 	}
 
 	.action-btn:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--surface-hover);
 		color: var(--text-primary);
 	}
 
@@ -259,8 +271,10 @@
 
 	.keyword {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		padding: 0.1rem 0.3rem;
-		background: rgba(255, 255, 255, 0.05);
+		background: var(--interactive-bg);
+		border: 1px solid var(--border);
 		border-radius: 2px;
 		color: var(--text-secondary);
 	}
@@ -271,12 +285,13 @@
 
 	.monitor-location {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 		margin-bottom: 0.3rem;
 	}
 
 	.monitor-matches {
-		border-top: 1px solid var(--border);
+		border-top: 1px solid var(--border-divider);
 		padding-top: 0.3rem;
 		margin-top: 0.2rem;
 	}
@@ -287,10 +302,11 @@
 
 	.match-title {
 		display: block;
-		font-size: 0.55rem;
-		color: var(--text-primary);
+		font-size: 0.5625rem;
+		color: var(--text);
 		text-decoration: none;
 		line-height: 1.3;
+		transition: color 0.15s;
 	}
 
 	.match-title:hover {
@@ -305,11 +321,13 @@
 
 	.match-keyword {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--warning);
 	}
 
 	.match-time {
 		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
@@ -319,23 +337,29 @@
 	}
 
 	.empty-state p {
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		margin-bottom: 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	.create-btn {
 		padding: 0.4rem 0.8rem;
-		background: rgba(255, 255, 255, 0.05);
+		background: transparent;
 		border: 1px solid var(--border);
-		border-radius: 4px;
-		color: var(--text-primary);
-		font-size: 0.6rem;
+		border-radius: 2px;
+		color: var(--text-dim);
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		letter-spacing: 0.1em;
 		cursor: pointer;
+		transition: all 0.15s;
 	}
 
 	.create-btn:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--surface-hover);
 		border-color: var(--accent);
+		color: var(--accent);
 	}
 </style>

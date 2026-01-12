@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { MarketItem as MarketItemType } from '$lib/types';
-	import { formatPercentChange, getChangeClass } from '$lib/utils';
+	import { formatPercentChange } from '$lib/utils';
 
 	interface Props {
 		item: MarketItemType;
@@ -19,7 +19,7 @@
 	}: Props = $props();
 
 	const isDataAvailable = $derived(!isNaN(item.price) && item.price !== null);
-	const changeClass = $derived(isDataAvailable ? getChangeClass(item.changePercent) : '');
+	const isPositive = $derived(item.changePercent >= 0);
 	const priceDisplay = $derived(
 		!isDataAvailable
 			? '—'
@@ -30,97 +30,36 @@
 	const changeText = $derived(isDataAvailable ? formatPercentChange(item.changePercent) : '—');
 </script>
 
-<div class="market-item" class:compact>
-	<div class="market-info">
-		<div class="market-name">{item.name}</div>
+<div
+	class="flex justify-between items-center py-2 border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors"
+	class:py-1.5={compact}
+>
+	<div class="flex flex-col gap-0.5">
+		<div class="text-xs font-bold text-white" class:text-[10px]={compact}>{item.name}</div>
 		{#if showSymbol}
-			<div class="market-symbol">{item.symbol}</div>
+			<div class="text-[9px] font-mono text-slate-500 uppercase tracking-wide">{item.symbol}</div>
 		{/if}
 	</div>
 
-	<div class="market-data">
+	<div class="flex flex-col items-end gap-0.5">
 		{#if showPrice}
-			<div class="market-price" class:unavailable={!isDataAvailable}>
+			<div
+				class="text-xs font-mono text-slate-200 tabular-nums"
+				class:text-[10px]={compact}
+				class:text-slate-500={!isDataAvailable}
+				class:opacity-50={!isDataAvailable}
+			>
 				{isDataAvailable ? `${currencySymbol}${priceDisplay}` : priceDisplay}
 			</div>
 		{/if}
-		<div class="market-change {changeClass}" class:unavailable={!isDataAvailable}>{changeText}</div>
+		<div
+			class="text-[10px] font-mono tabular-nums"
+			class:text-emerald-500={isDataAvailable && isPositive}
+			class:text-red-500={isDataAvailable && !isPositive}
+			class:text-slate-500={!isDataAvailable}
+			class:opacity-50={!isDataAvailable}
+		>
+			{changeText}
+		</div>
 	</div>
 </div>
-
-<style>
-	.market-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.market-item:last-child {
-		border-bottom: none;
-	}
-
-	.market-item.compact {
-		padding: 0.35rem 0;
-	}
-
-	.market-info {
-		display: flex;
-		flex-direction: column;
-		gap: 0.1rem;
-	}
-
-	.market-name {
-		font-size: 0.7rem;
-		font-weight: 500;
-		color: var(--text-primary);
-	}
-
-	.compact .market-name {
-		font-size: 0.65rem;
-	}
-
-	.market-symbol {
-		font-size: 0.55rem;
-		color: var(--text-muted);
-		text-transform: uppercase;
-	}
-
-	.market-data {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		gap: 0.1rem;
-	}
-
-	.market-price {
-		font-size: 0.7rem;
-		font-weight: 500;
-		color: var(--text-primary);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.compact .market-price {
-		font-size: 0.65rem;
-	}
-
-	.market-change {
-		font-size: 0.6rem;
-		font-weight: 500;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.market-change.up {
-		color: var(--success);
-	}
-
-	.market-change.down {
-		color: var(--danger);
-	}
-
-	.unavailable {
-		color: var(--text-muted);
-		opacity: 0.5;
-	}
-</style>

@@ -40,28 +40,31 @@
 	}
 
 	.main-char-label {
-		font-size: 0.55rem;
+		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0.15em;
 		margin-bottom: 0.5rem;
 	}
 
 	.main-char-name {
-		font-size: 1.2rem;
+		font-size: 1.1rem;
 		font-weight: 700;
 		color: var(--accent);
 		margin-bottom: 0.25rem;
+		text-shadow: 0 0 20px var(--accent-glow);
 	}
 
 	.main-char-count {
-		font-size: 0.65rem;
-		color: var(--text-secondary);
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text-dim);
 		margin-bottom: 1rem;
 	}
 
 	.main-char-list {
-		border-top: 1px solid var(--border);
+		border-top: 1px solid var(--border-divider);
 		padding-top: 0.75rem;
 	}
 
@@ -69,28 +72,32 @@
 		display: flex;
 		align-items: center;
 		padding: 0.25rem 0;
-		font-size: 0.65rem;
+		font-size: 0.625rem;
 	}
 
 	.rank {
 		width: 1.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		color: var(--text-muted);
 	}
 
 	.name {
 		flex: 1;
-		color: var(--text-primary);
+		color: var(--text);
 	}
 
 	.mentions {
-		color: var(--text-secondary);
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text-dim);
 		font-variant-numeric: tabular-nums;
 	}
 
 	.empty-state {
 		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.7rem;
+		color: var(--text-dim);
+		font-size: 0.65rem;
 		padding: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 </style>

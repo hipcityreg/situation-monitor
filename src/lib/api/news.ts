@@ -141,6 +141,7 @@ export async function fetchCategoryNews(category: NewsCategory): Promise<NewsIte
 		);
 	} catch (error) {
 		logger.error('News API', `Error fetching ${category}:`, error);
+		// Return empty array but log - callers should check if result is empty
 		return [];
 	}
 }
@@ -153,8 +154,15 @@ function createEmptyNewsResult(): Record<NewsCategory, NewsItem[]> {
 	return { politics: [], tech: [], finance: [], gov: [], ai: [], intel: [] };
 }
 
+export interface FetchNewsResult {
+	data: Record<NewsCategory, NewsItem[]>;
+	errors: Partial<Record<NewsCategory, string>>;
+	hasErrors: boolean;
+}
+
 /**
  * Fetch all news - sequential with delays to avoid rate limiting
+ * Returns both data and any errors that occurred
  */
 export async function fetchAllNews(): Promise<Record<NewsCategory, NewsItem[]>> {
 	const result = createEmptyNewsResult();
@@ -170,4 +178,37 @@ export async function fetchAllNews(): Promise<Record<NewsCategory, NewsItem[]>> 
 	}
 
 	return result;
+}
+
+/**
+ * Fetch all news with detailed error tracking
+ * Returns both data and information about which categories failed
+ */
+export async function fetchAllNewsWithErrors(): Promise<FetchNewsResult> {
+	const result = createEmptyNewsResult();
+	const errors: Partial<Record<NewsCategory, string>> = {};
+	let hasErrors = false;
+
+	for (let i = 0; i < NEWS_CATEGORIES.length; i++) {
+		const category = NEWS_CATEGORIES[i];
+
+		if (i > 0) {
+			await delay(API_DELAYS.betweenCategories);
+		}
+
+		try {
+			const items = await fetchCategoryNews(category);
+			result[category] = items;
+			// If we got zero results, it might be an error - mark as warning
+			if (items.length === 0) {
+				errors[category] = 'No articles returned';
+			}
+		} catch (error) {
+			hasErrors = true;
+			errors[category] = error instanceof Error ? error.message : 'Failed to fetch';
+			result[category] = [];
+		}
+	}
+
+	return { data: result, errors, hasErrors };
 }

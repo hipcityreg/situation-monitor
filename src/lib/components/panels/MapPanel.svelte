@@ -613,8 +613,8 @@
 		position: relative;
 		width: 100%;
 		aspect-ratio: 2 / 1;
-		background: #0a0f0d;
-		border-radius: 4px;
+		background: var(--surface-solid);
+		border-radius: 2px;
 		overflow: hidden;
 	}
 
@@ -625,19 +625,22 @@
 
 	.map-tooltip {
 		position: absolute;
-		background: rgba(10, 10, 10, 0.95);
-		border: 1px solid #333;
-		border-radius: 4px;
+		background: var(--surface-elevated);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border: 1px solid var(--border);
+		border-radius: 2px;
 		padding: 0.5rem;
-		font-size: 0.65rem;
-		color: #ddd;
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--text);
 		max-width: 250px;
 		pointer-events: none;
 		z-index: 100;
 	}
 
 	.tooltip-line {
-		opacity: 0.7;
+		color: var(--text-dim);
 	}
 
 	.zoom-controls {
@@ -650,22 +653,26 @@
 	}
 
 	.zoom-btn {
-		width: 2.75rem;
-		height: 2.75rem;
+		width: 2rem;
+		height: 2rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(20, 20, 20, 0.9);
-		border: 1px solid #333;
-		border-radius: 4px;
-		color: #aaa;
-		font-size: 1rem;
+		background: var(--surface);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		border: 1px solid var(--border);
+		border-radius: 2px;
+		color: var(--text-dim);
+		font-size: 0.875rem;
 		cursor: pointer;
+		transition: all 0.15s;
 	}
 
 	.zoom-btn:hover {
-		background: rgba(40, 40, 40, 0.9);
-		color: #fff;
+		background: var(--surface-hover);
+		border-color: var(--accent);
+		color: var(--accent);
 	}
 
 	.map-legend {
@@ -675,17 +682,23 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.2rem;
-		background: rgba(10, 10, 10, 0.8);
+		background: var(--surface);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		border: 1px solid var(--border);
 		padding: 0.3rem 0.5rem;
-		border-radius: 4px;
-		font-size: 0.55rem;
+		border-radius: 2px;
+		font-size: 0.5rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	.legend-item {
 		display: flex;
 		align-items: center;
 		gap: 0.3rem;
-		color: #888;
+		color: var(--text-dim);
 	}
 
 	.legend-dot {
@@ -695,15 +708,18 @@
 	}
 
 	.legend-dot.high {
-		background: #ff4444;
+		background: var(--danger);
+		box-shadow: 0 0 6px var(--danger);
 	}
 
 	.legend-dot.elevated {
-		background: #ffcc00;
+		background: var(--warning);
+		box-shadow: 0 0 6px var(--warning);
 	}
 
 	.legend-dot.low {
-		background: #00ff88;
+		background: var(--accent);
+		box-shadow: 0 0 6px var(--accent-glow);
 	}
 
 	/* Pulse animation for hotspots */

@@ -170,8 +170,7 @@ export async function fetchIndices(): Promise<MarketItem[]> {
  * Fetch sector performance from Finnhub (using sector ETFs)
  */
 export async function fetchSectorPerformance(): Promise<SectorPerformance[]> {
-	const createEmptySectors = () =>
-		SECTORS.map((s) => createEmptySectorItem(s.symbol, s.name));
+	const createEmptySectors = () => SECTORS.map((s) => createEmptySectorItem(s.symbol, s.name));
 
 	if (!hasFinnhubApiKey()) {
 		logger.warn('Markets API', 'Finnhub API key not configured');

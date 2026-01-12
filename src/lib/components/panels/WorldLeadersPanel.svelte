@@ -74,9 +74,9 @@
 	}
 
 	.leader-card {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: 6px;
+		background: var(--card-bg);
+		border: 1px solid var(--border-strong);
+		border-radius: 2px; /* rounded-sm per design system */
 		padding: 0.75rem;
 		transition: all 0.2s;
 	}
@@ -137,7 +137,7 @@
 		font-size: 0.55rem;
 		font-weight: bold;
 		padding: 0.15rem 0.35rem;
-		border-radius: 3px;
+		border-radius: 2px;
 		min-width: 18px;
 		text-align: center;
 	}
@@ -175,7 +175,7 @@
 		background: rgba(68, 136, 255, 0.15);
 		color: var(--info);
 		padding: 0.1rem 0.35rem;
-		border-radius: 3px;
+		border-radius: 2px;
 		text-transform: lowercase;
 	}
 
