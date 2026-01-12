@@ -38,3 +38,4 @@ Thumbs.db
 archive/
 .env.example
 *.example
+DESIGN_SYSTEM.md
