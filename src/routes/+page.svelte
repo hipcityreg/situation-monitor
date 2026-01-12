@@ -23,7 +23,7 @@
 		WorldLeadersPanel,
 		PrinterPanel
 	} from '$lib/components/panels';
-	import { news, markets, monitors, settings, refresh, allNewsItems } from '$lib/stores';
+	import { news, markets, monitors, settings, refresh, allNewsItems, layoutSettings } from '$lib/stores';
 	import {
 		fetchAllNews,
 		fetchAllMarkets,
@@ -37,6 +37,16 @@
 	import type { CustomMonitor, WorldLeader } from '$lib/types';
 	import type { PanelId } from '$lib/config';
 	import { HOTSPOTS } from '$lib/config/map';
+
+	// Derived layout styles
+	const layoutStyle = $derived(() => {
+		const left = $layoutSettings.leftColumnWidth;
+		const right = $layoutSettings.rightColumnWidth;
+		const center = 100 - left - right;
+		return `--left-col: ${left}%; --center-col: ${center}%; --right-col: ${right}%; --bottom-height: ${$layoutSettings.bottomPanelHeight}px;`;
+	});
+
+	const isCompact = $derived($layoutSettings.compactMode);
 
 	// Modal state
 	let settingsOpen = $state(false);
@@ -180,13 +190,13 @@
 	<meta name="description" content="Real-time global situation monitoring dashboard" />
 </svelte:head>
 
-<div class="app">
+<div class="app" class:compact={isCompact} style={layoutStyle()}>
 	<!-- Visual Effects Overlays -->
 	<div class="vignette-overlay"></div>
 	<div class="noise-overlay"></div>
 	<div class="gradient-overlay"></div>
 
-	<Header onSettingsClick={() => (settingsOpen = true)} />
+	<Header onSettingsClick={() => (settingsOpen = true)} onRefreshClick={handleRefresh} />
 
 	<main class="main-layout">
 		<!-- Left Panel Column -->
@@ -224,6 +234,10 @@
 			<!-- Globe as main centerpiece -->
 			{#if isPanelVisible('map')}
 				<div class="globe-wrapper">
+					<!-- Tech corner decorations (bottom) -->
+					<div class="corner-bl"></div>
+					<div class="corner-br"></div>
+
 					<GlobePanel monitors={$monitors.monitors} />
 
 					<!-- Globe overlay controls and info -->
@@ -231,6 +245,22 @@
 						<div class="globe-title">
 							<span class="title-icon">◆</span>
 							<span class="title-text">GLOBAL OVERVIEW</span>
+						</div>
+					</div>
+
+					<!-- Legend overlay -->
+					<div class="globe-legend">
+						<div class="legend-item">
+							<span class="legend-dot critical"></span>
+							<span class="legend-label">CRITICAL</span>
+						</div>
+						<div class="legend-item">
+							<span class="legend-dot high"></span>
+							<span class="legend-label">HIGH</span>
+						</div>
+						<div class="legend-item">
+							<span class="legend-dot medium"></span>
+							<span class="legend-label">MEDIUM</span>
 						</div>
 					</div>
 
@@ -431,16 +461,42 @@
 		z-index: 2;
 	}
 
-	/* Main Layout - 12-column grid */
+	/* Main Layout - 12-column grid per design system */
 	.main-layout {
 		flex: 1;
 		display: grid;
-		grid-template-columns: minmax(280px, 3fr) minmax(400px, 6fr) minmax(280px, 3fr);
-		gap: 1rem;
-		padding: 1rem;
+		grid-template-columns:
+			minmax(220px, var(--left-col, 25%))
+			minmax(400px, var(--center-col, 50%))
+			minmax(220px, var(--right-col, 25%));
+		gap: 0.75rem;
+		padding: 0.75rem;
 		overflow: hidden;
 		position: relative;
 		z-index: 10;
+	}
+
+	/* Compact mode adjustments */
+	.app.compact .main-layout {
+		gap: 0.375rem;
+		padding: 0.375rem;
+	}
+
+	.app.compact .panel-column {
+		gap: 0.25rem;
+	}
+
+	.app.compact .column-scroll {
+		gap: 0.25rem;
+	}
+
+	.app.compact .globe-column {
+		gap: 0.25rem;
+	}
+
+	.app.compact .bottom-panels {
+		gap: 0.25rem;
+		padding: 0 0.375rem 0.375rem;
 	}
 
 	/* Panel Columns */
@@ -455,11 +511,12 @@
 	.column-scroll {
 		flex: 1;
 		overflow-y: auto;
+		overflow-x: hidden;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 		min-height: 0;
-		padding-right: 0.25rem;
+		padding-right: 4px;
 	}
 
 	/* Globe Column */
@@ -480,9 +537,21 @@
 		border: 1px solid rgb(51 65 85 / 0.5);
 		border-radius: 2px;
 		overflow: hidden;
-		min-height: 400px;
+		min-height: 450px;
 		/* Tech corners */
 		isolation: isolate;
+		box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+	}
+
+	/* Bottom corners for globe wrapper */
+	.globe-wrapper .corner-bl,
+	.globe-wrapper .corner-br {
+		position: absolute;
+		width: 8px;
+		height: 8px;
+		border-color: rgb(6 182 212 / 0.5);
+		pointer-events: none;
+		z-index: 20;
 	}
 
 	.globe-wrapper::before,
@@ -508,6 +577,21 @@
 		right: 0;
 		border-top: 2px solid;
 		border-right: 2px solid;
+	}
+
+	/* Additional corners via pseudo elements on inner div */
+	.globe-wrapper .corner-bl {
+		bottom: 0;
+		left: 0;
+		border-bottom: 2px solid rgb(6 182 212 / 0.5);
+		border-left: 2px solid rgb(6 182 212 / 0.5);
+	}
+
+	.globe-wrapper .corner-br {
+		bottom: 0;
+		right: 0;
+		border-bottom: 2px solid rgb(6 182 212 / 0.5);
+		border-right: 2px solid rgb(6 182 212 / 0.5);
 	}
 
 	.map-wrapper {
@@ -548,6 +632,59 @@
 		text-transform: uppercase;
 	}
 
+	/* Globe Legend */
+	.globe-legend {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		z-index: 15;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		background: rgb(15 23 42 / 0.9);
+		backdrop-filter: blur(8px);
+		padding: 0.5rem 0.75rem;
+		border: 1px solid rgb(51 65 85 / 0.5);
+		border-radius: 2px;
+		pointer-events: none;
+	}
+
+	.legend-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.legend-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+
+	.legend-dot.critical {
+		background: rgb(239 68 68);
+		box-shadow: 0 0 8px rgb(239 68 68);
+	}
+
+	.legend-dot.high {
+		background: rgb(251 191 36);
+		box-shadow: 0 0 8px rgb(251 191 36 / 0.5);
+	}
+
+	.legend-dot.medium {
+		background: rgb(34 211 238);
+		box-shadow: 0 0 8px rgb(34 211 238 / 0.5);
+	}
+
+	.legend-label {
+		font-size: 0.5625rem;
+		font-weight: 700;
+		font-family: 'SF Mono', Monaco, monospace;
+		letter-spacing: 0.1em;
+		color: rgb(148 163 184);
+		text-transform: uppercase;
+	}
+
 	/* Alert Overlay */
 	.alert-overlay {
 		position: absolute;
@@ -559,6 +696,7 @@
 		flex-direction: column;
 		align-items: center;
 		min-width: 300px;
+		pointer-events: none;
 	}
 
 	.alert-content {
@@ -569,6 +707,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		border-radius: 2px;
 	}
 
 	.alert-text {
@@ -576,6 +715,7 @@
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		color: white;
+		font-family: 'SF Mono', Monaco, monospace;
 	}
 
 	.accent-line {
@@ -596,59 +736,99 @@
 		flex: 1;
 	}
 
-	/* Bottom Panels */
+	/* Bottom Panels - horizontal scrollable row */
 	.bottom-panels {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		display: flex;
 		gap: 0.5rem;
-		padding: 0 1rem 1rem;
+		padding: 0 0.75rem 0.75rem;
 		position: relative;
 		z-index: 10;
-		max-height: 250px;
-		overflow-y: auto;
+		overflow-x: auto;
+		overflow-y: hidden;
+		flex-shrink: 0;
+	}
+
+	.bottom-panels > :global(*) {
+		flex: 0 0 280px;
+		max-height: var(--bottom-height, 220px);
+		overflow: hidden;
+	}
+
+	/* Custom scrollbar for bottom panels */
+	.bottom-panels::-webkit-scrollbar {
+		height: 4px;
+	}
+
+	.bottom-panels::-webkit-scrollbar-track {
+		background: rgb(15 23 42);
+	}
+
+	.bottom-panels::-webkit-scrollbar-thumb {
+		background: rgb(51 65 85);
+		border-radius: 2px;
+	}
+
+	.bottom-panels::-webkit-scrollbar-thumb:hover {
+		background: rgb(71 85 105);
 	}
 
 	/* Responsive */
+	@media (max-width: 1400px) {
+		.main-layout {
+			grid-template-columns: minmax(240px, 1fr) minmax(400px, 2fr) minmax(240px, 1fr);
+		}
+	}
+
 	@media (max-width: 1200px) {
 		.main-layout {
 			grid-template-columns: 1fr 2fr;
+			gap: 0.5rem;
+			padding: 0.5rem;
 		}
 
 		.right-column {
 			display: none;
 		}
 
-		.bottom-panels {
-			display: flex;
-			flex-wrap: wrap;
-		}
-
 		.bottom-panels > :global(*) {
-			flex: 1 1 300px;
+			flex: 0 0 260px;
 		}
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: 900px) {
 		.main-layout {
 			grid-template-columns: 1fr;
 			padding: 0.5rem;
 		}
 
 		.left-column {
-			display: none;
+			max-height: 200px;
 		}
 
 		.globe-wrapper {
-			min-height: 300px;
+			min-height: 350px;
 		}
 
 		.bottom-panels {
 			padding: 0.5rem;
-			max-height: none;
+		}
+
+		.bottom-panels > :global(*) {
+			flex: 0 0 240px;
 		}
 	}
 
-	/* Custom Scrollbar */
+	@media (max-width: 600px) {
+		.left-column {
+			display: none;
+		}
+
+		.globe-wrapper {
+			min-height: 280px;
+		}
+	}
+
+	/* Custom Scrollbar for columns */
 	.column-scroll::-webkit-scrollbar {
 		width: 4px;
 	}

@@ -18,10 +18,83 @@
 	function handleResetPanels() {
 		settings.reset();
 	}
+
+	function handleLayoutChange(key: 'leftColumnWidth' | 'rightColumnWidth' | 'bottomPanelHeight', value: number) {
+		settings.updateLayout({ [key]: value });
+	}
+
+	function handleCompactModeToggle() {
+		settings.updateLayout({ compactMode: !$settings.layout.compactMode });
+	}
 </script>
 
 <Modal {open} title="Settings" {onClose}>
 	<div class="settings-sections">
+		<!-- Layout Section -->
+		<section class="settings-section">
+			<h3 class="section-title">Layout</h3>
+			<p class="section-desc">Adjust column widths and panel sizes</p>
+
+			<div class="layout-controls">
+				<label class="slider-control">
+					<div class="slider-label">
+						<span>Left Column</span>
+						<span class="slider-value">{$settings.layout.leftColumnWidth}%</span>
+					</div>
+					<input
+						type="range"
+						min="15"
+						max="40"
+						value={$settings.layout.leftColumnWidth}
+						oninput={(e) => handleLayoutChange('leftColumnWidth', parseInt(e.currentTarget.value))}
+						class="range-slider"
+					/>
+				</label>
+
+				<label class="slider-control">
+					<div class="slider-label">
+						<span>Right Column</span>
+						<span class="slider-value">{$settings.layout.rightColumnWidth}%</span>
+					</div>
+					<input
+						type="range"
+						min="15"
+						max="40"
+						value={$settings.layout.rightColumnWidth}
+						oninput={(e) => handleLayoutChange('rightColumnWidth', parseInt(e.currentTarget.value))}
+						class="range-slider"
+					/>
+				</label>
+
+				<label class="slider-control">
+					<div class="slider-label">
+						<span>Bottom Panel Height</span>
+						<span class="slider-value">{$settings.layout.bottomPanelHeight}px</span>
+					</div>
+					<input
+						type="range"
+						min="150"
+						max="350"
+						step="10"
+						value={$settings.layout.bottomPanelHeight}
+						oninput={(e) => handleLayoutChange('bottomPanelHeight', parseInt(e.currentTarget.value))}
+						class="range-slider"
+					/>
+				</label>
+
+				<label class="compact-toggle" class:enabled={$settings.layout.compactMode}>
+					<input
+						type="checkbox"
+						checked={$settings.layout.compactMode}
+						onchange={handleCompactModeToggle}
+					/>
+					<span>Compact Mode</span>
+					<span class="toggle-hint">Reduce padding and spacing</span>
+				</label>
+			</div>
+		</section>
+
+		<!-- Panels Section -->
 		<section class="settings-section">
 			<h3 class="section-title">Enabled Panels</h3>
 			<p class="section-desc">Toggle panels on/off to customize your dashboard</p>
@@ -81,6 +154,101 @@
 		font-size: 0.625rem;
 		color: var(--text-muted);
 		margin: 0;
+	}
+
+	/* Layout Controls */
+	.layout-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.slider-control {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.slider-label {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 0.625rem;
+		color: var(--text);
+	}
+
+	.slider-value {
+		font-family: 'SF Mono', Monaco, monospace;
+		color: var(--accent);
+		font-weight: 700;
+	}
+
+	.range-slider {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 4px;
+		background: var(--border);
+		border-radius: 2px;
+		outline: none;
+	}
+
+	.range-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 12px;
+		height: 12px;
+		background: var(--accent);
+		border-radius: 2px;
+		cursor: pointer;
+		transition: box-shadow 0.15s ease;
+	}
+
+	.range-slider::-webkit-slider-thumb:hover {
+		box-shadow: 0 0 8px var(--accent-glow);
+	}
+
+	.range-slider::-moz-range-thumb {
+		width: 12px;
+		height: 12px;
+		background: var(--accent);
+		border-radius: 2px;
+		cursor: pointer;
+		border: none;
+	}
+
+	.compact-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.6rem;
+		background: var(--card-bg);
+		border: 1px solid var(--border);
+		border-radius: 2px;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		font-size: 0.625rem;
+		color: var(--text);
+	}
+
+	.compact-toggle:hover {
+		background: var(--surface-hover);
+		border-color: var(--accent-border);
+	}
+
+	.compact-toggle.enabled {
+		border-color: var(--accent-border);
+		background: rgba(34, 211, 238, 0.1);
+	}
+
+	.compact-toggle input {
+		accent-color: var(--accent);
+	}
+
+	.toggle-hint {
+		margin-left: auto;
+		font-size: 0.5rem;
+		color: var(--text-muted);
 	}
 
 	.panels-grid {

@@ -3,15 +3,26 @@
 
 	interface Props {
 		onSettingsClick?: () => void;
+		onRefreshClick?: () => void;
 	}
 
-	let { onSettingsClick }: Props = $props();
+	let { onSettingsClick, onRefreshClick }: Props = $props();
 
 	const lastRefreshText = $derived(
 		$lastRefresh
-			? `Last updated: ${new Date($lastRefresh).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
-			: 'Never refreshed'
+			? new Date($lastRefresh).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+			: '--:--'
 	);
+
+	let currentTime = $state(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+
+	// Update time every second
+	$effect(() => {
+		const interval = setInterval(() => {
+			currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+		}, 1000);
+		return () => clearInterval(interval);
+	});
 </script>
 
 <header class="header">
@@ -22,26 +33,58 @@
 	<div class="header-left">
 		<div class="logo-container">
 			<span class="logo-icon">◆</span>
-			<h1 class="logo">SITUATION MONITOR</h1>
+			<h1 class="logo">AEGIS</h1>
+			<span class="logo-subtitle">SITUATION MONITOR</span>
 		</div>
 	</div>
 
 	<div class="header-center">
-		<div class="refresh-status">
-			{#if $isRefreshing}
-				<span class="status-dot active"></span>
-				<span class="status-text active">REFRESHING</span>
-			{:else}
-				<span class="status-dot"></span>
-				<span class="status-text">{lastRefreshText}</span>
-			{/if}
+		<div class="status-bar">
+			<!-- System Time -->
+			<div class="status-item">
+				<span class="status-label">SYS</span>
+				<span class="status-value">{currentTime}</span>
+			</div>
+
+			<div class="status-divider"></div>
+
+			<!-- Refresh Status -->
+			<div class="status-item">
+				<span class="status-label">SYNC</span>
+				{#if $isRefreshing}
+					<span class="status-dot active"></span>
+					<span class="status-value active">UPDATING</span>
+				{:else}
+					<span class="status-dot"></span>
+					<span class="status-value">{lastRefreshText}</span>
+				{/if}
+			</div>
+
+			<div class="status-divider"></div>
+
+			<!-- System Status -->
+			<div class="status-item">
+				<span class="status-label">STATUS</span>
+				<span class="status-dot online"></span>
+				<span class="status-value online">ONLINE</span>
+			</div>
 		</div>
 	</div>
 
 	<div class="header-right">
+		{#if onRefreshClick}
+			<button
+				class="header-btn refresh-btn"
+				onclick={onRefreshClick}
+				title="Refresh Data"
+				disabled={$isRefreshing}
+			>
+				<span class="btn-icon" class:spinning={$isRefreshing}>↻</span>
+			</button>
+		{/if}
 		<button class="header-btn settings-btn" onclick={onSettingsClick} title="Settings">
 			<span class="btn-icon">⚙</span>
-			<span class="btn-label">SETTINGS</span>
+			<span class="btn-label">CONFIG</span>
 		</button>
 	</div>
 
@@ -65,6 +108,7 @@
 		gap: 1rem;
 		isolation: isolate;
 		position: relative;
+		min-height: 48px;
 	}
 
 	/* Gradient accent line at the bottom */
@@ -103,7 +147,7 @@
 
 	.header-left {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		flex-shrink: 0;
 	}
 
@@ -115,17 +159,30 @@
 
 	.logo-icon {
 		color: var(--accent);
-		font-size: 0.875rem; /* Match logo size */
-		transition: color 0.2s ease;
+		font-size: 1rem;
+		text-shadow: 0 0 10px var(--accent-glow);
+		transition: all 0.2s ease;
 	}
 
 	.logo {
-		font-size: 0.875rem; /* text-sm (14px) per Aegis design system */
-		font-weight: 700; /* font-bold */
-		letter-spacing: 0.1em; /* tracking-widest */
+		font-size: 1rem;
+		font-weight: 700;
+		letter-spacing: 0.15em;
 		text-transform: uppercase;
 		color: var(--text-primary);
 		margin: 0;
+	}
+
+	.logo-subtitle {
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		padding-left: 0.5rem;
+		border-left: 1px solid var(--border);
+		margin-left: 0.5rem;
 	}
 
 	.header-center {
@@ -136,10 +193,52 @@
 		min-width: 0;
 	}
 
-	.refresh-status {
+	.status-bar {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 1rem;
+		padding: 0.25rem 0.75rem;
+		background: rgba(15, 23, 42, 0.5);
+		border: 1px solid var(--border);
+		border-radius: 2px;
+	}
+
+	.status-item {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+	}
+
+	.status-label {
+		font-size: 0.5625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--text-muted);
+		text-transform: uppercase;
+	}
+
+	.status-value {
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		color: var(--text);
+		text-transform: uppercase;
+	}
+
+	.status-value.active {
+		color: var(--accent);
+	}
+
+	.status-value.online {
+		color: var(--success);
+	}
+
+	.status-divider {
+		width: 1px;
+		height: 16px;
+		background: var(--border);
 	}
 
 	.status-dot {
@@ -152,8 +251,13 @@
 
 	.status-dot.active {
 		background: var(--accent);
-		box-shadow: 0 0 10px cyan; /* Proper glow effect per Aegis design system */
+		box-shadow: 0 0 10px var(--accent-glow);
 		animation: pulse 1.5s ease-in-out infinite;
+	}
+
+	.status-dot.online {
+		background: var(--success);
+		box-shadow: 0 0 8px var(--success);
 	}
 
 	@keyframes pulse {
@@ -165,45 +269,31 @@
 		}
 	}
 
-	.status-text {
-		font-size: 10px; /* text-[10px] per Aegis design system */
-		font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace; /* font-mono */
-		color: var(--text-muted);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: color 0.2s ease;
-	}
-
-	.status-text.active {
-		color: var(--accent);
-	}
-
 	.header-right {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.375rem;
 		flex-shrink: 0;
 	}
 
 	.header-btn {
 		display: flex;
 		align-items: center;
-		gap: 0.3rem;
-		min-height: 2rem;
-		padding: 0.4rem 0.75rem;
+		justify-content: center;
+		gap: 0.375rem;
+		min-height: 32px;
+		min-width: 32px;
+		padding: 0.375rem 0.625rem;
 		background: transparent;
 		border: 1px solid var(--border);
 		border-radius: 2px;
 		color: var(--text-dim);
 		cursor: pointer;
-		transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-		font-size: 10px; /* text-[10px] per Aegis design system */
-		font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace; /* font-mono */
+		transition: all 0.15s ease;
+		font-size: 0.625rem;
+		font-family: 'SF Mono', Monaco, monospace;
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: 0.1em;
 	}
 
 	.header-btn:hover {
@@ -217,8 +307,27 @@
 		outline-offset: 2px;
 	}
 
+	.header-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.refresh-btn {
+		padding: 0.375rem;
+	}
+
 	.btn-icon {
-		font-size: 0.75rem;
+		font-size: 0.875rem;
+	}
+
+	.btn-icon.spinning {
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.btn-label {
@@ -228,6 +337,16 @@
 	@media (min-width: 768px) {
 		.btn-label {
 			display: inline;
+		}
+	}
+
+	@media (max-width: 900px) {
+		.status-bar {
+			display: none;
+		}
+
+		.logo-subtitle {
+			display: none;
 		}
 	}
 </style>

@@ -8,8 +8,10 @@ export {
 	enabledPanels,
 	disabledPanels,
 	draggablePanels,
+	layoutSettings,
 	type PanelSettings,
-	type SettingsState
+	type SettingsState,
+	type LayoutSettings
 } from './settings';
 
 // Monitors store

@@ -17,19 +17,36 @@ import {
 const STORAGE_KEYS = {
 	panels: 'situationMonitorPanels',
 	order: 'panelOrder',
-	sizes: 'panelSizes'
+	sizes: 'panelSizes',
+	layout: 'layoutSettings'
 } as const;
 
 // Types
+export interface LayoutSettings {
+	leftColumnWidth: number; // percentage 15-40
+	rightColumnWidth: number; // percentage 15-40
+	bottomPanelHeight: number; // px 150-350
+	compactMode: boolean;
+}
+
 export interface PanelSettings {
 	enabled: Record<PanelId, boolean>;
 	order: PanelId[];
 	sizes: Record<PanelId, { width?: number; height?: number }>;
+	layout: LayoutSettings;
 }
 
 export interface SettingsState extends PanelSettings {
 	initialized: boolean;
 }
+
+// Default layout settings
+const DEFAULT_LAYOUT: LayoutSettings = {
+	leftColumnWidth: 25,
+	rightColumnWidth: 25,
+	bottomPanelHeight: 220,
+	compactMode: false
+};
 
 // Default settings
 function getDefaultSettings(): PanelSettings {
@@ -38,7 +55,8 @@ function getDefaultSettings(): PanelSettings {
 	return {
 		enabled: Object.fromEntries(allPanelIds.map((id) => [id, true])) as Record<PanelId, boolean>,
 		order: allPanelIds,
-		sizes: {} as Record<PanelId, { width?: number; height?: number }>
+		sizes: {} as Record<PanelId, { width?: number; height?: number }>,
+		layout: { ...DEFAULT_LAYOUT }
 	};
 }
 
@@ -50,11 +68,13 @@ function loadFromStorage(): Partial<PanelSettings> {
 		const panels = localStorage.getItem(STORAGE_KEYS.panels);
 		const order = localStorage.getItem(STORAGE_KEYS.order);
 		const sizes = localStorage.getItem(STORAGE_KEYS.sizes);
+		const layout = localStorage.getItem(STORAGE_KEYS.layout);
 
 		return {
 			enabled: panels ? JSON.parse(panels) : undefined,
 			order: order ? JSON.parse(order) : undefined,
-			sizes: sizes ? JSON.parse(sizes) : undefined
+			sizes: sizes ? JSON.parse(sizes) : undefined,
+			layout: layout ? JSON.parse(layout) : undefined
 		};
 	} catch (e) {
 		console.warn('Failed to load settings from localStorage:', e);
@@ -82,6 +102,7 @@ function createSettingsStore() {
 		enabled: { ...defaults.enabled, ...saved.enabled },
 		order: saved.order ?? defaults.order,
 		sizes: { ...defaults.sizes, ...saved.sizes },
+		layout: { ...defaults.layout, ...saved.layout },
 		initialized: false
 	};
 
@@ -186,6 +207,27 @@ function createSettingsStore() {
 		},
 
 		/**
+		 * Update layout settings
+		 */
+		updateLayout(layoutUpdate: Partial<LayoutSettings>) {
+			update((state) => {
+				const newLayout = { ...state.layout, ...layoutUpdate };
+				saveToStorage('layout', newLayout);
+				return { ...state, layout: newLayout };
+			});
+		},
+
+		/**
+		 * Reset layout to defaults
+		 */
+		resetLayout() {
+			update((state) => {
+				saveToStorage('layout', DEFAULT_LAYOUT);
+				return { ...state, layout: { ...DEFAULT_LAYOUT } };
+			});
+		},
+
+		/**
 		 * Reset all settings to defaults
 		 */
 		reset() {
@@ -194,6 +236,7 @@ function createSettingsStore() {
 				localStorage.removeItem(STORAGE_KEYS.panels);
 				localStorage.removeItem(STORAGE_KEYS.order);
 				localStorage.removeItem(STORAGE_KEYS.sizes);
+				localStorage.removeItem(STORAGE_KEYS.layout);
 			}
 			set({ ...defaults, initialized: true });
 		},
@@ -277,3 +320,5 @@ export const disabledPanels = derived(settings, ($settings) =>
 export const draggablePanels = derived(enabledPanels, ($enabled) =>
 	$enabled.filter((id) => !NON_DRAGGABLE_PANELS.includes(id))
 );
+
+export const layoutSettings = derived(settings, ($settings) => $settings.layout);
