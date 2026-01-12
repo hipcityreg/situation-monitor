@@ -33,7 +33,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          BASE_PATH: /situation-monitor
+          BASE_PATH: /SMERSH-ARKHAM
           VITE_FINNHUB_API_KEY: ${{ secrets.VITE_FINNHUB_API_KEY }}
 
       - name: Upload artifact
