@@ -41,6 +41,17 @@ export const FEEDS: Record<NewsCategory, FeedSource[]> = {
 		{ name: 'BleepingComputer', url: 'https://www.bleepingcomputer.com/feed/' },
 		{ name: 'The Register Security', url: 'https://www.theregister.com/security/headlines.atom' }
 	],
+	sysadmin: [
+		{ name: 'Kubernetes Blog', url: 'https://kubernetes.io/feed.xml' },
+		{ name: 'CNCF Blog', url: 'https://www.cncf.io/feed/' },
+		{ name: 'HashiCorp Blog', url: 'https://www.hashicorp.com/blog/feed.xml' },
+		{ name: 'Docker Blog', url: 'https://www.docker.com/blog/feed/' },
+		{ name: 'AWS What\'s New', url: 'https://aws.amazon.com/about-aws/whats-new/recent/feed/' },
+		{ name: 'Azure Updates', url: 'https://azurecomcdn.azureedge.net/en-us/updates/feed/' },
+		{ name: 'Google Cloud Blog', url: 'https://cloudblog.withgoogle.com/rss/' },
+		{ name: 'LWN Headlines', url: 'https://lwn.net/headlines/rss' }
+	],
+	local: [],
 	finance: [
 		{ name: 'CNBC', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html' },
 		{ name: 'MarketWatch', url: 'https://feeds.marketwatch.com/marketwatch/topstories' },

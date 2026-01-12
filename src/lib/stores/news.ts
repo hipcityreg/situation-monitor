@@ -3,7 +3,7 @@
  */
 
 import { writable, derived, get } from 'svelte/store';
-import type { NewsItem, NewsCategory } from '$lib/types';
+import type { NewsItem, CoreNewsCategory } from '$lib/types';
 import { containsAlertKeyword, detectRegion, detectTopics } from '$lib/config';
 
 export interface CategoryState {
@@ -14,15 +14,16 @@ export interface CategoryState {
 }
 
 export interface NewsState {
-	categories: Record<NewsCategory, CategoryState>;
+	categories: Record<CoreNewsCategory, CategoryState>;
 	initialized: boolean;
 }
 
 // All news categories
-const NEWS_CATEGORIES: NewsCategory[] = [
+const NEWS_CATEGORIES: CoreNewsCategory[] = [
 	'politics',
 	'tech',
 	'security',
+	'sysadmin',
 	'finance',
 	'gov',
 	'ai',
@@ -49,7 +50,7 @@ function createCategoryState(): CategoryState {
 
 // Create initial state
 function createInitialState(): NewsState {
-	const categories = {} as Record<NewsCategory, CategoryState>;
+	const categories = {} as Record<CoreNewsCategory, CategoryState>;
 	for (const category of NEWS_CATEGORIES) {
 		categories[category] = createCategoryState();
 	}
@@ -89,7 +90,7 @@ function createNewsStore() {
 		/**
 		 * Set loading state for a category
 		 */
-		setLoading(category: NewsCategory, loading: boolean) {
+		setLoading(category: CoreNewsCategory, loading: boolean) {
 			update((state) => ({
 				...state,
 				categories: {
@@ -106,7 +107,7 @@ function createNewsStore() {
 		/**
 		 * Set error state for a category
 		 */
-		setError(category: NewsCategory, error: string | null) {
+		setError(category: CoreNewsCategory, error: string | null) {
 			update((state) => ({
 				...state,
 				categories: {
@@ -123,7 +124,7 @@ function createNewsStore() {
 		/**
 		 * Set items for a category
 		 */
-		setItems(category: NewsCategory, items: NewsItem[]) {
+		setItems(category: CoreNewsCategory, items: NewsItem[]) {
 			const enrichedItems = items.map(enrichNewsItem);
 
 			update((state) => ({
@@ -143,7 +144,7 @@ function createNewsStore() {
 		/**
 		 * Append items to a category (for pagination)
 		 */
-		appendItems(category: NewsCategory, items: NewsItem[]) {
+		appendItems(category: CoreNewsCategory, items: NewsItem[]) {
 			const enrichedItems = items.map(enrichNewsItem);
 
 			update((state) => {
@@ -170,7 +171,7 @@ function createNewsStore() {
 		/**
 		 * Get items for a category
 		 */
-		getItems(category: NewsCategory): NewsItem[] {
+		getItems(category: CoreNewsCategory): NewsItem[] {
 			return get({ subscribe }).categories[category].items;
 		},
 
@@ -201,7 +202,7 @@ function createNewsStore() {
 		/**
 		 * Clear a category
 		 */
-		clearCategory(category: NewsCategory) {
+		clearCategory(category: CoreNewsCategory) {
 			update((state) => ({
 				...state,
 				categories: {
@@ -235,6 +236,7 @@ export const news = createNewsStore();
 export const politicsNews = derived(news, ($news) => $news.categories.politics);
 export const techNews = derived(news, ($news) => $news.categories.tech);
 export const securityNews = derived(news, ($news) => $news.categories.security);
+export const sysadminNews = derived(news, ($news) => $news.categories.sysadmin);
 export const financeNews = derived(news, ($news) => $news.categories.finance);
 export const govNews = derived(news, ($news) => $news.categories.gov);
 export const aiNews = derived(news, ($news) => $news.categories.ai);

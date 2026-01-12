@@ -29,6 +29,38 @@ export const ALERT_KEYWORDS = [
 
 export type AlertKeyword = (typeof ALERT_KEYWORDS)[number];
 
+export const SYSADMIN_KEYWORDS = [
+	'sysadmin',
+	'system administrator',
+	'devops',
+	'site reliability',
+	'sre',
+	'incident response',
+	'outage',
+	'postmortem',
+	'production incident',
+	'infrastructure',
+	'datacenter',
+	'server update',
+	'patch tuesday',
+	'Windows',
+	'Windows Server',
+	'Microsoft',
+	'Azure',
+	'AWS',
+	'GCP',
+	'iOS',
+	'Linux',
+	'Linux kernel',
+	'Docker',
+	'Kubernetes',
+	'VMware',
+	'RingCentral',
+	'Jack Henry',
+	'Hacker News',
+	'Hackernews'
+] as const;
+
 export const REGION_KEYWORDS: Record<string, string[]> = {
 	EUROPE: [
 		'nato',

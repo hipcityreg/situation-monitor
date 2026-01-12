@@ -3,8 +3,13 @@
  */
 
 import { FEEDS } from '$lib/config/feeds';
-import type { NewsItem, NewsCategory } from '$lib/types';
-import { containsAlertKeyword, detectRegion, detectTopics } from '$lib/config/keywords';
+import type { NewsItem, NewsCategory, CoreNewsCategory } from '$lib/types';
+import {
+	containsAlertKeyword,
+	detectRegion,
+	detectTopics,
+	SYSADMIN_KEYWORDS
+} from '$lib/config/keywords';
 import { fetchWithProxy, API_DELAYS, logger } from '$lib/config/api';
 
 /**
@@ -125,8 +130,34 @@ function dedupeNewsItems(items: NewsItem[]): NewsItem[] {
 	});
 }
 
-async function fetchSecurityRssFeeds(): Promise<NewsItem[]> {
-	const sources = FEEDS.security ?? [];
+function buildKeywordQuery(keywords: readonly string[]): string {
+	return keywords
+		.map((keyword) => keyword.trim())
+		.filter((keyword) => keyword.length > 0)
+		.map((keyword) => (/\s/.test(keyword) ? `"${keyword}"` : keyword))
+		.join(' OR ');
+}
+
+function sanitizeQueryTerm(value: string): string {
+	return value.replace(/[()"']/g, '').trim();
+}
+
+function buildLocationQuery(city: string, state: string): string {
+	const safeCity = sanitizeQueryTerm(city);
+	const safeState = sanitizeQueryTerm(state);
+	const terms: string[] = [];
+
+	if (safeCity && safeState) {
+		terms.push(`"${safeCity}, ${safeState}"`, `"${safeCity} ${safeState}"`);
+	}
+	if (safeCity) terms.push(`"${safeCity}"`);
+	if (safeState) terms.push(`"${safeState}"`);
+
+	return terms.length > 0 ? `(${terms.join(' OR ')})` : '';
+}
+
+async function fetchRssFeedsForCategory(category: CoreNewsCategory): Promise<NewsItem[]> {
+	const sources = FEEDS[category] ?? [];
 	if (sources.length === 0) return [];
 
 	const results = await Promise.allSettled(
@@ -138,7 +169,7 @@ async function fetchSecurityRssFeeds(): Promise<NewsItem[]> {
 					return [];
 				}
 				const xml = await response.text();
-				return parseRssFeed(xml, source.name, 'security');
+				return parseRssFeed(xml, source.name, category);
 			} catch (error) {
 				logger.warn('News API', `RSS fetch error (${source.name}):`, error);
 				return [];
@@ -184,13 +215,15 @@ function transformGdeltArticle(
 /**
  * Fetch news for a specific category using GDELT via proxy
  */
-export async function fetchCategoryNews(category: NewsCategory): Promise<NewsItem[]> {
+export async function fetchCategoryNews(category: CoreNewsCategory): Promise<NewsItem[]> {
 	// Build query from category keywords (GDELT requires OR queries in parentheses)
-	const categoryQueries: Record<NewsCategory, string> = {
+	const sysadminQuery = buildKeywordQuery(SYSADMIN_KEYWORDS);
+	const categoryQueries: Record<CoreNewsCategory, string> = {
 		politics: '(politics OR government OR election OR congress)',
 		tech: '(technology OR software OR startup OR "silicon valley")',
 		security:
-			'(CVE OR vulnerability OR exploit OR "security advisory" OR "zero day" OR ransomware OR "privilege escalation" OR "remote code execution" OR "patch tuesday" OR "linux kernel" OR "windows server" OR sysadmin OR "system administrator" OR devops OR "site reliability" OR kubernetes OR vmware)',
+			'(CVE OR vulnerability OR exploit OR "security advisory" OR "zero day" OR ransomware OR "privilege escalation" OR "remote code execution")',
+		sysadmin: sysadminQuery.length > 0 ? `(${sysadminQuery})` : '(sysadmin OR devops OR sre)',
 		finance: '(finance OR "stock market" OR economy OR banking)',
 		gov: '("federal government" OR "white house" OR congress OR regulation)',
 		ai: '("artificial intelligence" OR "machine learning" OR AI OR ChatGPT)',
@@ -241,19 +274,75 @@ export async function fetchCategoryNews(category: NewsCategory): Promise<NewsIte
 		logger.error('News API', `Error fetching ${category}:`, error);
 	}
 
-	if (category === 'security') {
-		const rssItems = await fetchSecurityRssFeeds();
+	if (category === 'security' || category === 'sysadmin') {
+		const rssItems = await fetchRssFeedsForCategory(category);
 		return dedupeNewsItems([...rssItems, ...gdeltItems]).sort((a, b) => b.timestamp - a.timestamp);
 	}
 
 	return gdeltItems;
 }
 
+export interface LocalNewsFilter {
+	city: string;
+	state: string;
+}
+
+/**
+ * Fetch local news for a specific city/state using GDELT via proxy
+ */
+export async function fetchLocalNews(filter: LocalNewsFilter): Promise<NewsItem[]> {
+	const city = filter.city.trim();
+	const state = filter.state.trim();
+	const locationQuery = buildLocationQuery(city, state);
+	if (!locationQuery) return [];
+
+	const fullQuery = `${locationQuery} sourcelang:english`;
+	const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${fullQuery}&timespan=7d&mode=artlist&maxrecords=20&format=json&sort=date`;
+
+	try {
+		logger.log('News API', `Fetching local news for ${city} ${state}`.trim());
+
+		const response = await fetchWithProxy(gdeltUrl);
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+		}
+
+		const contentType = response.headers.get('content-type');
+		if (!contentType?.includes('application/json')) {
+			logger.warn('News API', 'Non-JSON response for local news:', contentType);
+			return [];
+		}
+
+		const text = await response.text();
+		let data: GdeltResponse;
+		try {
+			data = JSON.parse(text);
+		} catch {
+			logger.warn('News API', 'Invalid JSON for local news:', text.slice(0, 100));
+			return [];
+		}
+
+		if (!data?.articles?.length) return [];
+
+		const locationLabel = [city, state].filter(Boolean).join(', ') || 'Local News';
+
+		return dedupeNewsItems(
+			data.articles.map((article, index) =>
+				transformGdeltArticle(article, 'local', article.domain || locationLabel, index)
+			)
+		).sort((a, b) => b.timestamp - a.timestamp);
+	} catch (error) {
+		logger.error('News API', 'Error fetching local news:', error);
+		return [];
+	}
+}
+
 /** All news categories in fetch order */
-const NEWS_CATEGORIES: NewsCategory[] = [
+const NEWS_CATEGORIES: CoreNewsCategory[] = [
 	'politics',
 	'tech',
 	'security',
+	'sysadmin',
 	'finance',
 	'gov',
 	'ai',
@@ -261,14 +350,23 @@ const NEWS_CATEGORIES: NewsCategory[] = [
 ];
 
 /** Create an empty news result object */
-function createEmptyNewsResult(): Record<NewsCategory, NewsItem[]> {
-	return { politics: [], tech: [], security: [], finance: [], gov: [], ai: [], intel: [] };
+function createEmptyNewsResult(): Record<CoreNewsCategory, NewsItem[]> {
+	return {
+		politics: [],
+		tech: [],
+		security: [],
+		sysadmin: [],
+		finance: [],
+		gov: [],
+		ai: [],
+		intel: []
+	};
 }
 
 /**
  * Fetch all news - sequential with delays to avoid rate limiting
  */
-export async function fetchAllNews(): Promise<Record<NewsCategory, NewsItem[]>> {
+export async function fetchAllNews(): Promise<Record<CoreNewsCategory, NewsItem[]>> {
 	const result = createEmptyNewsResult();
 
 	for (let i = 0; i < NEWS_CATEGORIES.length; i++) {

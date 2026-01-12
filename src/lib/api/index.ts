@@ -2,7 +2,7 @@
  * API barrel exports
  */
 
-export { fetchCategoryNews, fetchAllNews } from './news';
+export { fetchCategoryNews, fetchAllNews, fetchLocalNews, type LocalNewsFilter } from './news';
 export {
 	fetchCryptoPrices,
 	fetchIndices,

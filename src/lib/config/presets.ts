@@ -18,7 +18,18 @@ export const PRESETS: Record<string, Preset> = {
 		name: 'News Junkie',
 		icon: '📰',
 		description: 'Stay on top of breaking news across politics, tech, and finance',
-		panels: ['politics', 'tech', 'security', 'finance', 'gov', 'ai', 'mainchar', 'map']
+		panels: [
+			'politics',
+			'tech',
+			'security',
+			'sysadmin',
+			'local',
+			'finance',
+			'gov',
+			'ai',
+			'mainchar',
+			'map'
+		]
 	},
 	trader: {
 		id: 'trader',
@@ -79,6 +90,8 @@ export const PRESETS: Record<string, Preset> = {
 			'politics',
 			'tech',
 			'security',
+			'sysadmin',
+			'local',
 			'finance',
 			'gov',
 			'heatmap',

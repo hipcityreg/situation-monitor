@@ -29,6 +29,7 @@ export {
 	politicsNews,
 	techNews,
 	securityNews,
+	sysadminNews,
 	financeNews,
 	govNews,
 	aiNews,
@@ -40,6 +41,9 @@ export {
 	type CategoryState,
 	type NewsState
 } from './news';
+
+// Local news store
+export { localNews, type LocalNewsLocation, type LocalNewsState } from './local-news';
 
 // Markets store
 export {

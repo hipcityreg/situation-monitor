@@ -12,6 +12,8 @@ export type PanelId =
 	| 'politics'
 	| 'tech'
 	| 'security'
+	| 'sysadmin'
+	| 'local'
 	| 'finance'
 	| 'gov'
 	| 'heatmap'
@@ -38,7 +40,9 @@ export const PANELS: Record<PanelId, PanelConfig> = {
 	map: { name: 'Global Map', priority: 1 },
 	politics: { name: 'World / Geopolitical', priority: 1 },
 	tech: { name: 'Technology / AI', priority: 1 },
-	security: { name: 'Security / Ops', priority: 1 },
+	security: { name: 'Security / CVEs', priority: 1 },
+	sysadmin: { name: 'Sysadmin / Ops', priority: 1 },
+	local: { name: 'Local News', priority: 2 },
 	finance: { name: 'Financial', priority: 1 },
 	gov: { name: 'Government / Policy', priority: 2 },
 	heatmap: { name: 'Sector Heatmap', priority: 1 },

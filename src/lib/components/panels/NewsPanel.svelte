@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { Panel, NewsItem } from '$lib/components/common';
-	import type { NewsCategory } from '$lib/types';
+	import type { CoreNewsCategory } from '$lib/types';
 	import type { PanelId } from '$lib/config';
 	import {
 		politicsNews,
 		techNews,
 		securityNews,
+		sysadminNews,
 		financeNews,
 		govNews,
 		aiNews,
@@ -13,7 +14,7 @@
 	} from '$lib/stores';
 
 	interface Props {
-		category: NewsCategory;
+		category: CoreNewsCategory;
 		panelId: PanelId;
 		title: string;
 	}
@@ -25,6 +26,7 @@
 		politics: politicsNews,
 		tech: techNews,
 		security: securityNews,
+		sysadmin: sysadminNews,
 		finance: financeNews,
 		gov: govNews,
 		ai: aiNews,

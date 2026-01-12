@@ -21,6 +21,7 @@ export {
 	ALERT_KEYWORDS,
 	REGION_KEYWORDS,
 	TOPIC_KEYWORDS,
+	SYSADMIN_KEYWORDS,
 	containsAlertKeyword,
 	detectRegion,
 	detectTopics,

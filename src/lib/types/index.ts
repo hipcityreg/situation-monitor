@@ -7,10 +7,14 @@ export type NewsCategory =
 	| 'politics'
 	| 'tech'
 	| 'security'
+	| 'sysadmin'
+	| 'local'
 	| 'finance'
 	| 'gov'
 	| 'ai'
 	| 'intel';
+
+export type CoreNewsCategory = Exclude<NewsCategory, 'local'>;
 
 /**
  * A news item from any source (RSS, GDELT, etc.)

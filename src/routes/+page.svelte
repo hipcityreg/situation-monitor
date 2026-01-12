@@ -4,6 +4,7 @@
 	import { SettingsModal, MonitorFormModal, OnboardingModal } from '$lib/components/modals';
 	import {
 		NewsPanel,
+		LocalNewsPanel,
 		MarketsPanel,
 		HeatmapPanel,
 		CommoditiesPanel,
@@ -27,6 +28,7 @@
 		politicsNews,
 		techNews,
 		securityNews,
+		sysadminNews,
 		financeNews,
 		govNews,
 		aiNews,
@@ -68,6 +70,7 @@
 		...$politicsNews.items,
 		...$techNews.items,
 		...$securityNews.items,
+		...$sysadminNews.items,
 		...$financeNews.items,
 		...$govNews.items,
 		...$aiNews.items,
@@ -77,13 +80,22 @@
 	// Data fetching
 	async function loadNews() {
 		// Set loading for all categories
-		const categories = ['politics', 'tech', 'security', 'finance', 'gov', 'ai', 'intel'] as const;
+		const categories = [
+			'politics',
+			'tech',
+			'security',
+			'sysadmin',
+			'finance',
+			'gov',
+			'ai',
+			'intel'
+		] as const;
 		categories.forEach((cat) => news.setLoading(cat, true));
 
 		try {
 			const data = await fetchAllNews();
 			Object.entries(data).forEach(([category, items]) => {
-				news.setItems(category as keyof typeof data, items);
+				news.setItems(category as (typeof categories)[number], items);
 			});
 		} catch (error) {
 			categories.forEach((cat) => news.setError(cat, String(error)));
@@ -232,7 +244,19 @@
 
 			{#if isPanelVisible('security')}
 				<div class="panel-slot">
-					<NewsPanel category="security" panelId="security" title="Security / Ops" />
+					<NewsPanel category="security" panelId="security" title="Security / CVEs" />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('sysadmin')}
+				<div class="panel-slot">
+					<NewsPanel category="sysadmin" panelId="sysadmin" title="Sysadmin / Ops" />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('local')}
+				<div class="panel-slot">
+					<LocalNewsPanel />
 				</div>
 			{/if}
 
