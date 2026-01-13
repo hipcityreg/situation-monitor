@@ -76,14 +76,14 @@ export const WORLD_LEADERS: WorldLeader[] = [
 		party: 'Renaissance'
 	},
 	{
-		id: 'scholz',
-		name: 'Olaf Scholz',
+		id: 'merz',
+		name: 'Friedtich Merz',
 		title: 'Chancellor',
 		country: 'Germany',
 		flag: '🇩🇪',
-		keywords: ['scholz', 'german chancellor', 'berlin'],
-		since: 'Dec 2021',
-		party: 'SPD'
+		keywords: ['merz', 'german chancellor', 'berlin'],
+		since: 'May 2025',
+		party: 'CDU'
 	},
 	{
 		id: 'meloni',
