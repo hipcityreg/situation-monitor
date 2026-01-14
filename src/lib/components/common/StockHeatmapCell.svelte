@@ -46,7 +46,9 @@
 		border-radius: 4px;
 		text-align: center;
 		min-height: 4rem;
-		transition: transform 0.15s ease;
+		transition:
+			transform 0.15s ease,
+			background-color 0.3s ease;
 		gap: 0.2rem;
 	}
 

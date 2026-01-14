@@ -232,8 +232,38 @@
 		initialLoad();
 		refresh.setupAutoRefresh(handleRefresh);
 
+		// Setup auto-refresh for Nifty data (60 seconds)
+		async function refreshNifty50() {
+			if (!isPanelVisible('nifty50')) return;
+			try {
+				nifty50.setLoading(true);
+				const data = await fetchNifty50();
+				nifty50.setItems(data);
+			} catch (error) {
+				console.error('Failed to refresh Nifty 50:', error);
+				nifty50.setError(String(error));
+			}
+		}
+
+		async function refreshNiftyNext50() {
+			if (!isPanelVisible('niftynext50')) return;
+			try {
+				niftyNext50.setLoading(true);
+				const data = await fetchNiftyNext50();
+				niftyNext50.setItems(data);
+			} catch (error) {
+				console.error('Failed to refresh Nifty Next 50:', error);
+				niftyNext50.setError(String(error));
+			}
+		}
+
+		nifty50.setupAutoRefresh(refreshNifty50);
+		niftyNext50.setupAutoRefresh(refreshNiftyNext50);
+
 		return () => {
 			refresh.stopAutoRefresh();
+			nifty50.stopAutoRefresh();
+			niftyNext50.stopAutoRefresh();
 		};
 	});
 </script>

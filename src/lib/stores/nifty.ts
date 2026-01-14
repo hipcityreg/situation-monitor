@@ -3,6 +3,7 @@
  */
 
 import { writable, derived } from 'svelte/store';
+import { browser } from '$app/environment';
 import type { NiftyStock } from '$lib/types';
 
 export interface NiftyState {
@@ -11,6 +12,8 @@ export interface NiftyState {
 	error: string | null;
 	lastUpdated: number | null;
 }
+
+const NIFTY_AUTO_REFRESH_INTERVAL = 60 * 1000; // 60 seconds
 
 // Create initial state
 function createInitialState(): NiftyState {
@@ -25,6 +28,8 @@ function createInitialState(): NiftyState {
 // Create a Nifty store factory
 function createNiftyStore() {
 	const { subscribe, set, update } = writable<NiftyState>(createInitialState());
+
+	let autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
 	return {
 		subscribe,
@@ -69,6 +74,31 @@ function createNiftyStore() {
 		 */
 		clear() {
 			set(createInitialState());
+		},
+
+		/**
+		 * Setup auto-refresh with callback
+		 */
+		setupAutoRefresh(callback: () => void | Promise<void>) {
+			if (autoRefreshTimer) {
+				clearInterval(autoRefreshTimer);
+			}
+
+			if (browser) {
+				autoRefreshTimer = setInterval(() => {
+					void callback();
+				}, NIFTY_AUTO_REFRESH_INTERVAL);
+			}
+		},
+
+		/**
+		 * Stop auto-refresh
+		 */
+		stopAutoRefresh() {
+			if (autoRefreshTimer) {
+				clearInterval(autoRefreshTimer);
+				autoRefreshTimer = null;
+			}
 		}
 	};
 }
