@@ -39,6 +39,9 @@
 	const WIDTH = 800;
 	const HEIGHT = 400;
 
+	// Star path for military bases
+	const STAR_PATH_D = 'M0,-5 L1.5,-1.5 L5,-1.5 L2.5,1 L3.5,5 L0,2.5 L-3.5,5 L-2.5,1 L-5,-1.5 L-1.5,-1.5 Z';
+
 	// Tooltip state
 	let tooltipContent = $state<{
 		title: string;
@@ -241,6 +244,98 @@
 			})
 			.on('zoom', (event) => {
 				mapGroup.attr('transform', event.transform.toString());
+				const k = event.transform.k;
+				// Helper for leader line path
+				const getLeaderPath = (x: number, y: number, k: number, pos: string = 'bottom-right') => {
+					// Base segments for 5px horiz, 5px diag, 5px horiz
+					const seg1 = 5 / k;
+					const diagX = 5 / k;
+					const diagY = 8 / k;
+					const seg2 = 5 / k;
+					const offX = 5 / k; // gap from icon (reduced)
+
+					// 1 = x direction (1 right, -1 left)
+					// 2 = y direction (1 down, -1 up)
+					const dirX = pos.includes('left') ? -1 : 1;
+					const dirY = pos.includes('top') ? -1 : 1;
+
+					// Start point: x + (offX * dirX), y
+					const x1 = x + (offX * dirX);
+					const y1 = y;
+					
+					// Seg 1: horizontal
+					const x2 = x1 + (seg1 * dirX);
+					const y2 = y1;
+					
+					// Seg 2: diagonal
+					const x3 = x2 + (diagX * dirX);
+					const y3 = y2 + (diagY * dirY);
+					
+					// Seg 3: horizontal
+					const x4 = x3 + (seg2 * dirX);
+					const y4 = y3;
+
+					return `M${x1},${y1} L${x2},${y2} L${x3},${y3} L${x4},${y4}`;
+				};
+
+				// Helper for text alignment
+				const getTextPos = (x: number, y: number, k: number, pos: string = 'bottom-right') => {
+					// Total X offset = 5 + 5 + 5 + 5 + 2 = 22
+					const totalX = 22 / k;
+					// Total Y offset = 8 + 3 = 11 (approx)
+					// The diagonal drop is 8. The font offset (alignment baseline) needs tuning.
+					// If 'top', we are above y.
+					const totalY = 11 / k;
+
+					const dirX = pos.includes('left') ? -1 : 1;
+					const dirY = pos.includes('top') ? -1 : 1;
+
+					return {
+						x: x + (totalX * dirX), 
+						y: y + ((pos.includes('top') ? 8/k : totalY) * dirY), // slightly different vertical alignment for top vs bottom
+						anchor: pos.includes('left') ? 'end' : 'start'
+					};
+				};
+				
+				// Scale text and lines
+				mapGroup.selectAll('.leader-line')
+					.attr('d', (d: any) => getLeaderPath(d.x, d.y, k, d.pos))
+					.attr('stroke-width', 0.5 / k);
+
+				mapGroup.selectAll('.text-ocean').attr('font-size', `${10 / k}px`);
+				
+				// Update text positions dynamic to quadrant
+				[
+					'.text-chokepoint', 
+					'.text-hotspot', 
+					'text.monitor-marker',
+					'.text-military-base' // Include military base text if we add it
+				].forEach(selector => {
+					mapGroup.selectAll(selector)
+						.attr('font-size', (d: any) => d?.fontSize ? `${d.fontSize/k}px` : `${8/k}px`)
+						.each(function(d: any) {
+							if (!d) return;
+							const pos = getTextPos(d.x, d.y, k, d.pos);
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							(d3Module as any).select(this)
+								.attr('x', pos.x)
+								.attr('y', pos.y)
+								.attr('text-anchor', pos.anchor);
+						});
+				});
+				
+				// Scale icons/markers
+				mapGroup.selectAll('.icon-chokepoint-rect').attr('width', 8 / k).attr('height', 8 / k).attr('x', (d: any) => d.x - 4/k).attr('y', (d: any) => d.y - 4/k);
+				mapGroup.selectAll('.icon-cable-landing').attr('r', 3 / k).attr('stroke-width', 1.5 / k);
+				mapGroup.selectAll('.icon-nuclear-site').attr('r', 2 / k);
+				mapGroup.selectAll('.icon-nuclear-ring').attr('r', 5 / k).attr('stroke-width', 1 / k);
+				mapGroup.selectAll('.icon-hotspot-pulse').attr('r', 6 / k); 
+				mapGroup.selectAll('.icon-hotspot-inner').attr('r', 3 / k);
+				mapGroup.selectAll('.icon-monitor-marker').attr('r', 5 / k).attr('stroke-width', 2 / k);
+				mapGroup.selectAll('.icon-military-base').attr('transform', (d: any) => `translate(${d.x},${d.y}) scale(${1/k})`);
+				
+				// Scale country borders
+				mapGroup.selectAll('path.country').attr('stroke-width', 0.5 / k);
 			});
 
 		enableZoom();
@@ -302,6 +397,7 @@
 						.attr('x', x)
 						.attr('y', y)
 						.attr('fill', '#1a4a40')
+						.attr('class', 'text-ocean')
 						.attr('font-size', '10px')
 						.attr('font-family', 'monospace')
 						.attr('text-anchor', 'middle')
@@ -338,6 +434,8 @@
 				if (x && y) {
 					mapGroup
 						.append('rect')
+						.attr('class', 'icon-chokepoint-rect')
+						.datum({x, y}) // Store original position for recounting x/y on zoom
 						.attr('x', x - 4)
 						.attr('y', y - 4)
 						.attr('width', 8)
@@ -345,11 +443,26 @@
 						.attr('fill', '#00aaff')
 						.attr('opacity', 0.8)
 						.attr('transform', `rotate(45,${x},${y})`);
+					// Leader line
+					const pos = cp.labelPosition || 'bottom-right';
+					mapGroup
+						.append('path')
+						.datum({x, y, pos}) // Bind pos
+						.attr('class', 'leader-line')
+						.attr('stroke', '#00aaff')
+						.attr('fill', 'none')
+						.attr('stroke-width', 0.5)
+						.attr('opacity', 0.6)
+						.attr('d', `M${x + 8},${y} L${x + 18},${y} L${x + 23},${y + 8} L${x + 28},${y + 8}`); // Initial draw will be fixed by first zoom event or we could calc here.
+						// Note: The periodic zoom handler will snap this to correct D immediately.
+
 					mapGroup
 						.append('text')
-						.attr('x', x + 8)
-						.attr('y', y + 3)
+						.datum({x, y, pos, fontSize: 7})
+						.attr('x', x + 30) 
+						.attr('y', y + 11)
 						.attr('fill', '#00aaff')
+						.attr('class', 'text-chokepoint')
 						.attr('font-size', '7px')
 						.attr('font-family', 'monospace')
 						.text(cp.name);
@@ -372,6 +485,7 @@
 				if (x && y) {
 					mapGroup
 						.append('circle')
+						.attr('class', 'icon-cable-landing')
 						.attr('cx', x)
 						.attr('cy', y)
 						.attr('r', 3)
@@ -397,12 +511,14 @@
 				if (x && y) {
 					mapGroup
 						.append('circle')
+						.attr('class', 'icon-nuclear-site')
 						.attr('cx', x)
 						.attr('cy', y)
 						.attr('r', 2)
 						.attr('fill', '#ffff00');
 					mapGroup
 						.append('circle')
+						.attr('class', 'icon-nuclear-ring')
 						.attr('cx', x)
 						.attr('cy', y)
 						.attr('r', 5)
@@ -427,8 +543,13 @@
 			MILITARY_BASES.forEach((mb) => {
 				const [x, y] = projection([mb.lon, mb.lat]) || [0, 0];
 				if (x && y) {
-					const starPath = `M${x},${y - 5} L${x + 1.5},${y - 1.5} L${x + 5},${y - 1.5} L${x + 2.5},${y + 1} L${x + 3.5},${y + 5} L${x},${y + 2.5} L${x - 3.5},${y + 5} L${x - 2.5},${y + 1} L${x - 5},${y - 1.5} L${x - 1.5},${y - 1.5} Z`;
-					mapGroup.append('path').attr('d', starPath).attr('fill', '#ff00ff').attr('opacity', 0.8);
+					mapGroup.append('path')
+						.datum({x, y})
+						.attr('d', STAR_PATH_D)
+						.attr('class', 'icon-military-base')
+						.attr('transform', `translate(${x},${y})`)
+						.attr('fill', '#ff00ff')
+						.attr('opacity', 0.8);
 					mapGroup
 						.append('circle')
 						.attr('cx', x)
@@ -455,15 +576,34 @@
 						.attr('r', 6)
 						.attr('fill', color)
 						.attr('fill-opacity', 0.3)
-						.attr('class', 'pulse');
+						.attr('class', 'pulse icon-hotspot-pulse');
 					// Inner dot
-					mapGroup.append('circle').attr('cx', x).attr('cy', y).attr('r', 3).attr('fill', color);
+					mapGroup.append('circle')
+						.attr('class', 'icon-hotspot-inner')
+						.attr('cx', x)
+						.attr('cy', y)
+						.attr('r', 3)
+						.attr('fill', color);
+					// Leader line
+					const pos = h.labelPosition || 'bottom-right';
+					mapGroup
+						.append('path')
+						.datum({x, y, pos})
+						.attr('class', 'leader-line')
+						.attr('stroke', color)
+						.attr('fill', 'none')
+						.attr('stroke-width', 0.5)
+						.attr('opacity', 0.6)
+						.attr('d', 'M0,0'); // Let zoom handler calc
+
 					// Label
 					mapGroup
 						.append('text')
-						.attr('x', x + 8)
-						.attr('y', y + 3)
+						.datum({x, y, pos, fontSize: 8})
+						.attr('x', 0)
+						.attr('y', 0)
 						.attr('fill', color)
+						.attr('class', 'text-hotspot')
 						.attr('font-size', '8px')
 						.attr('font-family', 'monospace')
 						.text(h.name);
@@ -492,7 +632,10 @@
 
 	// Draw custom monitor locations
 	function drawMonitors(): void {
-		if (!mapGroup || !projection) return;
+		if (!mapGroup || !projection || !d3Module || !svg) return;
+
+		const t = d3Module.zoomTransform(svg.node());
+		const k = t.k || 1;
 
 		// Remove existing monitor markers
 		mapGroup.selectAll('.monitor-marker').remove();
@@ -506,21 +649,33 @@
 					const color = m.color || '#00ffff';
 					mapGroup
 						.append('circle')
-						.attr('class', 'monitor-marker')
+						.attr('class', 'monitor-marker icon-monitor-marker')
 						.attr('cx', x)
 						.attr('cy', y)
-						.attr('r', 5)
+						.attr('r', 5 / k)
 						.attr('fill', color)
 						.attr('fill-opacity', 0.6)
 						.attr('stroke', color)
-						.attr('stroke-width', 2);
+						.attr('stroke-width', 2 / k);
+					const pos = m.labelPosition || 'bottom-right';
+					mapGroup
+						.append('path')
+						.datum({x, y, pos})
+						.attr('class', 'leader-line')
+						.attr('stroke', color)
+						.attr('fill', 'none')
+						.attr('stroke-width', 0.5 / k)
+						.attr('opacity', 0.6)
+						.attr('d', 'M0,0');
+
 					mapGroup
 						.append('text')
+						.datum({x, y, pos, fontSize: 8})
 						.attr('class', 'monitor-marker')
-						.attr('x', x + 8)
-						.attr('y', y + 3)
+						.attr('x', 0)
+						.attr('y', 0)
 						.attr('fill', color)
-						.attr('font-size', '8px')
+						.attr('font-size', `${8 / k}px`)
 						.attr('font-family', 'monospace')
 						.text(m.name);
 					mapGroup
