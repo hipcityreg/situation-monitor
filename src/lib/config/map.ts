@@ -6,6 +6,7 @@ export interface Hotspot {
 	lon: number;
 	level: 'critical' | 'high' | 'elevated' | 'low';
 	desc: string;
+	labelPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
 export interface ConflictZone {
@@ -19,6 +20,7 @@ export interface Chokepoint {
 	lat: number;
 	lon: number;
 	desc: string;
+	labelPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
 export interface CableLanding {
@@ -26,6 +28,7 @@ export interface CableLanding {
 	lat: number;
 	lon: number;
 	desc: string;
+	labelPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
 export interface NuclearSite {
@@ -33,6 +36,7 @@ export interface NuclearSite {
 	lat: number;
 	lon: number;
 	desc: string;
+	labelPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
 export interface MilitaryBase {
@@ -40,6 +44,7 @@ export interface MilitaryBase {
 	lat: number;
 	lon: number;
 	desc: string;
+	labelPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
 export interface Ocean {
@@ -86,7 +91,8 @@ export const HOTSPOTS: Hotspot[] = [
 		lat: 39.9,
 		lon: 116.4,
 		level: 'elevated',
-		desc: 'Beijing — CCP headquarters, US-China tensions, tech rivalry'
+		desc: 'Beijing — CCP headquarters, US-China tensions, tech rivalry',
+		labelPosition: 'top-left'
 	},
 	{
 		name: 'Kyiv',
@@ -107,35 +113,47 @@ export const HOTSPOTS: Hotspot[] = [
 		lat: 35.7,
 		lon: 51.4,
 		level: 'critical',
-		desc: 'Tehran — ACTIVE UPRISING: 200+ cities, 26 provinces. Revolution protests, regime instability, nuclear program'
+		desc: 'Tehran — ACTIVE UPRISING: 200+ cities, 26 provinces. Revolution protests, regime instability, nuclear program',
+		labelPosition: 'top-right'
 	},
 	{
 		name: 'Tel Aviv',
 		lat: 32.07,
 		lon: 34.78,
 		level: 'high',
-		desc: 'Tel Aviv — Israel-Gaza conflict, active military operations'
+		desc: 'Tel Aviv — Israel-Gaza conflict, active military operations',
+		labelPosition: 'top-left'
 	},
 	{
 		name: 'London',
 		lat: 51.5,
 		lon: -0.12,
 		level: 'low',
-		desc: 'London — Financial center, Five Eyes, NATO ally'
+		desc: 'London — Financial center, Five Eyes, NATO ally',
+		labelPosition: 'top-left'
 	},
 	{
 		name: 'Brussels',
 		lat: 50.85,
 		lon: 4.35,
 		level: 'low',
-		desc: 'Brussels — EU/NATO headquarters, European policy'
+		desc: 'Brussels — EU/NATO headquarters, European policy',
+		labelPosition: 'bottom-right'
+	},
+	{
+		name: 'Amsterdam',
+		lat: 52.37,
+		lon: 4.9,
+		level: 'low',
+		desc: 'Amsterdam — Major European port, digital hub, ICC headquarters'
 	},
 	{
 		name: 'Pyongyang',
 		lat: 39.03,
 		lon: 125.75,
 		level: 'elevated',
-		desc: 'Pyongyang — North Korea nuclear threat, missile tests'
+		desc: 'Pyongyang — North Korea nuclear threat, missile tests',
+		labelPosition: 'top-right'
 	},
 	{
 		name: 'Riyadh',
@@ -319,7 +337,13 @@ export const NUCLEAR_SITES: NuclearSite[] = [
 ];
 
 export const MILITARY_BASES: MilitaryBase[] = [
-	{ name: 'Ramstein', lat: 49.4, lon: 7.6, desc: 'Ramstein — US Air Force, NATO hub Germany' },
+	{
+		name: 'Ramstein',
+		lat: 49.4,
+		lon: 7.6,
+		desc: 'Ramstein — US Air Force, NATO hub Germany',
+		labelPosition: 'bottom-right'
+	},
 	{
 		name: 'Diego Garcia',
 		lat: -7.3,
