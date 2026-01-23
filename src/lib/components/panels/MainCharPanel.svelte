@@ -2,6 +2,7 @@
 	import { Panel } from '$lib/components/common';
 	import { allNewsItems } from '$lib/stores';
 	import { calculateMainCharacter, type MainCharacterResults } from '$lib/analysis';
+	import { _ } from 'svelte-i18n';
 
 	// Calculate main character from all news (reactive via derived store)
 	const results: MainCharacterResults = $derived(calculateMainCharacter($allNewsItems));
@@ -9,9 +10,9 @@
 	const rankings = $derived(results.characters);
 </script>
 
-<Panel id="mainchar" title="Main Character">
+<Panel id="mainchar" title={$_('panels.mainchar')}>
 	{#if !topChar}
-		<div class="empty-state">No data yet</div>
+		<div class="empty-state">{$_('common.noData')}</div>
 	{:else}
 		<div class="main-char-display">
 			<div class="main-char-label">Today's Main Character</div>

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { NewsItem } from '$lib/types';
 	import { timeAgo } from '$lib/utils';
+	import { translate } from '$lib/services/translation';
+	import { settings } from '$lib/stores/settings';
 
 	interface Props {
 		item: NewsItem;
@@ -17,6 +19,38 @@
 		showDescription = false,
 		compact = false
 	}: Props = $props();
+
+	let translatedTitle = $state<string>(item.title);
+	let translatedDescription = $state<string>(item.description || '');
+	let isTranslating = $state(false);
+
+	// Derive current settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Translate when conditions change
+	$effect(() => {
+		if (shouldTranslate && translatedTitle === item.title && !isTranslating) {
+			isTranslating = true;
+			
+			// Direct translation without requestIdleCallback for reliability
+			translate(item.title, 'zh')
+				.then((title) => {
+					translatedTitle = title;
+				})
+				.catch(() => {
+					translatedTitle = item.title;
+				})
+				.finally(() => {
+					isTranslating = false;
+				});
+		} else if (!shouldTranslate && translatedTitle !== item.title) {
+			// Reset to original text when switching back to English or disabling translation
+			translatedTitle = item.title;
+			translatedDescription = item.description || '';
+		}
+	});
 </script>
 
 <div class="news-item" class:alert={showAlert && item.isAlert} class:compact>
@@ -30,11 +64,11 @@
 	{/if}
 
 	<a class="item-title" href={item.link} target="_blank" rel="noopener noreferrer">
-		{item.title}
+		{translatedTitle}
 	</a>
 
-	{#if showDescription && item.description}
-		<p class="item-description">{item.description}</p>
+	{#if showDescription && translatedDescription}
+		<p class="item-description">{translatedDescription}</p>
 	{/if}
 
 	<div class="item-meta">

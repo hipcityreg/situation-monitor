@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Panel } from '$lib/components/common';
+	import { _ } from 'svelte-i18n';
 	import {
 		HOTSPOTS,
 		CONFLICT_ZONES,
@@ -14,6 +15,8 @@
 		WEATHER_CODES
 	} from '$lib/config/map';
 	import { CACHE_TTLS } from '$lib/config/api';
+	import { settings } from '$lib/stores/settings';
+	import { translate } from '$lib/services/translation';
 	import type { CustomMonitor } from '$lib/types';
 
 	interface Props {
@@ -23,6 +26,14 @@
 	}
 
 	let { monitors = [], loading = false, error = null }: Props = $props();
+
+	// Translation settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Cache for translated descriptions
+	let translatedDescs = $state<Record<string, string>>({});
 
 	let mapContainer: HTMLDivElement;
 	// D3 objects - initialized in initMap, null before initialization
@@ -182,6 +193,20 @@
 		tooltipContent = null;
 	}
 
+	// Translate description if needed
+	async function getTranslatedDesc(desc: string): Promise<string> {
+		if (!shouldTranslate) return desc;
+		if (translatedDescs[desc]) return translatedDescs[desc];
+		
+		try {
+			const translated = await translate(desc, 'zh');
+			translatedDescs = { ...translatedDescs, [desc]: translated };
+			return translated;
+		} catch {
+			return desc;
+		}
+	}
+
 	// Build enhanced tooltip with weather
 	async function showEnhancedTooltip(
 		event: MouseEvent,
@@ -192,17 +217,21 @@
 		color: string
 	): Promise<void> {
 		const localTime = getLocalTime(lon);
-		const lines = [`🕐 Local: ${localTime}`];
-		showTooltip(event, desc, color, lines);
+		const localLabel = shouldTranslate ? '当地时间' : 'Local';
+		const lines = [`🕐 ${localLabel}: ${localTime}`];
+		
+		// Get translated description
+		const translatedDesc = await getTranslatedDesc(desc);
+		showTooltip(event, translatedDesc, color, lines);
 
 		// Fetch weather asynchronously
 		const weather = await getWeather(lat, lon);
 		if (weather && tooltipVisible) {
 			tooltipContent = {
-				title: desc,
+				title: translatedDesc,
 				color,
 				lines: [
-					`🕐 Local: ${localTime}`,
+					`🕐 ${localLabel}: ${localTime}`,
 					`${weather.condition} ${weather.temp}°F, ${weather.wind}mph`
 				]
 			};
@@ -360,7 +389,10 @@
 						.attr('r', 10)
 						.attr('fill', 'transparent')
 						.attr('class', 'hotspot-hit')
-						.on('mouseenter', (event: MouseEvent) => showTooltip(event, `⬥ ${cp.desc}`, '#00aaff'))
+						.on('mouseenter', async (event: MouseEvent) => {
+							const desc = await getTranslatedDesc(cp.desc);
+							showTooltip(event, `⬥ ${desc}`, '#00aaff');
+						})
 						.on('mousemove', moveTooltip)
 						.on('mouseleave', hideTooltip);
 				}
@@ -385,7 +417,10 @@
 						.attr('r', 10)
 						.attr('fill', 'transparent')
 						.attr('class', 'hotspot-hit')
-						.on('mouseenter', (event: MouseEvent) => showTooltip(event, `◎ ${cl.desc}`, '#aa44ff'))
+						.on('mouseenter', async (event: MouseEvent) => {
+							const desc = await getTranslatedDesc(cl.desc);
+							showTooltip(event, `◎ ${desc}`, '#aa44ff');
+						})
 						.on('mousemove', moveTooltip)
 						.on('mouseleave', hideTooltip);
 				}
@@ -417,7 +452,10 @@
 						.attr('r', 10)
 						.attr('fill', 'transparent')
 						.attr('class', 'hotspot-hit')
-						.on('mouseenter', (event: MouseEvent) => showTooltip(event, `☢ ${ns.desc}`, '#ffff00'))
+						.on('mouseenter', async (event: MouseEvent) => {
+							const desc = await getTranslatedDesc(ns.desc);
+							showTooltip(event, `☢ ${desc}`, '#ffff00');
+						})
 						.on('mousemove', moveTooltip)
 						.on('mouseleave', hideTooltip);
 				}
@@ -436,7 +474,10 @@
 						.attr('r', 10)
 						.attr('fill', 'transparent')
 						.attr('class', 'hotspot-hit')
-						.on('mouseenter', (event: MouseEvent) => showTooltip(event, `★ ${mb.desc}`, '#ff00ff'))
+						.on('mouseenter', async (event: MouseEvent) => {
+							const desc = await getTranslatedDesc(mb.desc);
+							showTooltip(event, `★ ${desc}`, '#ff00ff');
+						})
 						.on('mousemove', moveTooltip)
 						.on('mouseleave', hideTooltip);
 				}
@@ -575,7 +616,7 @@
 	});
 </script>
 
-<Panel id="map" title="Global Situation" {loading} {error}>
+<Panel id="map" title={$_('panels.map')} {loading} {error} draggable={false} resizable={false}>
 	<div class="map-container" bind:this={mapContainer}>
 		<svg class="map-svg"></svg>
 		{#if tooltipVisible && tooltipContent}
@@ -590,19 +631,19 @@
 			</div>
 		{/if}
 		<div class="zoom-controls">
-			<button class="zoom-btn" onclick={zoomIn} title="Zoom in">+</button>
-			<button class="zoom-btn" onclick={zoomOut} title="Zoom out">−</button>
-			<button class="zoom-btn" onclick={resetZoom} title="Reset">⟲</button>
+			<button class="zoom-btn" onclick={zoomIn} title={$_('map.zoomIn')}>+</button>
+			<button class="zoom-btn" onclick={zoomOut} title={$_('map.zoomOut')}>−</button>
+			<button class="zoom-btn" onclick={resetZoom} title={$_('map.reset')}>⟲</button>
 		</div>
 		<div class="map-legend">
 			<div class="legend-item">
-				<span class="legend-dot high"></span> High
+				<span class="legend-dot high"></span> {$_('map.high')}
 			</div>
 			<div class="legend-item">
-				<span class="legend-dot elevated"></span> Elevated
+				<span class="legend-dot elevated"></span> {$_('map.elevated')}
 			</div>
 			<div class="legend-item">
-				<span class="legend-dot low"></span> Low
+				<span class="legend-dot low"></span> {$_('map.low')}
 			</div>
 		</div>
 	</div>

@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
 	import { timeAgo } from '$lib/utils';
+	import { _ } from 'svelte-i18n';
 	import type { PanelId } from '$lib/config';
 	import type { NewsItem } from '$lib/types';
+	import { settings } from '$lib/stores/settings';
+	import { translate } from '$lib/services/translation';
 
 	interface SituationConfig {
-		title: string;
-		subtitle: string;
+		titleKey: string;
+		subtitleKey: string;
 		criticalKeywords?: string[];
 	}
 
@@ -20,8 +23,22 @@
 
 	let { panelId, config, news = [], loading = false, error = null }: Props = $props();
 
+	// Translation settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Track translated news titles - use object for better reactivity
+	let translations = $state<Record<string, string>>({});
+	let pending = $state<Record<string, boolean>>({});
+
+	// Get translated config values
+	const title = $derived($_(`situation.${config.titleKey}`));
+	const subtitle = $derived($_(`situation.${config.subtitleKey}`));
+
 	// Calculate threat level based on news
 	const threatLevel = $derived(calculateThreatLevel(news, config.criticalKeywords));
+	const threatText = $derived($_(`situation.${threatLevel.level}`));
 
 	function calculateThreatLevel(
 		newsItems: NewsItem[],
@@ -49,30 +66,74 @@
 		}
 		return { level: 'monitoring', text: 'MONITORING' };
 	}
+
+	// Get translated news title
+	function getTranslatedTitle(item: NewsItem): string {
+		if (!shouldTranslate) return item.title;
+		return translations[item.id] || item.title;
+	}
+
+	// Translate a single news item
+	async function translateNews(itemId: string, title: string) {
+		if (translations[itemId] || pending[itemId]) return;
+		
+		pending = { ...pending, [itemId]: true };
+		
+		try {
+			const translated = await translate(title, 'zh');
+			translations = { ...translations, [itemId]: translated };
+		} catch {
+			// Keep original on error
+		} finally {
+			const { [itemId]: _, ...rest } = pending;
+			pending = rest;
+		}
+	}
+
+	// Translate all news when conditions are met
+	$effect(() => {
+		if (!shouldTranslate || news.length === 0) return;
+
+		// Collect all news items to translate
+		const toTranslate: Array<{ id: string; title: string }> = [];
+		
+		for (const item of news) {
+			if (!translations[item.id] && !pending[item.id]) {
+				toTranslate.push({ id: item.id, title: item.title });
+			}
+		}
+
+		// Translate sequentially with small delays
+		let delay = 0;
+		for (const item of toTranslate) {
+			setTimeout(() => translateNews(item.id, item.title), delay);
+			delay += 200;
+		}
+	});
 </script>
 
 <Panel
 	id={panelId}
-	title={config.title}
-	status={threatLevel.text}
+	title={title}
+	status={threatText}
 	statusClass={threatLevel.level}
 	{loading}
 	{error}
 >
 	<div class="situation-content">
 		<div class="situation-header">
-			<div class="situation-title">{config.title}</div>
-			<div class="situation-subtitle">{config.subtitle}</div>
+			<div class="situation-title">{title}</div>
+			<div class="situation-subtitle">{subtitle}</div>
 		</div>
 
 		{#if news.length === 0 && !loading && !error}
-			<div class="empty-state">No recent news</div>
+			<div class="empty-state">{$_('common.noData')}</div>
 		{:else}
 			<div class="situation-news">
 				{#each news.slice(0, 8) as item (item.id)}
 					<div class="situation-item">
 						<a href={item.link} target="_blank" rel="noopener noreferrer" class="headline">
-							{item.title}
+							{getTranslatedTitle(item)}
 						</a>
 						<div class="meta">{item.source} · {timeAgo(item.timestamp)}</div>
 					</div>

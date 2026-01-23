@@ -2,16 +2,25 @@
 	import { Panel } from '$lib/components/common';
 	import { crypto } from '$lib/stores';
 	import { formatCurrency, formatPercentChange, getChangeClass } from '$lib/utils';
+	import { _ } from 'svelte-i18n';
 
-	const items = $derived($crypto.items);
+	const rawItems = $derived($crypto.items);
 	const loading = $derived($crypto.loading);
 	const error = $derived($crypto.error);
+
+	// Translate crypto names
+	const items = $derived(
+		rawItems.map((coin) => ({
+			...coin,
+			name: $_(`cryptoNames.${coin.name}`, { default: coin.name })
+		}))
+	);
 	const count = $derived(items.length);
 </script>
 
-<Panel id="whales" title="Crypto" {count} {loading} {error}>
+<Panel id="whales" title={$_('panels.crypto')} {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No crypto data available</div>
+		<div class="empty-state">{$_('common.noData')}</div>
 	{:else}
 		<div class="crypto-list">
 			{#each items as coin (coin.id)}

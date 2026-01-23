@@ -226,221 +226,126 @@
 
 	<main class="main-content">
 		<Dashboard>
-			<!-- Map Panel - Full width -->
+			<!-- Map Panel - Full width, always first, non-draggable -->
 			{#if isPanelVisible('map')}
-				<div class="panel-slot map-slot">
+				<div class="panel-slot map-slot" data-panel-id="map">
 					<MapPanel monitors={$monitors.monitors} />
 				</div>
 			{/if}
 
-			<!-- News Panels -->
-			{#if isPanelVisible('politics')}
-				<div class="panel-slot">
-					<NewsPanel category="politics" panelId="politics" title="Politics" />
+			<!-- Render panels in order from settings -->
+			{#each $settings.order.filter(id => id !== 'map' && isPanelVisible(id)) as panelId (panelId)}
+				<div 
+					class="panel-slot" 
+					data-panel-id={panelId}
+					draggable="true"
+				>
+					{#if panelId === 'politics'}
+						<NewsPanel category="politics" panelId="politics" title="Politics" />
+					{:else if panelId === 'tech'}
+						<NewsPanel category="tech" panelId="tech" title="Tech" />
+					{:else if panelId === 'finance'}
+						<NewsPanel category="finance" panelId="finance" title="Finance" />
+					{:else if panelId === 'gov'}
+						<NewsPanel category="gov" panelId="gov" title="Government" />
+					{:else if panelId === 'ai'}
+						<NewsPanel category="ai" panelId="ai" title="AI" />
+					{:else if panelId === 'markets'}
+						<MarketsPanel />
+					{:else if panelId === 'heatmap'}
+						<HeatmapPanel />
+					{:else if panelId === 'commodities'}
+						<CommoditiesPanel />
+					{:else if panelId === 'crypto'}
+						<CryptoPanel />
+					{:else if panelId === 'mainchar'}
+						<MainCharPanel />
+					{:else if panelId === 'correlation'}
+						<CorrelationPanel news={$allNewsItems} />
+					{:else if panelId === 'narrative'}
+						<NarrativePanel news={$allNewsItems} />
+					{:else if panelId === 'intel'}
+						<IntelPanel />
+					{:else if panelId === 'fed'}
+						<FedPanel />
+					{:else if panelId === 'leaders'}
+						<WorldLeadersPanel {leaders} loading={leadersLoading} />
+					{:else if panelId === 'venezuela'}
+						<SituationPanel
+							panelId="venezuela"
+							config={{
+								titleKey: 'venezuelaTitle',
+								subtitleKey: 'venezuelaSubtitle',
+								criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('venezuela') ||
+									n.title.toLowerCase().includes('maduro')
+							)}
+						/>
+					{:else if panelId === 'greenland'}
+						<SituationPanel
+							panelId="greenland"
+							config={{
+								titleKey: 'greenlandTitle',
+								subtitleKey: 'greenlandSubtitle',
+								criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('greenland') ||
+									n.title.toLowerCase().includes('arctic')
+							)}
+						/>
+					{:else if panelId === 'iran'}
+						<SituationPanel
+							panelId="iran"
+							config={{
+								titleKey: 'iranTitle',
+								subtitleKey: 'iranSubtitle',
+								criticalKeywords: [
+									'protest',
+									'uprising',
+									'revolution',
+									'crackdown',
+									'killed',
+									'nuclear',
+									'strike',
+									'attack',
+									'irgc',
+									'khamenei'
+								]
+							}}
+							news={$allNewsItems.filter(
+								(n) =>
+									n.title.toLowerCase().includes('iran') ||
+									n.title.toLowerCase().includes('tehran') ||
+									n.title.toLowerCase().includes('irgc')
+							)}
+						/>
+					{:else if panelId === 'whales'}
+						<WhalePanel {whales} />
+					{:else if panelId === 'polymarket'}
+						<PolymarketPanel {predictions} />
+					{:else if panelId === 'contracts'}
+						<ContractsPanel {contracts} />
+					{:else if panelId === 'layoffs'}
+						<LayoffsPanel {layoffs} />
+					{:else if panelId === 'printer'}
+						<PrinterPanel />
+					{:else if panelId === 'monitors'}
+						<MonitorsPanel
+							monitors={$monitors.monitors}
+							matches={$monitors.matches}
+							onCreateMonitor={handleCreateMonitor}
+							onEditMonitor={handleEditMonitor}
+							onDeleteMonitor={handleDeleteMonitor}
+							onToggleMonitor={handleToggleMonitor}
+						/>
+					{/if}
 				</div>
-			{/if}
-
-			{#if isPanelVisible('tech')}
-				<div class="panel-slot">
-					<NewsPanel category="tech" panelId="tech" title="Tech" />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('finance')}
-				<div class="panel-slot">
-					<NewsPanel category="finance" panelId="finance" title="Finance" />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('gov')}
-				<div class="panel-slot">
-					<NewsPanel category="gov" panelId="gov" title="Government" />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('ai')}
-				<div class="panel-slot">
-					<NewsPanel category="ai" panelId="ai" title="AI" />
-				</div>
-			{/if}
-
-			<!-- Markets Panels -->
-			{#if isPanelVisible('markets')}
-				<div class="panel-slot">
-					<MarketsPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('heatmap')}
-				<div class="panel-slot">
-					<HeatmapPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('commodities')}
-				<div class="panel-slot">
-					<CommoditiesPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('crypto')}
-				<div class="panel-slot">
-					<CryptoPanel />
-				</div>
-			{/if}
-
-			<!-- Analysis Panels -->
-			{#if isPanelVisible('mainchar')}
-				<div class="panel-slot">
-					<MainCharPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('correlation')}
-				<div class="panel-slot">
-					<CorrelationPanel news={$allNewsItems} />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('narrative')}
-				<div class="panel-slot">
-					<NarrativePanel news={$allNewsItems} />
-				</div>
-			{/if}
-
-			<!-- Intel Panel -->
-			{#if isPanelVisible('intel')}
-				<div class="panel-slot">
-					<IntelPanel />
-				</div>
-			{/if}
-
-			<!-- Fed Panel -->
-			{#if isPanelVisible('fed')}
-				<div class="panel-slot">
-					<FedPanel />
-				</div>
-			{/if}
-
-			<!-- World Leaders Panel -->
-			{#if isPanelVisible('leaders')}
-				<div class="panel-slot">
-					<WorldLeadersPanel {leaders} loading={leadersLoading} />
-				</div>
-			{/if}
-
-			<!-- Situation Panels -->
-			{#if isPanelVisible('venezuela')}
-				<div class="panel-slot">
-					<SituationPanel
-						panelId="venezuela"
-						config={{
-							title: 'Venezuela Watch',
-							subtitle: 'Humanitarian crisis monitoring',
-							criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
-						}}
-						news={$allNewsItems.filter(
-							(n) =>
-								n.title.toLowerCase().includes('venezuela') ||
-								n.title.toLowerCase().includes('maduro')
-						)}
-					/>
-				</div>
-			{/if}
-
-			{#if isPanelVisible('greenland')}
-				<div class="panel-slot">
-					<SituationPanel
-						panelId="greenland"
-						config={{
-							title: 'Greenland Watch',
-							subtitle: 'Arctic geopolitics monitoring',
-							criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
-						}}
-						news={$allNewsItems.filter(
-							(n) =>
-								n.title.toLowerCase().includes('greenland') ||
-								n.title.toLowerCase().includes('arctic')
-						)}
-					/>
-				</div>
-			{/if}
-
-			{#if isPanelVisible('iran')}
-				<div class="panel-slot">
-					<SituationPanel
-						panelId="iran"
-						config={{
-							title: 'Iran Crisis',
-							subtitle: 'Revolution protests, regime instability & nuclear program',
-							criticalKeywords: [
-								'protest',
-								'uprising',
-								'revolution',
-								'crackdown',
-								'killed',
-								'nuclear',
-								'strike',
-								'attack',
-								'irgc',
-								'khamenei'
-							]
-						}}
-						news={$allNewsItems.filter(
-							(n) =>
-								n.title.toLowerCase().includes('iran') ||
-								n.title.toLowerCase().includes('tehran') ||
-								n.title.toLowerCase().includes('irgc')
-						)}
-					/>
-				</div>
-			{/if}
-
-			<!-- Placeholder panels for additional data sources -->
-			{#if isPanelVisible('whales')}
-				<div class="panel-slot">
-					<WhalePanel {whales} />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('polymarket')}
-				<div class="panel-slot">
-					<PolymarketPanel {predictions} />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('contracts')}
-				<div class="panel-slot">
-					<ContractsPanel {contracts} />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('layoffs')}
-				<div class="panel-slot">
-					<LayoffsPanel {layoffs} />
-				</div>
-			{/if}
-
-			<!-- Money Printer Panel -->
-			{#if isPanelVisible('printer')}
-				<div class="panel-slot">
-					<PrinterPanel />
-				</div>
-			{/if}
-
-			<!-- Custom Monitors (always last) -->
-			{#if isPanelVisible('monitors')}
-				<div class="panel-slot">
-					<MonitorsPanel
-						monitors={$monitors.monitors}
-						matches={$monitors.matches}
-						onCreateMonitor={handleCreateMonitor}
-						onEditMonitor={handleEditMonitor}
-						onDeleteMonitor={handleDeleteMonitor}
-						onToggleMonitor={handleToggleMonitor}
-					/>
-				</div>
-			{/if}
+			{/each}
 		</Dashboard>
 	</main>
 

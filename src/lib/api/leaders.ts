@@ -4,7 +4,7 @@
 
 import { WORLD_LEADERS } from '$lib/config/leaders';
 import type { WorldLeader, LeaderNews } from '$lib/types';
-import { CORS_PROXY_URL, logger } from '$lib/config/api';
+import { fetchWithProxy, logger } from '$lib/config/api';
 
 interface GdeltArticle {
 	title: string;
@@ -21,14 +21,13 @@ interface GdeltResponse {
  * Fetch news for a single leader
  */
 async function fetchLeaderNews(leader: WorldLeader): Promise<WorldLeader> {
-	// Build query from leader's keywords
-	const query = leader.keywords.map((k) => `"${k}"`).join(' OR ');
+	// Build query from leader's keywords - GDELT requires OR'd terms to be wrapped in parentheses
+	const query = `(${leader.keywords.map((k) => `"${k}"`).join(' OR ')})`;
 
 	try {
 		const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=artlist&maxrecords=5&format=json&sort=date`;
-		const proxyUrl = CORS_PROXY_URL + encodeURIComponent(gdeltUrl);
 
-		const response = await fetch(proxyUrl);
+		const response = await fetchWithProxy(gdeltUrl);
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}`);
 		}

@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
+	import { _ } from 'svelte-i18n';
+	import { settings } from '$lib/stores/settings';
+	import { translate } from '$lib/services/translation';
 
 	interface Contract {
 		agency: string;
@@ -18,26 +21,75 @@
 
 	const count = $derived(contracts.length);
 
+	// Translation settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Track translated descriptions
+	let translations = $state<Record<string, string>>({});
+	let pending = $state<Record<string, boolean>>({});
+
 	function formatValue(v: number): string {
 		if (v >= 1e9) return '$' + (v / 1e9).toFixed(1) + 'B';
 		if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
 		if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
 		return '$' + v.toFixed(0);
 	}
+
+	// Get translated description
+	function getTranslatedDesc(id: string, original: string): string {
+		if (!shouldTranslate) return original;
+		return translations[id] || original;
+	}
+
+	// Translate a single item
+	async function translateItem(id: string, text: string) {
+		if (translations[id] || pending[id]) return;
+		
+		pending = { ...pending, [id]: true };
+		
+		try {
+			const translated = await translate(text, 'zh');
+			translations = { ...translations, [id]: translated };
+		} catch {
+			// Keep original on error
+		} finally {
+			const { [id]: _, ...rest } = pending;
+			pending = rest;
+		}
+	}
+
+	// Translate all items when conditions are met
+	$effect(() => {
+		if (!shouldTranslate || contracts.length === 0) return;
+
+		let delay = 0;
+		for (let i = 0; i < contracts.length; i++) {
+			const contract = contracts[i];
+			const id = `${contract.vendor}-${i}`;
+			if (!translations[id] && !pending[id]) {
+				setTimeout(() => translateItem(id, contract.description), delay);
+				delay += 200;
+			}
+		}
+	});
 </script>
 
-<Panel id="contracts" title="Gov Contracts" {count} {loading} {error}>
+<Panel id="contracts" title={$_('panels.contracts')} {count} {loading} {error}>
 	{#if contracts.length === 0 && !loading && !error}
-		<div class="empty-state">No contracts available</div>
+		<div class="empty-state">{$_('common.noData')}</div>
 	{:else}
 		<div class="contracts-list">
 			{#each contracts as contract, i (contract.vendor + i)}
+				{@const id = `${contract.vendor}-${i}`}
+				{@const translatedDesc = getTranslatedDesc(id, contract.description)}
 				<div class="contract-item">
 					<div class="contract-agency">{contract.agency}</div>
 					<div class="contract-desc">
-						{contract.description.length > 100
-							? contract.description.substring(0, 100) + '...'
-							: contract.description}
+						{translatedDesc.length > 100
+							? translatedDesc.substring(0, 100) + '...'
+							: translatedDesc}
 					</div>
 					<div class="contract-meta">
 						<span class="contract-vendor">{contract.vendor}</span>
