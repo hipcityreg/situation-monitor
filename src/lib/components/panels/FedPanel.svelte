@@ -4,6 +4,7 @@
 	import { fedNews, fedIndicators, fedVideos } from '$lib/stores';
 	import { isFredConfigured } from '$lib/api/fred';
 	import type { EconomicIndicator } from '$lib/api/fred';
+	import { _ } from 'svelte-i18n';
 
 	// Store state
 	const newsState = $derived($fedNews);
@@ -57,7 +58,7 @@
 	}
 </script>
 
-<Panel id="fed" title="Federal Reserve" count={newsState.items.length} {loading} {error}>
+<Panel id="fed" title={$_('panels.fed')} count={newsState.items.length} {loading} {error}>
 	<!-- Economic Indicators -->
 	{#if hasApiKey && indicatorList.length > 0}
 		<div class="indicators-section">
@@ -115,7 +116,7 @@
 	<!-- News Feed -->
 	<div class="news-section">
 		{#if newsState.items.length === 0 && !loading && !error}
-			<div class="empty-state">No Fed news available</div>
+			<div class="empty-state">{$_('common.noData')}</div>
 		{:else}
 			<div class="fed-news-list">
 				{#each newsState.items as item (item.id)}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Panel, Badge } from '$lib/components/common';
 	import { timeAgo } from '$lib/utils';
+	import { _ } from 'svelte-i18n';
 	import type { CustomMonitor } from '$lib/types';
 	import type { MonitorMatch } from '$lib/stores/monitors';
 
@@ -34,18 +35,18 @@
 	}
 </script>
 
-<Panel id="monitors" title="Custom Monitors" {count} {loading} {error}>
+<Panel id="monitors" title={$_('panels.monitors')} {count} {loading} {error}>
 	<div class="monitors-content">
 		{#if monitors.length === 0 && !loading && !error}
 			<div class="empty-state">
-				<p>No monitors configured</p>
+				<p>{$_('alerts.noMonitors')}</p>
 				{#if onCreateMonitor}
-					<button class="create-btn" onclick={onCreateMonitor}> + Create Monitor </button>
+					<button class="create-btn" onclick={onCreateMonitor}>{$_('alerts.addMonitor')}</button>
 				{/if}
 			</div>
 		{:else}
 			<div class="monitors-header">
-				<span class="active-count">{activeMonitors.length} active</span>
+				<span class="active-count">{activeMonitors.length} {$_('common.active')}</span>
 				{#if onCreateMonitor}
 					<button class="add-btn" onclick={onCreateMonitor}>+</button>
 				{/if}

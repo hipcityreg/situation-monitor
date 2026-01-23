@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Panel } from '$lib/components/common';
+	import { _ } from 'svelte-i18n';
 	import {
 		HOTSPOTS,
 		CONFLICT_ZONES,
@@ -575,7 +576,7 @@
 	});
 </script>
 
-<Panel id="map" title="Global Situation" {loading} {error}>
+<Panel id="map" title={$_('panels.map')} {loading} {error}>
 	<div class="map-container" bind:this={mapContainer}>
 		<svg class="map-svg"></svg>
 		{#if tooltipVisible && tooltipContent}

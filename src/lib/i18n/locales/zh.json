@@ -9,7 +9,8 @@
     "save": "保存",
     "cancel": "取消",
     "reset": "重置",
-    "confirm": "确认"
+    "confirm": "确认",
+    "active": "活跃"
   },
   "header": {
     "title": "局势监控",
@@ -63,7 +64,10 @@
     "change": "涨跌",
     "price": "价格",
     "volume": "成交量",
-    "marketCap": "市值"
+    "marketCap": "市值",
+    "vixHigh": "高度恐慌",
+    "vixElevated": "恐慌上升",
+    "vixLow": "低"
   },
   "news": {
     "readMore": "阅读更多",
@@ -106,6 +110,9 @@
     "severity": "严重程度",
     "high": "高",
     "medium": "中",
-    "low": "低"
+    "low": "低",
+    "insufficientData": "数据不足",
+    "noPatternsDetected": "未检测到显著模式",
+    "noNarrativesDetected": "未检测到显著叙事"
   }
 }

@@ -2,6 +2,7 @@
 	import { Panel, Badge } from '$lib/components/common';
 	import { analyzeCorrelations } from '$lib/analysis/correlation';
 	import type { NewsItem } from '$lib/types';
+	import { _ } from 'svelte-i18n';
 
 	interface Props {
 		news?: NewsItem[];
@@ -46,9 +47,9 @@
 	}
 </script>
 
-<Panel id="correlation" title="Pattern Analysis" {loading} {error}>
+<Panel id="correlation" title={$_('panels.correlation')} {loading} {error}>
 	{#if news.length === 0 && !loading && !error}
-		<div class="empty-state">Insufficient data for analysis</div>
+		<div class="empty-state">{$_('analysis.insufficientData')}</div>
 	{:else if analysis}
 		<div class="correlation-content">
 			{#if analysis.emergingPatterns.length > 0}
@@ -119,11 +120,11 @@
 			{/if}
 
 			{#if analysis.emergingPatterns.length === 0 && analysis.momentumSignals.length === 0}
-				<div class="empty-state">No significant patterns detected</div>
+				<div class="empty-state">{$_('analysis.noPatternsDetected')}</div>
 			{/if}
 		</div>
 	{:else}
-		<div class="empty-state">No significant patterns detected</div>
+		<div class="empty-state">{$_('analysis.noPatternsDetected')}</div>
 	{/if}
 </Panel>
 

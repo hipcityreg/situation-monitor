@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
+	import { _ } from 'svelte-i18n';
 
 	interface WhaleTransaction {
 		coin: string;
@@ -29,9 +30,9 @@
 	}
 </script>
 
-<Panel id="whales" title="Whale Watch" {count} {loading} {error}>
+<Panel id="whales" title={$_('panels.whales')} {count} {loading} {error}>
 	{#if whales.length === 0 && !loading && !error}
-		<div class="empty-state">No whale transactions detected</div>
+		<div class="empty-state">{$_('common.noData')}</div>
 	{:else}
 		<div class="whale-list">
 			{#each whales as whale, i (whale.hash + i)}

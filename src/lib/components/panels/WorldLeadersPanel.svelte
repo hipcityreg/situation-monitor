@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
 	import type { WorldLeader } from '$lib/types';
+	import { _ } from 'svelte-i18n';
 
 	interface Props {
 		leaders?: WorldLeader[];
@@ -19,9 +20,9 @@
 	}
 </script>
 
-<Panel id="leaders" title="World Leaders" {count} {loading} {error}>
+<Panel id="leaders" title={$_('panels.leaders')} {count} {loading} {error}>
 	{#if leaders.length === 0 && !loading && !error}
-		<div class="empty-state">No leaders data available</div>
+		<div class="empty-state">{$_('common.noData')}</div>
 	{:else}
 		<div class="leaders-grid">
 			{#each leaders as leader (leader.id)}

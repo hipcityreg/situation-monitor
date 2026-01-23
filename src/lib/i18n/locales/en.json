@@ -9,7 +9,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "reset": "Reset",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "active": "active"
   },
   "header": {
     "title": "SITUATION MONITOR",
@@ -63,7 +64,10 @@
     "change": "Change",
     "price": "Price",
     "volume": "Volume",
-    "marketCap": "Market Cap"
+    "marketCap": "Market Cap",
+    "vixHigh": "HIGH FEAR",
+    "vixElevated": "ELEVATED",
+    "vixLow": "LOW"
   },
   "news": {
     "readMore": "Read more",
@@ -106,6 +110,9 @@
     "severity": "Severity",
     "high": "High",
     "medium": "Medium",
-    "low": "Low"
+    "low": "Low",
+    "insufficientData": "Insufficient data for analysis",
+    "noPatternsDetected": "No significant patterns detected",
+    "noNarrativesDetected": "No significant narratives detected"
   }
 }

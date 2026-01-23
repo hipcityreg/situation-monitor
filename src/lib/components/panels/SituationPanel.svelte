@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
 	import { timeAgo } from '$lib/utils';
+	import { _ } from 'svelte-i18n';
 	import type { PanelId } from '$lib/config';
 	import type { NewsItem } from '$lib/types';
 
@@ -66,7 +67,7 @@
 		</div>
 
 		{#if news.length === 0 && !loading && !error}
-			<div class="empty-state">No recent news</div>
+			<div class="empty-state">{$_('common.noData')}</div>
 		{:else}
 			<div class="situation-news">
 				{#each news.slice(0, 8) as item (item.id)}

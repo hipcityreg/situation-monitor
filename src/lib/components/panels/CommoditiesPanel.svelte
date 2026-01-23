@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Panel, MarketItem } from '$lib/components/common';
 	import { commodities, vix } from '$lib/stores';
+	import { _ } from 'svelte-i18n';
 
 	const items = $derived($commodities.items);
 	const loading = $derived($commodities.loading);
@@ -12,9 +13,9 @@
 
 	function getVixStatus(level: number | undefined): string {
 		if (level === undefined) return '';
-		if (level >= 30) return 'HIGH FEAR';
-		if (level >= 20) return 'ELEVATED';
-		return 'LOW';
+		if (level >= 30) return $_('markets.vixHigh');
+		if (level >= 20) return $_('markets.vixElevated');
+		return $_('markets.vixLow');
 	}
 
 	function getVixClass(level: number | undefined): string {
@@ -27,14 +28,14 @@
 
 <Panel
 	id="commodities"
-	title="Commodities / VIX"
+	title={$_('panels.commodities')}
 	status={vixStatus}
 	statusClass={vixClass}
 	{loading}
 	{error}
 >
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No commodity data available</div>
+		<div class="empty-state">{$_('common.noData')}</div>
 	{:else}
 		<div class="commodities-list">
 			{#each items as item (item.symbol)}
