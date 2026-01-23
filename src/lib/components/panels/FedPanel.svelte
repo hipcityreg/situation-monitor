@@ -2,8 +2,10 @@
 	import { Panel, Badge } from '$lib/components/common';
 	import { getRelativeTime } from '$lib/utils';
 	import { fedNews, fedIndicators, fedVideos } from '$lib/stores';
+	import { settings } from '$lib/stores/settings';
 	import { isFredConfigured } from '$lib/api/fred';
 	import type { EconomicIndicator } from '$lib/api/fred';
+	import { translate } from '$lib/services/translation';
 	import { _ } from 'svelte-i18n';
 
 	// Store state
@@ -14,6 +16,32 @@
 	const loading = $derived(newsState.loading || indicatorsState.loading);
 	const error = $derived(newsState.error || indicatorsState.error);
 	const hasApiKey = isFredConfigured();
+
+	// Translation settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Track translations
+	let translations = $state<Record<string, string>>({});
+	let pending = $state<Record<string, boolean>>({});
+
+	// Map indicator series ID to i18n key
+	const INDICATOR_KEYS: Record<string, string> = {
+		FEDFUNDS: 'fed.indicators.fedFundsRate',
+		CPIAUCSL: 'fed.indicators.cpiInflation',
+		DGS10: 'fed.indicators.treasury10Y'
+	};
+
+	// Get translated indicator name
+	function getIndicatorName(indicator: EconomicIndicator): string {
+		const key = INDICATOR_KEYS[indicator.seriesId];
+		if (key) {
+			const translated = $_(key);
+			if (translated !== key) return translated;
+		}
+		return indicator.name;
+	}
 
 	const indicatorList = $derived(
 		indicatorsState.data
@@ -56,6 +84,70 @@
 	function getTypeVariant(type: string): BadgeVariant {
 		return TYPE_VARIANTS[type] || 'default';
 	}
+
+	// Get translated type label
+	function getTypeLabel(type: string): string {
+		const key = `fed.types.${type}`;
+		const translated = $_(key);
+		return translated === key ? type.charAt(0).toUpperCase() + type.slice(1) : translated;
+	}
+
+	// Get translated badge text
+	function getBadgeText(badge: 'powell' | 'video'): string {
+		const key = `fed.badges.${badge}`;
+		const translated = $_(key);
+		return translated === key ? badge.toUpperCase() : translated;
+	}
+
+	// Translate a news item
+	async function translateItem(id: string, text: string) {
+		if (translations[id] || pending[id]) return;
+
+		pending = { ...pending, [id]: true };
+
+		try {
+			const translated = await translate(text, 'zh');
+			translations = { ...translations, [id]: translated };
+		} catch {
+			// Keep original on error
+		} finally {
+			const { [id]: _, ...rest } = pending;
+			pending = rest;
+		}
+	}
+
+	// Translate news and videos when needed
+	$effect(() => {
+		if (!shouldTranslate) return;
+
+		// Translate news items
+		let delay = 0;
+		for (const item of newsState.items) {
+			if (!translations[item.id] && !pending[item.id]) {
+				setTimeout(() => translateItem(item.id, item.title), delay);
+				delay += 200;
+			}
+			// Also translate description
+			const descKey = `${item.id}-desc`;
+			if (item.description && !translations[descKey] && !pending[descKey]) {
+				setTimeout(() => translateItem(descKey, item.description), delay);
+				delay += 200;
+			}
+		}
+
+		// Translate video items
+		for (const item of videoItems) {
+			if (!translations[item.id] && !pending[item.id]) {
+				setTimeout(() => translateItem(item.id, item.title), delay);
+				delay += 200;
+			}
+		}
+	});
+
+	// Get translated title
+	function getTitle(id: string, original: string): string {
+		return shouldTranslate && translations[id] ? translations[id] : original;
+	}
 </script>
 
 <Panel id="fed" title={$_('panels.fed')} count={newsState.items.length} {loading} {error}>
@@ -65,7 +157,7 @@
 			<div class="indicator-cards">
 				{#each indicatorList as indicator (indicator.seriesId)}
 					<div class="indicator-card">
-						<div class="indicator-label">{indicator.name}</div>
+						<div class="indicator-label">{getIndicatorName(indicator)}</div>
 						<div class="indicator-value">{formatValue(indicator)}</div>
 						<div class="indicator-change {getChangeClass(indicator.change)}">
 							{formatChange(indicator)}
@@ -99,10 +191,10 @@
 					<a href={item.link} target="_blank" rel="noopener noreferrer" class="video-item">
 						<div class="video-icon">&#9658;</div>
 						<div class="video-content">
-							<div class="video-title">{item.title}</div>
+							<div class="video-title">{getTitle(item.id, item.title)}</div>
 							<div class="video-meta">
 								{#if item.isPowellRelated}
-									<Badge text="POWELL" variant="warning" />
+									<Badge text={getBadgeText('powell')} variant="warning" />
 								{/if}
 								<span>{getRelativeTime(item.pubDate)}</span>
 							</div>
@@ -120,15 +212,17 @@
 		{:else}
 			<div class="fed-news-list">
 				{#each newsState.items as item (item.id)}
+					{@const title = getTitle(item.id, item.title)}
+					{@const desc = item.description ? getTitle(`${item.id}-desc`, item.description) : ''}
 					<div class="fed-news-item" class:powell={item.isPowellRelated}>
 						<div class="fed-news-header">
 							<div class="fed-news-badges">
-								<Badge text={item.typeLabel} variant={getTypeVariant(item.type)} />
+								<Badge text={getTypeLabel(item.type)} variant={getTypeVariant(item.type)} />
 								{#if item.isPowellRelated && item.type !== 'powell'}
-									<Badge text="POWELL" variant="warning" />
+									<Badge text={getBadgeText('powell')} variant="warning" />
 								{/if}
 								{#if item.hasVideo}
-									<Badge text="VIDEO" variant="info" />
+									<Badge text={getBadgeText('video')} variant="info" />
 								{/if}
 							</div>
 							{#if item.pubDate}
@@ -136,11 +230,11 @@
 							{/if}
 						</div>
 						<a href={item.link} target="_blank" rel="noopener noreferrer" class="fed-news-title">
-							{item.title}
+							{title}
 						</a>
-						{#if item.description}
+						{#if desc}
 							<div class="fed-news-desc">
-								{item.description.slice(0, 120)}{item.description.length > 120 ? '...' : ''}
+								{desc.slice(0, 120)}{desc.length > 120 ? '...' : ''}
 							</div>
 						{/if}
 					</div>

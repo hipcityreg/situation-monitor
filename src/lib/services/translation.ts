@@ -123,17 +123,58 @@ function setCached(text: string, targetLang: string, translation: string): void 
 }
 
 /**
+ * Check if text is likely already in the target language
+ * Simple heuristic: check for Chinese characters
+ */
+function isAlreadyChinese(text: string): boolean {
+	// Check if text contains Chinese characters
+	const chineseCharCount = (text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length;
+	// If more than 30% of text is Chinese characters, consider it Chinese
+	return chineseCharCount > text.length * 0.3;
+}
+
+/**
+ * Validate translation result
+ * Check if the translation looks valid (not corrupted, not partial)
+ */
+function isValidTranslation(original: string, translated: string, targetLang: string): boolean {
+	// If translation is empty or same as original, it might have failed
+	if (!translated || translated === original) return false;
+	
+	// For Chinese translations, check if result contains mostly Chinese
+	if (targetLang === 'zh') {
+		const chineseCharCount = (translated.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length;
+		const nonSpaceLength = translated.replace(/\s/g, '').length;
+		
+		// At least 40% should be Chinese characters for it to be considered valid
+		// This helps filter out partial/corrupted translations
+		if (nonSpaceLength > 0 && chineseCharCount / nonSpaceLength < 0.4) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+/**
  * Translate text using translation API with fallback
+ * Supports auto-detection of source language for non-English text
  */
 async function translateWithApi(text: string, targetLang: string): Promise<string> {
+	// Skip if already in target language
+	if (targetLang === 'zh' && isAlreadyChinese(text)) {
+		return text;
+	}
+
 	const api = TRANSLATION_APIS[currentApiIndex];
 
 	try {
 		if (api.type === 'mymemory') {
 			// MyMemory API uses GET with query parameters
+			// Use 'autodetect' to automatically detect source language
 			const params = new URLSearchParams({
 				q: text,
-				langpair: `en|${targetLang === 'zh' ? 'zh-CN' : targetLang}`
+				langpair: `autodetect|${targetLang === 'zh' ? 'zh-CN' : targetLang}`
 			});
 
 			const response = await fetch(`${api.url}?${params.toString()}`);
@@ -146,6 +187,7 @@ async function translateWithApi(text: string, targetLang: string): Promise<strin
 			return data.responseData?.translatedText || text;
 		} else {
 			// LibreTranslate API uses POST
+			// Use 'auto' for automatic language detection
 			const response = await fetch(api.url, {
 				method: 'POST',
 				headers: {
@@ -153,7 +195,7 @@ async function translateWithApi(text: string, targetLang: string): Promise<strin
 				},
 				body: JSON.stringify({
 					q: text,
-					source: 'en',
+					source: 'auto',
 					target: targetLang === 'zh' ? 'zh' : targetLang,
 					format: 'text'
 				})
@@ -187,9 +229,13 @@ async function translateWithApi(text: string, targetLang: string): Promise<strin
 /**
  * Translate text to target language
  * Uses cache first, then API with queue management
+ * Supports auto-detection of source language (not just English)
  */
 export async function translate(text: string, targetLang: string): Promise<string> {
 	if (!text || targetLang === 'en') return text;
+
+	// Skip if text is already in target language
+	if (targetLang === 'zh' && isAlreadyChinese(text)) return text;
 
 	// Check cache first
 	const cached = getCached(text, targetLang);
@@ -198,12 +244,14 @@ export async function translate(text: string, targetLang: string): Promise<strin
 	// Translate via API using queue to limit concurrency
 	const translated = await translationQueue.add(() => translateWithApi(text, targetLang));
 
-	// Cache result
-	if (translated !== text) {
+	// Validate and cache result only if valid
+	if (isValidTranslation(text, translated, targetLang)) {
 		setCached(text, targetLang, translated);
+		return translated;
 	}
 
-	return translated;
+	// Return original if translation is invalid
+	return text;
 }
 
 /**

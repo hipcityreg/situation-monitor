@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
 	import { _ } from 'svelte-i18n';
+	import { settings } from '$lib/stores/settings';
+	import { translate } from '$lib/services/translation';
 
 	interface Prediction {
 		id: string;
@@ -20,6 +22,15 @@
 
 	const count = $derived(predictions.length);
 
+	// Translation settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Track translated questions
+	let translations = $state<Record<string, string>>({});
+	let pending = $state<Record<string, boolean>>({});
+
 	function formatVolume(v: number | string): string {
 		if (typeof v === 'string') return '$' + v;
 		if (!v) return '$0';
@@ -27,6 +38,42 @@
 		if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
 		return '$' + v.toFixed(0);
 	}
+
+	// Get translated question
+	function getTranslatedQuestion(id: string, original: string): string {
+		if (!shouldTranslate) return original;
+		return translations[id] || original;
+	}
+
+	// Translate a single item
+	async function translateItem(id: string, text: string) {
+		if (translations[id] || pending[id]) return;
+		
+		pending = { ...pending, [id]: true };
+		
+		try {
+			const translated = await translate(text, 'zh');
+			translations = { ...translations, [id]: translated };
+		} catch {
+			// Keep original on error
+		} finally {
+			const { [id]: _, ...rest } = pending;
+			pending = rest;
+		}
+	}
+
+	// Translate all items when conditions are met
+	$effect(() => {
+		if (!shouldTranslate || predictions.length === 0) return;
+
+		let delay = 0;
+		for (const pred of predictions) {
+			if (!translations[pred.id] && !pending[pred.id]) {
+				setTimeout(() => translateItem(pred.id, pred.question), delay);
+				delay += 200;
+			}
+		}
+	});
 </script>
 
 <Panel id="polymarket" title={$_('panels.polymarket')} {count} {loading} {error}>
@@ -37,8 +84,8 @@
 			{#each predictions as pred (pred.id)}
 				<div class="prediction-item">
 					<div class="prediction-info">
-						<div class="prediction-question">{pred.question}</div>
-						<div class="prediction-volume">Vol: {formatVolume(pred.volume)}</div>
+						<div class="prediction-question">{getTranslatedQuestion(pred.id, pred.question)}</div>
+						<div class="prediction-volume">{$_('polymarket.volume')}: {formatVolume(pred.volume)}</div>
 					</div>
 					<div class="prediction-odds">
 						<span class="prediction-yes">{pred.yes}%</span>

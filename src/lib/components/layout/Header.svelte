@@ -41,6 +41,31 @@
 	</div>
 
 	<div class="header-right">
+		<!-- Panel size controls -->
+		<div class="size-controls">
+			<button 
+				class="size-btn" 
+				onclick={() => settings.minimizeAllPanels()} 
+				title={$_('header.minimizeAll')}
+			>
+				▁
+			</button>
+			<button 
+				class="size-btn" 
+				onclick={() => settings.resetAllPanelHeights()} 
+				title={$_('header.resetAll')}
+			>
+				▬
+			</button>
+			<button 
+				class="size-btn" 
+				onclick={() => settings.expandAllPanels()} 
+				title={$_('header.expandAll')}
+			>
+				▆
+			</button>
+		</div>
+
 		<button class="header-btn" onclick={toggleLanguage} title={$_('header.language')}>
 			<span class="btn-icon">🌐</span>
 			<span class="btn-label">{settings.getLocale().toUpperCase()}</span>
@@ -114,6 +139,33 @@
 		align-items: center;
 		gap: 0.5rem;
 		flex-shrink: 0;
+	}
+
+	.size-controls {
+		display: flex;
+		align-items: center;
+		gap: 0.15rem;
+		padding: 0.25rem 0.4rem;
+		background: var(--bg-secondary, rgba(0, 0, 0, 0.2));
+		border-radius: 4px;
+		border: 1px solid var(--border);
+	}
+
+	.size-btn {
+		background: transparent;
+		border: none;
+		color: var(--text-muted);
+		cursor: pointer;
+		padding: 0.25rem 0.4rem;
+		font-size: 0.6rem;
+		line-height: 1;
+		border-radius: 2px;
+		transition: all 0.15s ease;
+	}
+
+	.size-btn:hover {
+		color: var(--accent);
+		background: rgba(var(--accent-rgb, 0, 136, 255), 0.15);
 	}
 
 	.header-btn {

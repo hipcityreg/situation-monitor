@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { SectorPerformance } from '$lib/types';
 	import { formatPercentChange } from '$lib/utils';
+	import { _ } from 'svelte-i18n';
 
 	interface Props {
 		sector: SectorPerformance;
@@ -23,10 +24,17 @@
 	}
 
 	const changeText = $derived(formatPercentChange(sector.changePercent));
+
+	// Get translated sector name
+	function getSectorName(name: string): string {
+		const key = `sectors.${name}`;
+		const translated = $_(key);
+		return translated === key ? name : translated;
+	}
 </script>
 
 <div class="heatmap-cell {colorClass}">
-	<div class="sector-name">{sector.name}</div>
+	<div class="sector-name">{getSectorName(sector.name)}</div>
 	{#if showSymbol}
 		<div class="sector-symbol">{sector.symbol}</div>
 	{/if}

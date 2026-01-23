@@ -198,6 +198,58 @@ function createSettingsStore() {
 		},
 
 		/**
+		 * Expand all panels to max height
+		 */
+		expandAllPanels() {
+			const MAX_HEIGHT = 600;
+			update((state) => {
+				const allPanelIds = Object.keys(PANELS) as PanelId[];
+				const newSizes = { ...state.sizes };
+				for (const id of allPanelIds) {
+					if (!NON_DRAGGABLE_PANELS.includes(id)) {
+						newSizes[id] = { ...newSizes[id], height: MAX_HEIGHT };
+					}
+				}
+				saveToStorage('sizes', newSizes);
+				return { ...state, sizes: newSizes };
+			});
+		},
+
+		/**
+		 * Minimize all panels to min height
+		 */
+		minimizeAllPanels() {
+			const MIN_HEIGHT = 60;
+			update((state) => {
+				const allPanelIds = Object.keys(PANELS) as PanelId[];
+				const newSizes = { ...state.sizes };
+				for (const id of allPanelIds) {
+					if (!NON_DRAGGABLE_PANELS.includes(id)) {
+						newSizes[id] = { ...newSizes[id], height: MIN_HEIGHT };
+					}
+				}
+				saveToStorage('sizes', newSizes);
+				return { ...state, sizes: newSizes };
+			});
+		},
+
+		/**
+		 * Reset all panel heights to default
+		 */
+		resetAllPanelHeights() {
+			update((state) => {
+				const newSizes = { ...state.sizes };
+				for (const id of Object.keys(newSizes) as PanelId[]) {
+					if (newSizes[id]) {
+						delete newSizes[id].height;
+					}
+				}
+				saveToStorage('sizes', newSizes);
+				return { ...state, sizes: newSizes };
+			});
+		},
+
+		/**
 		 * Reset all settings to defaults
 		 */
 		reset() {

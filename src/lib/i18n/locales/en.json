@@ -10,12 +10,20 @@
 		"cancel": "Cancel",
 		"reset": "Reset",
 		"confirm": "Confirm",
-		"active": "active"
+		"active": "active",
+		"dragToReorder": "Drag to reorder",
+		"resizePanel": "Drag to resize, double-click to reset",
+		"minimize": "Minimize",
+		"expand": "Expand",
+		"resetHeight": "Reset height"
 	},
 	"header": {
 		"title": "SITUATION MONITOR",
 		"settings": "Settings",
-		"language": "Language"
+		"language": "Language",
+		"minimizeAll": "Minimize all",
+		"expandAll": "Expand all",
+		"resetAll": "Reset all heights"
 	},
 	"panels": {
 		"map": "Global Map",
@@ -71,6 +79,135 @@
 		"vixElevated": "ELEVATED",
 		"vixLow": "LOW"
 	},
+	"commodityNames": {
+		"VIX": "VIX",
+		"Gold": "Gold",
+		"Crude Oil": "Crude Oil",
+		"Natural Gas": "Natural Gas",
+		"Silver": "Silver",
+		"Copper": "Copper"
+	},
+	"cryptoNames": {
+		"Bitcoin": "Bitcoin",
+		"Ethereum": "Ethereum",
+		"Solana": "Solana"
+	},
+	"sectors": {
+		"Tech": "Tech",
+		"Finance": "Finance",
+		"Energy": "Energy",
+		"Health": "Health",
+		"Consumer": "Consumer",
+		"Industrial": "Industrial",
+		"Staples": "Staples",
+		"Utilities": "Utilities",
+		"Materials": "Materials",
+		"Real Est": "Real Est",
+		"Comms": "Comms",
+		"Semis": "Semis"
+	},
+	"leaderTitles": {
+		"President": "President",
+		"Vice President": "Vice President",
+		"Prime Minister": "Prime Minister",
+		"Chancellor": "Chancellor",
+		"Crown Prince": "Crown Prince",
+		"Supreme Leader": "Supreme Leader"
+	},
+	"countries": {
+		"United States": "United States",
+		"China": "China",
+		"Russia": "Russia",
+		"United Kingdom": "United Kingdom",
+		"France": "France",
+		"Germany": "Germany",
+		"Italy": "Italy",
+		"Israel": "Israel",
+		"Saudi Arabia": "Saudi Arabia",
+		"Iran": "Iran",
+		"India": "India",
+		"North Korea": "North Korea",
+		"Japan": "Japan",
+		"Taiwan": "Taiwan",
+		"Ukraine": "Ukraine",
+		"Argentina": "Argentina",
+		"Brazil": "Brazil",
+		"Canada": "Canada"
+	},
+	"parties": {
+		"Republican": "Republican",
+		"CCP": "CCP",
+		"United Russia": "United Russia",
+		"Labour": "Labour",
+		"Renaissance": "Renaissance",
+		"SPD": "SPD",
+		"Brothers of Italy": "Brothers of Italy",
+		"Likud": "Likud",
+		"Royal Family": "Royal Family",
+		"Islamic Republic": "Islamic Republic",
+		"BJP": "BJP",
+		"Workers Party": "Workers Party",
+		"LDP": "LDP",
+		"DPP": "DPP",
+		"Servant of the People": "Servant of the People",
+		"La Libertad Avanza": "La Libertad Avanza",
+		"PT": "PT",
+		"Liberal": "Liberal"
+	},
+	"focusTopics": {
+		"tariffs": "tariffs",
+		"immigration": "immigration",
+		"deregulation": "deregulation",
+		"taiwan": "taiwan",
+		"belt and road": "belt and road",
+		"tech dominance": "tech dominance",
+		"ukraine war": "ukraine war",
+		"nato expansion": "nato expansion",
+		"energy": "energy",
+		"gaza": "gaza",
+		"iran": "iran",
+		"judicial reform": "judicial reform",
+		"vision 2030": "vision 2030",
+		"oil": "oil",
+		"regional influence": "regional influence",
+		"nuclear program": "nuclear program",
+		"proxies": "proxies",
+		"sanctions": "sanctions",
+		"economy": "economy",
+		"china border": "china border",
+		"technology": "technology",
+		"nuclear": "nuclear",
+		"missiles": "missiles",
+		"russia alliance": "russia alliance",
+		"defense": "defense",
+		"china": "china",
+		"us alliance": "us alliance",
+		"china relations": "china relations",
+		"semiconductors": "semiconductors",
+		"war": "war",
+		"western aid": "western aid",
+		"nato membership": "nato membership",
+		"dollarization": "dollarization",
+		"spending cuts": "spending cuts",
+		"amazon": "amazon",
+		"social programs": "social programs",
+		"brics": "brics",
+		"us relations": "us relations"
+	},
+	"situation": {
+		"venezuelaTitle": "Venezuela Watch",
+		"venezuelaSubtitle": "Humanitarian crisis monitoring",
+		"greenlandTitle": "Greenland Watch",
+		"greenlandSubtitle": "Arctic geopolitics monitoring",
+		"iranTitle": "Iran Crisis",
+		"iranSubtitle": "Revolution protests, regime instability & nuclear program",
+		"critical": "CRITICAL",
+		"elevated": "ELEVATED",
+		"monitoring": "MONITORING"
+	},
+	"leaders": {
+		"since": "Since"
+	},
 	"news": {
 		"readMore": "Read more",
 		"source": "Source",
@@ -103,7 +240,13 @@
 		"conflict": "Conflict Zone",
 		"strategic": "Strategic Location",
 		"zoom": "Zoom",
-		"reset": "Reset View"
+		"reset": "Reset",
+		"zoomIn": "Zoom in",
+		"zoomOut": "Zoom out",
+		"high": "High",
+		"elevated": "Elevated",
+		"low": "Low",
+		"local": "Local"
 	},
 	"analysis": {
 		"correlations": "Correlations",
@@ -133,7 +276,23 @@
 	"fed": {
 		"speechesVideo": "Speeches & Video",
 		"liveBroadcast": "Live Broadcast",
-		"addApiKey": "Add VITE_FRED_API_KEY for economic indicators"
+		"addApiKey": "Add VITE_FRED_API_KEY for economic indicators",
+		"indicators": {
+			"fedFundsRate": "Fed Funds Rate",
+			"cpiInflation": "CPI Inflation",
+			"treasury10Y": "10Y Treasury"
+		},
+		"types": {
+			"powell": "Chair Powell",
+			"monetary": "Monetary Policy",
+			"speech": "Speech",
+			"testimony": "Testimony",
+			"announcement": "Announcement"
+		},
+		"badges": {
+			"powell": "POWELL",
+			"video": "VIDEO"
+		}
 	},
 	"monitors": {
 		"editTitle": "Edit Monitor",
@@ -145,5 +304,44 @@
 		"delete": "Delete",
 		"choosePreset": "Choose a preset profile for your panels",
 		"saveChanges": "Save Changes"
+	},
+	"polymarket": {
+		"volume": "Vol"
+	},
+	"layoffs": {
+		"jobs": "jobs"
+	},
+	"intel": {
+		"sourceTypes": {
+			"osint": "OSINT",
+			"govt": "GOVT",
+			"think-tank": "THINK-TANK",
+			"defense": "DEFENSE",
+			"regional": "REGIONAL",
+			"cyber": "CYBER"
+		},
+		"regions": {
+			"APAC": "APAC",
+			"EUROPE": "EUROPE",
+			"AMERICAS": "AMERICAS",
+			"MENA": "MENA",
+			"AFRICA": "AFRICA",
+			"GLOBAL": "GLOBAL"
+		},
+		"topics": {
+			"CONFLICT": "CONFLICT",
+			"DEFENSE": "DEFENSE",
+			"INTEL": "INTEL",
+			"CYBER": "CYBER",
+			"TERROR": "TERROR",
+			"TRADE": "TRADE",
+			"ENERGY": "ENERGY",
+			"FINANCE": "FINANCE",
+			"TECH": "TECH",
+			"AI": "AI",
+			"NUCLEAR": "NUCLEAR",
+			"SANCTIONS": "SANCTIONS"
+		},
+		"priority": "PRIORITY"
 	}
 }

@@ -4,9 +4,17 @@
 	import { formatCurrency, formatPercentChange, getChangeClass } from '$lib/utils';
 	import { _ } from 'svelte-i18n';
 
-	const items = $derived($crypto.items);
+	const rawItems = $derived($crypto.items);
 	const loading = $derived($crypto.loading);
 	const error = $derived($crypto.error);
+
+	// Translate crypto names
+	const items = $derived(
+		rawItems.map((coin) => ({
+			...coin,
+			name: $_(`cryptoNames.${coin.name}`, { default: coin.name })
+		}))
+	);
 	const count = $derived(items.length);
 </script>
 

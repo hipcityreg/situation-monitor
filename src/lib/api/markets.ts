@@ -29,6 +29,22 @@ interface FinnhubQuote {
 	t: number; // Timestamp
 }
 
+// Rate limiting for Finnhub (60 calls/min = 1 call per second to be safe)
+const FINNHUB_DELAY_MS = 150; // 150ms between requests
+let lastFinnhubRequest = 0;
+
+async function rateLimitedFinnhubFetch(url: string): Promise<Response> {
+	const now = Date.now();
+	const timeSinceLastRequest = now - lastFinnhubRequest;
+	
+	if (timeSinceLastRequest < FINNHUB_DELAY_MS) {
+		await new Promise((resolve) => setTimeout(resolve, FINNHUB_DELAY_MS - timeSinceLastRequest));
+	}
+	
+	lastFinnhubRequest = Date.now();
+	return fetch(url);
+}
+
 /**
  * Check if Finnhub API key is configured
  */
@@ -63,12 +79,12 @@ const INDEX_ETF_MAP: Record<string, string> = {
 };
 
 /**
- * Fetch a quote from Finnhub
+ * Fetch a quote from Finnhub with rate limiting
  */
 async function fetchFinnhubQuote(symbol: string): Promise<FinnhubQuote | null> {
 	try {
 		const url = `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_API_KEY}`;
-		const response = await fetch(url);
+		const response = await rateLimitedFinnhubFetch(url);
 
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -144,22 +160,22 @@ export async function fetchIndices(): Promise<MarketItem[]> {
 	try {
 		logger.log('Markets API', 'Fetching indices from Finnhub');
 
-		const quotes = await Promise.all(
-			INDICES.map(async (index) => {
-				const etfSymbol = INDEX_ETF_MAP[index.symbol] || index.symbol;
-				const quote = await fetchFinnhubQuote(etfSymbol);
-				return { index, quote };
-			})
-		);
+		// Fetch sequentially to respect rate limits
+		const results: MarketItem[] = [];
+		for (const index of INDICES) {
+			const etfSymbol = INDEX_ETF_MAP[index.symbol] || index.symbol;
+			const quote = await fetchFinnhubQuote(etfSymbol);
+			results.push({
+				symbol: index.symbol,
+				name: index.name,
+				price: quote?.c ?? NaN,
+				change: quote?.d ?? NaN,
+				changePercent: quote?.dp ?? NaN,
+				type: 'index' as const
+			});
+		}
 
-		return quotes.map(({ index, quote }) => ({
-			symbol: index.symbol,
-			name: index.name,
-			price: quote?.c ?? NaN,
-			change: quote?.d ?? NaN,
-			changePercent: quote?.dp ?? NaN,
-			type: 'index' as const
-		}));
+		return results;
 	} catch (error) {
 		logger.error('Markets API', 'Error fetching indices:', error);
 		return createEmptyIndices();
@@ -180,20 +196,20 @@ export async function fetchSectorPerformance(): Promise<SectorPerformance[]> {
 	try {
 		logger.log('Markets API', 'Fetching sector performance from Finnhub');
 
-		const quotes = await Promise.all(
-			SECTORS.map(async (sector) => {
-				const quote = await fetchFinnhubQuote(sector.symbol);
-				return { sector, quote };
-			})
-		);
+		// Fetch sequentially to respect rate limits
+		const results: SectorPerformance[] = [];
+		for (const sector of SECTORS) {
+			const quote = await fetchFinnhubQuote(sector.symbol);
+			results.push({
+				symbol: sector.symbol,
+				name: sector.name,
+				price: quote?.c ?? NaN,
+				change: quote?.d ?? NaN,
+				changePercent: quote?.dp ?? NaN
+			});
+		}
 
-		return quotes.map(({ sector, quote }) => ({
-			symbol: sector.symbol,
-			name: sector.name,
-			price: quote?.c ?? NaN,
-			change: quote?.d ?? NaN,
-			changePercent: quote?.dp ?? NaN
-		}));
+		return results;
 	} catch (error) {
 		logger.error('Markets API', 'Error fetching sectors:', error);
 		return createEmptySectors();
@@ -225,22 +241,22 @@ export async function fetchCommodities(): Promise<MarketItem[]> {
 	try {
 		logger.log('Markets API', 'Fetching commodities from Finnhub');
 
-		const quotes = await Promise.all(
-			COMMODITIES.map(async (commodity) => {
-				const finnhubSymbol = COMMODITY_SYMBOL_MAP[commodity.symbol] || commodity.symbol;
-				const quote = await fetchFinnhubQuote(finnhubSymbol);
-				return { commodity, quote };
-			})
-		);
+		// Fetch sequentially to respect rate limits
+		const results: MarketItem[] = [];
+		for (const commodity of COMMODITIES) {
+			const finnhubSymbol = COMMODITY_SYMBOL_MAP[commodity.symbol] || commodity.symbol;
+			const quote = await fetchFinnhubQuote(finnhubSymbol);
+			results.push({
+				symbol: commodity.symbol,
+				name: commodity.name,
+				price: quote?.c ?? NaN,
+				change: quote?.d ?? NaN,
+				changePercent: quote?.dp ?? NaN,
+				type: 'commodity' as const
+			});
+		}
 
-		return quotes.map(({ commodity, quote }) => ({
-			symbol: commodity.symbol,
-			name: commodity.name,
-			price: quote?.c ?? NaN,
-			change: quote?.d ?? NaN,
-			changePercent: quote?.dp ?? NaN,
-			type: 'commodity' as const
-		}));
+		return results;
 	} catch (error) {
 		logger.error('Markets API', 'Error fetching commodities:', error);
 		return createEmptyCommodities();

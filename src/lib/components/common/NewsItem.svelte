@@ -22,47 +22,31 @@
 
 	let translatedTitle = $state<string>(item.title);
 	let translatedDescription = $state<string>(item.description || '');
-	let hasTranslated = $state(false);
+	let isTranslating = $state(false);
 
-	// Derive current settings without triggering on every access
+	// Derive current settings
 	const currentLocale = $derived(settings.getLocale());
 	const autoTranslate = $derived(settings.getAutoTranslate());
 	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
 
 	// Translate when conditions change
 	$effect(() => {
-		if (shouldTranslate && !hasTranslated) {
-			hasTranslated = true;
-
-			// Use requestIdleCallback to avoid blocking the UI
-			if (typeof requestIdleCallback !== 'undefined') {
-				requestIdleCallback(
-					() => {
-						translate(item.title, 'zh')
-							.then((title) => {
-								translatedTitle = title;
-							})
-							.catch(() => {
-								translatedTitle = item.title;
-							});
-					},
-					{ timeout: 2000 }
-				);
-			} else {
-				// Fallback for browsers without requestIdleCallback
-				setTimeout(() => {
-					translate(item.title, 'zh')
-						.then((title) => {
-							translatedTitle = title;
-						})
-						.catch(() => {
-							translatedTitle = item.title;
-						});
-				}, Math.random() * 1000); // Random delay to spread out requests
-			}
-		} else if (!shouldTranslate) {
+		if (shouldTranslate && translatedTitle === item.title && !isTranslating) {
+			isTranslating = true;
+			
+			// Direct translation without requestIdleCallback for reliability
+			translate(item.title, 'zh')
+				.then((title) => {
+					translatedTitle = title;
+				})
+				.catch(() => {
+					translatedTitle = item.title;
+				})
+				.finally(() => {
+					isTranslating = false;
+				});
+		} else if (!shouldTranslate && translatedTitle !== item.title) {
 			// Reset to original text when switching back to English or disabling translation
-			hasTranslated = false;
 			translatedTitle = item.title;
 			translatedDescription = item.description || '';
 		}

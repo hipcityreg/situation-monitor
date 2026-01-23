@@ -2,6 +2,8 @@
 	import { Panel, Badge } from '$lib/components/common';
 	import { getRelativeTime } from '$lib/utils';
 	import { intelNews } from '$lib/stores';
+	import { settings } from '$lib/stores/settings';
+	import { translate } from '$lib/services/translation';
 	import type { NewsItem } from '$lib/types';
 	import { _ } from 'svelte-i18n';
 
@@ -10,6 +12,7 @@
 	interface IntelItem {
 		id: string;
 		title: string;
+		translatedTitle?: string;
 		link: string;
 		source: string;
 		sourceType: SourceType;
@@ -21,6 +24,15 @@
 
 	// Destructure store state for cleaner access
 	const { items: storeItems, loading, error } = $derived($intelNews);
+
+	// Translation settings
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Track translated titles - use object for better reactivity
+	let translations = $state<Record<string, string>>({});
+	let pending = $state<Record<string, boolean>>({});
 
 	// Infer source type from source name
 	function inferSourceType(source: string): SourceType {
@@ -39,6 +51,7 @@
 		return {
 			id: item.id,
 			title: item.title,
+			translatedTitle: translations[item.id],
 			link: item.link,
 			source: item.source,
 			sourceType: inferSourceType(item.source),
@@ -52,6 +65,44 @@
 	const items = $derived(storeItems.map(transformToIntelItem));
 	const count = $derived(items.length);
 
+	// Translate a single news item
+	async function translateNews(itemId: string, title: string) {
+		if (translations[itemId] || pending[itemId]) return;
+		
+		pending = { ...pending, [itemId]: true };
+		
+		try {
+			const translated = await translate(title, 'zh');
+			translations = { ...translations, [itemId]: translated };
+		} catch {
+			// Keep original on error
+		} finally {
+			const { [itemId]: _, ...rest } = pending;
+			pending = rest;
+		}
+	}
+
+	// Translate all news when conditions are met
+	$effect(() => {
+		if (!shouldTranslate || storeItems.length === 0) return;
+
+		// Collect all items to translate
+		const toTranslate: Array<{ id: string; title: string }> = [];
+		
+		for (const item of storeItems) {
+			if (!translations[item.id] && !pending[item.id]) {
+				toTranslate.push({ id: item.id, title: item.title });
+			}
+		}
+
+		// Translate sequentially with small delays
+		let delay = 0;
+		for (const item of toTranslate) {
+			setTimeout(() => translateNews(item.id, item.title), delay);
+			delay += 200;
+		}
+	});
+
 	type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'info';
 
 	const SOURCE_BADGE_VARIANTS: Record<string, BadgeVariant> = {
@@ -62,6 +113,27 @@
 
 	function getSourceBadgeVariant(type: string): BadgeVariant {
 		return SOURCE_BADGE_VARIANTS[type] ?? 'default';
+	}
+
+	// Translate source type
+	function getSourceTypeLabel(type: SourceType): string {
+		const key = `intel.sourceTypes.${type}`;
+		const translated = $_(key);
+		return translated === key ? type.toUpperCase() : translated;
+	}
+
+	// Translate region
+	function getRegionLabel(region: string): string {
+		const key = `intel.regions.${region.toUpperCase()}`;
+		const translated = $_(key);
+		return translated === key ? region : translated;
+	}
+
+	// Translate topic
+	function getTopicLabel(topic: string): string {
+		const key = `intel.topics.${topic.toUpperCase()}`;
+		const translated = $_(key);
+		return translated === key ? topic : translated;
 	}
 </script>
 
@@ -76,20 +148,20 @@
 						<span class="intel-source">{item.source}</span>
 						<div class="intel-tags">
 							<Badge
-								text={item.sourceType.toUpperCase()}
+								text={getSourceTypeLabel(item.sourceType)}
 								variant={getSourceBadgeVariant(item.sourceType)}
 							/>
 							{#each item.regions.slice(0, 2) as region}
-								<Badge text={region} variant="info" />
+								<Badge text={getRegionLabel(region)} variant="info" />
 							{/each}
 							{#each item.topics.slice(0, 2) as topic}
-								<Badge text={topic} />
+								<Badge text={getTopicLabel(topic)} />
 							{/each}
 						</div>
 					</div>
-					<a href={item.link} target="_blank" rel="noopener noreferrer" class="intel-title">
-						{item.title}
-					</a>
+				<a href={item.link} target="_blank" rel="noopener noreferrer" class="intel-title">
+					{shouldTranslate && item.translatedTitle ? item.translatedTitle : item.title}
+				</a>
 					{#if item.pubDate}
 						<div class="intel-meta">
 							<span>{getRelativeTime(item.pubDate)}</span>

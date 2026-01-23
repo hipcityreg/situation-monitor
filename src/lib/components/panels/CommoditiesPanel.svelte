@@ -3,9 +3,17 @@
 	import { commodities, vix } from '$lib/stores';
 	import { _ } from 'svelte-i18n';
 
-	const items = $derived($commodities.items);
+	const rawItems = $derived($commodities.items);
 	const loading = $derived($commodities.loading);
 	const error = $derived($commodities.error);
+
+	// Translate commodity names
+	const items = $derived(
+		rawItems.map((item) => ({
+			...item,
+			name: $_(`commodityNames.${item.name}`, { default: item.name })
+		}))
+	);
 
 	// VIX status for panel header
 	const vixStatus = $derived(getVixStatus($vix?.price));
