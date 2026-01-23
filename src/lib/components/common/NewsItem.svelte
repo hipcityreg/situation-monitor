@@ -22,33 +22,47 @@
 
 	let translatedTitle = $state<string>(item.title);
 	let translatedDescription = $state<string>(item.description || '');
-	let isTranslating = $state(false);
+	let hasTranslated = $state(false);
 
-	// Translate when locale changes to Chinese and auto-translate is enabled
+	// Derive current settings without triggering on every access
+	const currentLocale = $derived(settings.getLocale());
+	const autoTranslate = $derived(settings.getAutoTranslate());
+	const shouldTranslate = $derived(currentLocale === 'zh' && autoTranslate);
+
+	// Translate when conditions change
 	$effect(() => {
-		const currentLocale = settings.getLocale();
-		const autoTranslate = settings.getAutoTranslate();
+		if (shouldTranslate && !hasTranslated) {
+			hasTranslated = true;
 
-		if (currentLocale === 'zh' && autoTranslate && !isTranslating) {
-			isTranslating = true;
-			Promise.all([
-				translate(item.title, 'zh'),
-				item.description ? translate(item.description, 'zh') : Promise.resolve('')
-			])
-				.then(([title, desc]) => {
-					translatedTitle = title;
-					translatedDescription = desc;
-				})
-				.catch((err) => {
-					console.warn('Translation failed:', err);
-					translatedTitle = item.title;
-					translatedDescription = item.description || '';
-				})
-				.finally(() => {
-					isTranslating = false;
-				});
-		} else {
-			// Show original text when English or auto-translate disabled
+			// Use requestIdleCallback to avoid blocking the UI
+			if (typeof requestIdleCallback !== 'undefined') {
+				requestIdleCallback(
+					() => {
+						translate(item.title, 'zh')
+							.then((title) => {
+								translatedTitle = title;
+							})
+							.catch(() => {
+								translatedTitle = item.title;
+							});
+					},
+					{ timeout: 2000 }
+				);
+			} else {
+				// Fallback for browsers without requestIdleCallback
+				setTimeout(() => {
+					translate(item.title, 'zh')
+						.then((title) => {
+							translatedTitle = title;
+						})
+						.catch(() => {
+							translatedTitle = item.title;
+						});
+				}, Math.random() * 1000); // Random delay to spread out requests
+			}
+		} else if (!shouldTranslate) {
+			// Reset to original text when switching back to English or disabling translation
+			hasTranslated = false;
 			translatedTitle = item.title;
 			translatedDescription = item.description || '';
 		}

@@ -1,9 +1,47 @@
 /**
  * Translation service for news titles and content
- * Uses LibreTranslate free API with caching
+ * Uses MyMemory API with caching and queue management
  */
 
 import { browser } from '$app/environment';
+
+// Global translation queue to limit concurrent requests
+class TranslationQueue {
+	private queue: Array<() => Promise<void>> = [];
+	private activeCount = 0;
+	private readonly maxConcurrent = 2; // Only 2 concurrent translations
+
+	async add<T>(fn: () => Promise<T>): Promise<T> {
+		return new Promise((resolve, reject) => {
+			const task = async () => {
+				try {
+					this.activeCount++;
+					const result = await fn();
+					resolve(result);
+				} catch (error) {
+					reject(error);
+				} finally {
+					this.activeCount--;
+					this.processQueue();
+				}
+			};
+
+			this.queue.push(task);
+			this.processQueue();
+		});
+	}
+
+	private processQueue() {
+		while (this.activeCount < this.maxConcurrent && this.queue.length > 0) {
+			const task = this.queue.shift();
+			if (task) {
+				task();
+			}
+		}
+	}
+}
+
+const translationQueue = new TranslationQueue();
 
 interface TranslationCache {
 	[key: string]: {
@@ -148,7 +186,7 @@ async function translateWithApi(text: string, targetLang: string): Promise<strin
 
 /**
  * Translate text to target language
- * Uses cache first, then API
+ * Uses cache first, then API with queue management
  */
 export async function translate(text: string, targetLang: string): Promise<string> {
 	if (!text || targetLang === 'en') return text;
@@ -157,8 +195,8 @@ export async function translate(text: string, targetLang: string): Promise<strin
 	const cached = getCached(text, targetLang);
 	if (cached) return cached;
 
-	// Translate via API
-	const translated = await translateWithApi(text, targetLang);
+	// Translate via API using queue to limit concurrency
+	const translated = await translationQueue.add(() => translateWithApi(text, targetLang));
 
 	// Cache result
 	if (translated !== text) {
