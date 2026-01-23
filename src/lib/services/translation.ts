@@ -16,10 +16,17 @@ interface TranslationCache {
 const CACHE_DURATION = 24 * 60 * 60 * 1000;
 const CACHE_KEY = 'translationCache';
 
-// LibreTranslate free instances
-const TRANSLATION_APIS = [
-	'https://libretranslate.com/translate',
-	'https://translate.argosopentech.com/translate'
+// Translation API endpoints
+interface TranslationAPI {
+	url: string;
+	type: 'libretranslate' | 'mymemory';
+}
+
+const TRANSLATION_APIS: TranslationAPI[] = [
+	// MyMemory Translation API (free, no registration needed, 10000 chars/day)
+	{ url: 'https://api.mymemory.translated.net/get', type: 'mymemory' },
+	// LibreTranslate public instance
+	{ url: 'https://libretranslate.com/translate', type: 'libretranslate' }
 ];
 
 let currentApiIndex = 0;
@@ -78,42 +85,62 @@ function setCached(text: string, targetLang: string, translation: string): void 
 }
 
 /**
- * Translate text using LibreTranslate API with fallback
+ * Translate text using translation API with fallback
  */
 async function translateWithApi(text: string, targetLang: string): Promise<string> {
 	const api = TRANSLATION_APIS[currentApiIndex];
 
 	try {
-		const response = await fetch(api, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
+		if (api.type === 'mymemory') {
+			// MyMemory API uses GET with query parameters
+			const params = new URLSearchParams({
 				q: text,
-				source: 'en',
-				target: targetLang === 'zh' ? 'zh' : targetLang,
-				format: 'text'
-			})
-		});
+				langpair: `en|${targetLang === 'zh' ? 'zh-CN' : targetLang}`
+			});
 
-		if (!response.ok) {
-			throw new Error(`Translation API error: ${response.status}`);
+			const response = await fetch(`${api.url}?${params.toString()}`);
+
+			if (!response.ok) {
+				throw new Error(`Translation API error: ${response.status}`);
+			}
+
+			const data = await response.json();
+			return data.responseData?.translatedText || text;
+		} else {
+			// LibreTranslate API uses POST
+			const response = await fetch(api.url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					q: text,
+					source: 'en',
+					target: targetLang === 'zh' ? 'zh' : targetLang,
+					format: 'text'
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`Translation API error: ${response.status}`);
+			}
+
+			const data = await response.json();
+			return data.translatedText || text;
 		}
-
-		const data = await response.json();
-		return data.translatedText || text;
 	} catch (error) {
-		console.warn(`Translation API ${api} failed:`, error);
+		console.warn(`Translation API ${api.url} failed:`, error);
 
 		// Try next API
-		currentApiIndex = (currentApiIndex + 1) % TRANSLATION_APIS.length;
+		const nextIndex = (currentApiIndex + 1) % TRANSLATION_APIS.length;
 
 		// If we've tried all APIs, return original text
-		if (currentApiIndex === 0) {
+		if (nextIndex === 0) {
+			console.error('All translation APIs failed, returning original text');
 			return text;
 		}
 
+		currentApiIndex = nextIndex;
 		// Recursive retry with next API
 		return translateWithApi(text, targetLang);
 	}
