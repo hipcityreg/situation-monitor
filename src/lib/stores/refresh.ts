@@ -68,7 +68,11 @@ const DEFAULT_AUTO_REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
 const STORAGE_KEY = 'refreshSettings';
 
 // Load settings from localStorage
-function loadSettings(): { autoRefreshEnabled: boolean; autoRefreshInterval: number; lastRefresh: number | null } {
+function loadSettings(): {
+	autoRefreshEnabled: boolean;
+	autoRefreshInterval: number;
+	lastRefresh: number | null;
+} {
 	if (!browser) {
 		return {
 			autoRefreshEnabled: true,

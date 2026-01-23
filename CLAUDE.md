@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Workflow
 
 When working on a new feature:
+
 1. Create a new branch before making any changes
 2. Make all commits on that feature branch
 3. Before opening a PR, run the `code-simplifier` agent to clean up the code
@@ -58,25 +59,32 @@ $types      → src/lib/types
 ## Key Architectural Patterns
 
 ### Service Layer (`src/lib/services/`)
+
 All HTTP requests go through `ServiceClient` which integrates:
+
 - **CacheManager**: Per-service caching with TTL
 - **CircuitBreaker**: Prevents cascading failures
 - **RequestDeduplicator**: Prevents concurrent duplicate requests
 
 ### Multi-Stage Refresh (`src/lib/stores/refresh.ts`)
+
 Data fetches happen in 3 stages with staggered delays:
+
 1. Critical (0ms): News, markets, alerts
 2. Secondary (2s): Crypto, commodities, intel
 3. Tertiary (4s): Contracts, whales, layoffs, polymarket
 
 ### Analysis Engine (`src/lib/analysis/`)
+
 Unique business logic for intelligence analysis:
+
 - Correlation detection across disparate news items
 - Narrative tracking (fringe → mainstream progression)
 - Entity prominence calculation ("main character" analysis)
 - All use configurable regex patterns from `src/lib/config/analysis.ts`
 
 ### Configuration-Driven Design (`src/lib/config/`)
+
 - `feeds.ts`: 30+ RSS sources across 6 categories (politics, tech, finance, gov, ai, intel)
 - `keywords.ts`: Alert keywords, region detection, topic detection
 - `analysis.ts`: Correlation topics and narrative patterns with severity levels

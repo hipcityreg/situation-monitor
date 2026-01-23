@@ -20,7 +20,8 @@ const STORAGE_KEYS = {
 	panels: 'situationMonitorPanels',
 	order: 'panelOrder',
 	sizes: 'panelSizes',
-	locale: 'situationMonitorLocale'
+	locale: 'situationMonitorLocale',
+	autoTranslate: 'situationMonitorAutoTranslate'
 } as const;
 
 // Types
@@ -33,6 +34,7 @@ export interface PanelSettings {
 export interface SettingsState extends PanelSettings {
 	initialized: boolean;
 	locale: SupportedLocale;
+	autoTranslate: boolean;
 }
 
 // Default settings
@@ -47,7 +49,7 @@ function getDefaultSettings(): PanelSettings {
 }
 
 // Load from localStorage
-function loadFromStorage(): Partial<PanelSettings> & { locale?: SupportedLocale } {
+function loadFromStorage(): Partial<PanelSettings> & { locale?: SupportedLocale; autoTranslate?: boolean } {
 	if (!browser) return {};
 
 	try {
@@ -55,12 +57,14 @@ function loadFromStorage(): Partial<PanelSettings> & { locale?: SupportedLocale 
 		const order = localStorage.getItem(STORAGE_KEYS.order);
 		const sizes = localStorage.getItem(STORAGE_KEYS.sizes);
 		const locale = localStorage.getItem(STORAGE_KEYS.locale);
+		const autoTranslate = localStorage.getItem(STORAGE_KEYS.autoTranslate);
 
 		return {
 			enabled: panels ? JSON.parse(panels) : undefined,
 			order: order ? JSON.parse(order) : undefined,
 			sizes: sizes ? JSON.parse(sizes) : undefined,
-			locale: locale ? (JSON.parse(locale) as SupportedLocale) : undefined
+			locale: locale ? (JSON.parse(locale) as SupportedLocale) : undefined,
+			autoTranslate: autoTranslate ? JSON.parse(autoTranslate) : undefined
 		};
 	} catch (e) {
 		console.warn('Failed to load settings from localStorage:', e);
@@ -89,6 +93,7 @@ function createSettingsStore() {
 		order: saved.order ?? defaults.order,
 		sizes: { ...defaults.sizes, ...saved.sizes },
 		locale: saved.locale ?? 'en',
+		autoTranslate: saved.autoTranslate ?? true,
 		initialized: false
 	};
 
@@ -202,7 +207,7 @@ function createSettingsStore() {
 				localStorage.removeItem(STORAGE_KEYS.order);
 				localStorage.removeItem(STORAGE_KEYS.sizes);
 			}
-			set({ ...defaults, locale: 'en', initialized: true });
+			set({ ...defaults, locale: 'en', autoTranslate: true, initialized: true });
 		},
 
 		/**
@@ -283,6 +288,24 @@ function createSettingsStore() {
 				saveToStorage('locale', newLocale);
 				i18nLocale.set(newLocale);
 				return { ...state, locale: newLocale };
+			});
+		},
+
+		/**
+		 * Get auto-translate setting
+		 */
+		getAutoTranslate(): boolean {
+			const state = get({ subscribe });
+			return state.autoTranslate;
+		},
+
+		/**
+		 * Set auto-translate and persist to storage
+		 */
+		setAutoTranslate(enabled: boolean) {
+			update((state) => {
+				saveToStorage('autoTranslate', enabled);
+				return { ...state, autoTranslate: enabled };
 			});
 		}
 	};

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { NewsItem } from '$lib/types';
 	import { timeAgo } from '$lib/utils';
+	import { translate } from '$lib/services/translation';
+	import { settings } from '$lib/stores/settings';
 
 	interface Props {
 		item: NewsItem;
@@ -17,6 +19,40 @@
 		showDescription = false,
 		compact = false
 	}: Props = $props();
+
+	let translatedTitle = $state<string>(item.title);
+	let translatedDescription = $state<string>(item.description || '');
+	let isTranslating = $state(false);
+
+	// Translate when locale changes to Chinese and auto-translate is enabled
+	$effect(() => {
+		const currentLocale = settings.getLocale();
+		const autoTranslate = settings.getAutoTranslate();
+
+		if (currentLocale === 'zh' && autoTranslate && !isTranslating) {
+			isTranslating = true;
+			Promise.all([
+				translate(item.title, 'zh'),
+				item.description ? translate(item.description, 'zh') : Promise.resolve('')
+			])
+				.then(([title, desc]) => {
+					translatedTitle = title;
+					translatedDescription = desc;
+				})
+				.catch((err) => {
+					console.warn('Translation failed:', err);
+					translatedTitle = item.title;
+					translatedDescription = item.description || '';
+				})
+				.finally(() => {
+					isTranslating = false;
+				});
+		} else {
+			// Show original text when English or auto-translate disabled
+			translatedTitle = item.title;
+			translatedDescription = item.description || '';
+		}
+	});
 </script>
 
 <div class="news-item" class:alert={showAlert && item.isAlert} class:compact>
@@ -30,11 +66,11 @@
 	{/if}
 
 	<a class="item-title" href={item.link} target="_blank" rel="noopener noreferrer">
-		{item.title}
+		{translatedTitle}
 	</a>
 
-	{#if showDescription && item.description}
-		<p class="item-description">{item.description}</p>
+	{#if showDescription && translatedDescription}
+		<p class="item-description">{translatedDescription}</p>
 	{/if}
 
 	<div class="item-meta">

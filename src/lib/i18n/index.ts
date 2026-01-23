@@ -4,7 +4,7 @@ register('en', () => import('./locales/en.json'));
 register('zh', () => import('./locales/zh.json'));
 
 export const SUPPORTED_LOCALES = ['en', 'zh'] as const;
-export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export function initI18n(initialLocale?: string) {
 	init({

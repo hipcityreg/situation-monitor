@@ -76,7 +76,7 @@
 		</div>
 	{:else if !hasApiKey && !loading}
 		<div class="no-api-key">
-			<span class="no-api-key-text">Add VITE_FRED_API_KEY for economic indicators</span>
+			<span class="no-api-key-text">{$_('fed.addApiKey')}</span>
 		</div>
 	{/if}
 
@@ -84,14 +84,14 @@
 	{#if videoItems.length > 0}
 		<div class="video-section">
 			<div class="section-header">
-				<span class="section-title">Speeches & Video</span>
+				<span class="section-title">{$_('fed.speechesVideo')}</span>
 				<a
 					href="https://www.federalreserve.gov/live-broadcast.htm"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="live-link"
 				>
-					Live Broadcast
+					{$_('fed.liveBroadcast')}
 				</a>
 			</div>
 			<div class="video-list">

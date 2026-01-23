@@ -50,7 +50,7 @@
 		<div class="narrative-content">
 			{#if analysis.emergingFringe.length > 0}
 				<div class="section">
-					<div class="section-title">Emerging Fringe</div>
+					<div class="section-title">{$_('analysis.emergingFringe')}</div>
 					{#each analysis.emergingFringe.slice(0, 4) as narrative}
 						<div class="narrative-item">
 							<div class="narrative-header">
@@ -61,7 +61,7 @@
 								/>
 							</div>
 							<div class="narrative-meta">
-								<span class="mention-count">{narrative.count} mentions</span>
+								<span class="mention-count">{narrative.count} {$_('analysis.mentions')}</span>
 							</div>
 							{#if narrative.sources.length > 0}
 								<div class="narrative-sources">
@@ -75,17 +75,17 @@
 
 			{#if analysis.fringeToMainstream.length > 0}
 				<div class="section">
-					<div class="section-title">Fringe → Mainstream Crossovers</div>
+					<div class="section-title">{$_('analysis.fringeMainstream')}</div>
 					{#each analysis.fringeToMainstream.slice(0, 3) as crossover}
 						<div class="crossover-item">
 							<div class="crossover-narrative">{crossover.name}</div>
 							<div class="crossover-path">
-								<span class="from">Fringe ({crossover.fringeCount})</span>
+								<span class="from">{$_('analysis.fringe')} ({crossover.fringeCount})</span>
 								<span class="arrow">→</span>
-								<span class="to">Mainstream ({crossover.mainstreamCount})</span>
+								<span class="to">{$_('analysis.mainstream')} ({crossover.mainstreamCount})</span>
 							</div>
 							<div class="crossover-level">
-								Crossover level: {Math.round(crossover.crossoverLevel * 100)}%
+								{$_('analysis.crossoverLevel')}: {Math.round(crossover.crossoverLevel * 100)}%
 							</div>
 						</div>
 					{/each}
@@ -94,7 +94,7 @@
 
 			{#if analysis.narrativeWatch.length > 0}
 				<div class="section">
-					<div class="section-title">Narrative Watch</div>
+					<div class="section-title">{$_('analysis.narrativeWatch')}</div>
 					<div class="themes-grid">
 						{#each analysis.narrativeWatch.slice(0, 6) as narrative}
 							<div class="theme-tag">
@@ -108,7 +108,7 @@
 
 			{#if analysis.disinfoSignals.length > 0}
 				<div class="section">
-					<div class="section-title">Disinfo Signals</div>
+					<div class="section-title">{$_('analysis.disinfoSignals')}</div>
 					{#each analysis.disinfoSignals.slice(0, 3) as signal}
 						<div class="disinfo-item">
 							<div class="disinfo-header">
@@ -118,7 +118,7 @@
 									variant={getSeverityVariant(signal.severity)}
 								/>
 							</div>
-							<div class="disinfo-meta">{signal.count} mentions</div>
+							<div class="disinfo-meta">{signal.count} {$_('analysis.mentions')}</div>
 						</div>
 					{/each}
 				</div>

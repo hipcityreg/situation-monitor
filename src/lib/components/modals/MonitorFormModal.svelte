@@ -2,6 +2,7 @@
 	import Modal from './Modal.svelte';
 	import { monitors } from '$lib/stores';
 	import type { CustomMonitor } from '$lib/types';
+	import { _ } from 'svelte-i18n';
 
 	interface Props {
 		open: boolean;
@@ -83,7 +84,7 @@
 	}
 </script>
 
-<Modal {open} title={editMonitor ? 'Edit Monitor' : 'Create Monitor'} {onClose}>
+<Modal {open} title={editMonitor ? $_('monitors.editTitle') : $_('monitors.createTitle')} {onClose}>
 	<form class="monitor-form" onsubmit={handleSubmit}>
 		{#if error}
 			<div class="form-error">{error}</div>
@@ -114,17 +115,19 @@
 		<div class="form-group">
 			<label class="checkbox-label">
 				<input type="checkbox" bind:checked={enabled} />
-				<span>Enabled</span>
+				<span>{$_('monitors.enabled')}</span>
 			</label>
 		</div>
 
 		<div class="form-actions">
 			{#if editMonitor}
-				<button type="button" class="delete-btn" onclick={handleDelete}> Delete </button>
+				<button type="button" class="delete-btn" onclick={handleDelete}>
+					{$_('monitors.delete')}
+				</button>
 			{/if}
-			<button type="button" class="cancel-btn" onclick={onClose}> Cancel </button>
+			<button type="button" class="cancel-btn" onclick={onClose}> {$_('common.cancel')} </button>
 			<button type="submit" class="submit-btn">
-				{editMonitor ? 'Save Changes' : 'Create Monitor'}
+				{editMonitor ? $_('monitors.saveChanges') : $_('monitors.createTitle')}
 			</button>
 		</div>
 	</form>

@@ -21,6 +21,10 @@
 			settings.reset();
 		}
 	}
+
+	function handleToggleAutoTranslate() {
+		settings.setAutoTranslate(!$settings.autoTranslate);
+	}
 </script>
 
 <Modal {open} title={$_('settings.title')} {onClose}>
@@ -47,10 +51,26 @@
 		</section>
 
 		<section class="settings-section">
+			<h3 class="section-title">{$_('settings.language')}</h3>
+			<label class="setting-toggle">
+				<input
+					type="checkbox"
+					checked={$settings.autoTranslate}
+					onchange={handleToggleAutoTranslate}
+				/>
+				<div class="toggle-info">
+					<span class="toggle-label">{$_('settings.autoTranslate')}</span>
+					<span class="toggle-desc">{$_('settings.autoTranslateDesc')}</span>
+				</div>
+			</label>
+		</section>
+
+		<section class="settings-section">
 			<h3 class="section-title">{$_('settings.dashboard')}</h3>
 			{#if onReconfigure}
-				<button class="reconfigure-btn" onclick={onReconfigure}>{$_('settings.reconfigure')}</button>
-				<p class="btn-hint">Choose a preset profile for your panels</p>
+				<button class="reconfigure-btn" onclick={onReconfigure}>{$_('settings.reconfigure')}</button
+				>
+				<p class="btn-hint">{$_('monitors.choosePreset')}</p>
 			{/if}
 			<button class="reset-btn" onclick={handleResetPanels}>{$_('settings.resetAll')}</button>
 		</section>
@@ -165,5 +185,45 @@
 
 	.reset-btn:hover {
 		background: rgba(255, 68, 68, 0.2);
+	}
+
+	.setting-toggle {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		background: rgba(255, 255, 255, 0.02);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.setting-toggle:hover {
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	.setting-toggle input {
+		accent-color: var(--accent);
+		margin-top: 0.1rem;
+	}
+
+	.toggle-info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.toggle-label {
+		font-size: 0.7rem;
+		color: var(--text-primary);
+		font-weight: 500;
+	}
+
+	.toggle-desc {
+		font-size: 0.6rem;
+		color: var(--text-muted);
+		line-height: 1.3;
 	}
 </style>

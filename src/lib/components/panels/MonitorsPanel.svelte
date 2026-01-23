@@ -71,13 +71,17 @@
 										class="action-btn"
 										class:active={monitor.enabled}
 										onclick={() => onToggleMonitor?.(monitor.id)}
-										title={monitor.enabled ? 'Disable' : 'Enable'}
+										title={monitor.enabled ? $_('monitors.disable') : $_('monitors.enable')}
 									>
 										{monitor.enabled ? '●' : '○'}
 									</button>
 								{/if}
 								{#if onEditMonitor}
-									<button class="action-btn" onclick={() => onEditMonitor?.(monitor)} title="Edit">
+									<button
+										class="action-btn"
+										onclick={() => onEditMonitor?.(monitor)}
+										title={$_('monitors.edit')}
+									>
 										✎
 									</button>
 								{/if}
@@ -85,7 +89,7 @@
 									<button
 										class="action-btn delete"
 										onclick={() => onDeleteMonitor?.(monitor.id)}
-										title="Delete"
+										title={$_('monitors.delete')}
 									>
 										×
 									</button>
