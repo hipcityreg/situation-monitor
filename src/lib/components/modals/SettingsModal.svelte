@@ -1,7 +1,8 @@
 <script lang="ts">
-	import Modal from './Modal.svelte';
-	import { settings } from '$lib/stores';
 	import { PANELS, type PanelId } from '$lib/config';
+	import { settings } from '$lib/stores';
+	import Modal from './Modal.svelte';
+	
 
 	interface Props {
 		open: boolean;
@@ -11,6 +12,8 @@
 
 	let { open = false, onClose, onReconfigure }: Props = $props();
 
+	const MINI_ONLY_PANELS: PanelId[] = ['heatmap', 'markets', 'commodities', 'crypto', 'layoffs'];
+
 	function handleTogglePanel(panelId: PanelId) {
 		settings.togglePanel(panelId);
 	}
@@ -18,16 +21,54 @@
 	function handleResetPanels() {
 		settings.reset();
 	}
+
+	function handleToggleTheme() {
+		settings.toggleTheme();
+	}
+
+	function handleSetTempUnit(unit: 'c' | 'f') {
+		settings.setTempUnit(unit);
+	}
 </script>
 
 <Modal {open} title="Settings" {onClose}>
 	<div class="settings-sections">
 		<section class="settings-section">
+			<h3 class="section-title">Appearance</h3>
+			<div class="theme-toggle-row">
+				<span class="text-sm text-text-primary">Interface Theme</span>
+				<button class="theme-btn" onclick={handleToggleTheme}>
+            		{$settings.theme === 'dark' ? '☀️ Light Theme' : '🌙 Dark Theme'}
+        		</button>
+			</div>
+			<div class="theme-toggle-row">
+				<span class="text-sm text-text-primary">Temperature Units</span>
+				<div class="temp-toggle">
+					<button
+						class="temp-btn"
+						class:active={$settings.tempUnit === 'c'}
+						onclick={() => handleSetTempUnit('c')}
+					>
+						°C
+					</button>
+					<button
+						class="temp-btn"
+						class:active={$settings.tempUnit === 'f'}
+						onclick={() => handleSetTempUnit('f')}
+					>
+						°F
+					</button>
+				</div>
+			</div>
+		</section>
+		<section class="settings-section">
 			<h3 class="section-title">Enabled Panels</h3>
 			<p class="section-desc">Toggle panels on/off to customize your dashboard</p>
 
 			<div class="panels-grid">
-				{#each Object.entries(PANELS) as [id, config]}
+				{#each Object.entries(PANELS).filter(
+					([id]) => !MINI_ONLY_PANELS.includes(id as PanelId)
+				) as [id, config]}
 					{@const panelId = id as PanelId}
 					{@const isEnabled = $settings.enabled[panelId]}
 					<label class="panel-toggle" class:enabled={isEnabled}>
@@ -163,4 +204,49 @@
 	.reset-btn:hover {
 		background: rgba(255, 68, 68, 0.2);
 	}
+	.theme-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.theme-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+}
+
+.theme-btn:hover {
+    border-color: var(--accent);
+}
+
+.temp-toggle {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.temp-btn {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	color: var(--text-primary);
+	padding: 0.25rem 0.6rem;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.7rem;
+	transition: all 0.2s;
+}
+
+.temp-btn.active {
+	border-color: var(--accent);
+	background: rgba(var(--accent-rgb), 0.15);
+}
 </style>

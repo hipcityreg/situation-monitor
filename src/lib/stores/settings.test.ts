@@ -128,14 +128,19 @@ describe('Settings Store', () => {
 	it('should derive enabled panels correctly', async () => {
 		const { settings, enabledPanels } = await import('./settings');
 
-		// Disable some panels
-		settings.togglePanel('whales');
-		settings.togglePanel('polymarket');
+		const enabledBefore = get(enabledPanels);
+		expect(enabledBefore).toContain('map');
+		expect(enabledBefore).toContain('politics');
+		expect(enabledBefore).not.toContain('whales');
+		expect(enabledBefore).not.toContain('polymarket');
 
-		const enabled = get(enabledPanels);
-		expect(enabled).not.toContain('whales');
-		expect(enabled).not.toContain('polymarket');
-		expect(enabled).toContain('map');
-		expect(enabled).toContain('politics');
+		settings.togglePanel('map');
+		settings.togglePanel('politics');
+
+		const enabledAfter = get(enabledPanels);
+		expect(enabledAfter).not.toContain('map');
+		expect(enabledAfter).not.toContain('politics');
+		expect(enabledAfter).not.toContain('whales');
+		expect(enabledAfter).not.toContain('polymarket');
 	});
 });

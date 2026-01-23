@@ -13,5 +13,5 @@ export {
 export { fetchPolymarket, fetchWhaleTransactions, fetchGovContracts, fetchLayoffs } from './misc';
 export type { Prediction, WhaleTransaction, Contract, Layoff } from './misc';
 export { fetchWorldLeaders } from './leaders';
-export { fetchFedIndicators, fetchFedNews, isFredConfigured } from './fred';
+export { fetchFedIndicators, fetchFedNews, isFredConfigured, fetchMoneyPrinterData } from './fred';
 export type { FedIndicators, EconomicIndicator, FedNewsItem, FedNewsType } from './fred';

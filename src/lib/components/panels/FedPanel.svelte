@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Panel, Badge } from '$lib/components/common';
-	import { getRelativeTime } from '$lib/utils';
-	import { fedNews, fedIndicators, fedVideos } from '$lib/stores';
-	import { isFredConfigured } from '$lib/api/fred';
 	import type { EconomicIndicator } from '$lib/api/fred';
+	import { isFredConfigured } from '$lib/api/fred';
+	import { Badge, Panel } from '$lib/components/common';
+	import { fedIndicators, fedNews, fedVideos } from '$lib/stores';
+	import { getRelativeTime } from '$lib/utils';
 
 	// Store state
 	const newsState = $derived($fedNews);
@@ -118,7 +118,7 @@
 			<div class="empty-state">No Fed news available</div>
 		{:else}
 			<div class="fed-news-list">
-				{#each newsState.items as item (item.id)}
+				{#each newsState.items.slice(0, 10) as item (item.id)}
 					<div class="fed-news-item" class:powell={item.isPowellRelated}>
 						<div class="fed-news-header">
 							<div class="fed-news-badges">

@@ -43,8 +43,8 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.5rem 1rem;
-		background: var(--surface);
-		border-bottom: 1px solid var(--border);
+		background: #000000;
+		border-bottom: 1px solid #111827;
 		position: sticky;
 		top: 0;
 		z-index: 100;
@@ -61,7 +61,7 @@
 		font-size: 0.9rem;
 		font-weight: 700;
 		letter-spacing: 0.1em;
-		color: var(--text-primary);
+		color: #ffffff;
 		margin: 0;
 		display: flex;
 		align-items: baseline;
@@ -84,14 +84,14 @@
 
 	.status-text {
 		font-size: 0.6rem;
-		color: var(--text-muted);
+		color: #ffffff;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.status-text.loading {
-		color: var(--accent);
+		color: #ffffff;
 	}
 
 	.header-right {
@@ -107,18 +107,19 @@
 		gap: 0.3rem;
 		min-height: 2.75rem;
 		padding: 0.4rem 0.75rem;
-		background: transparent;
-		border: 1px solid var(--border);
+		background: #000000;
+		border: 1px solid #ffffff;
 		border-radius: 4px;
-		color: var(--text-secondary);
+		color: #ffffff;
 		cursor: pointer;
 		transition: all 0.15s ease;
 		font-size: 0.65rem;
 	}
 
 	.header-btn:hover {
-		background: var(--border);
-		color: var(--text-primary);
+		background: #111827;
+		border-color: #ffffff;
+		color: #ffffff;
 	}
 
 	.btn-icon {

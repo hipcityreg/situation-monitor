@@ -71,6 +71,20 @@
 		margin-top: 0.2rem;
 	}
 
+	:global([data-theme='light']) .heatmap-cell .sector-name {
+		color: #111827;
+		text-shadow: none;
+	}
+
+	:global([data-theme='light']) .heatmap-cell .sector-symbol {
+		color: #374151;
+	}
+
+	:global([data-theme='light']) .heatmap-cell .sector-change {
+		color: #111827;
+		text-shadow: none;
+	}
+
 	/* Color classes */
 	.up-3 {
 		background: #00aa00;

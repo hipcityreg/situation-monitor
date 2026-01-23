@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Panel, Badge } from '$lib/components/common';
 	import { analyzeCorrelations } from '$lib/analysis/correlation';
+	import { Badge, Panel } from '$lib/components/common';
 	import type { NewsItem } from '$lib/types';
 
 	interface Props {
@@ -111,7 +111,7 @@
 						<div class="predictive-item">
 							<div class="predictive-pattern">{signal.prediction}</div>
 							<div class="predictive-confidence">
-								Confidence: {Math.round(signal.confidence * 100)}%
+								Confidence: {Math.round(signal.confidence)}%
 							</div>
 						</div>
 					{/each}

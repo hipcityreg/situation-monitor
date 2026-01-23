@@ -108,7 +108,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.5rem 0.75rem;
-		background: var(--surface);
+		background: var(--panel-header-bg);
 		border-bottom: 1px solid var(--border);
 		min-height: 2rem;
 	}
@@ -120,18 +120,18 @@
 	}
 
 	.panel-title {
-		font-size: 0.65rem;
-		font-weight: 600;
+		font-size: 0.85rem;
+		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: var(--text-secondary);
+		color: var(--panel-header-text);
 		margin: 0;
 	}
 
 	.panel-count {
-		font-size: 0.65rem;
-		font-weight: 500;
-		color: var(--accent);
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: var(--panel-header-text);
 		background: rgba(var(--accent-rgb), 0.1);
 		padding: 0.1rem 0.4rem;
 		border-radius: 3px;
@@ -146,8 +146,8 @@
 	}
 
 	.panel-status.monitoring {
-		color: var(--text-secondary);
-		background: rgba(255, 255, 255, 0.05);
+		color: #ffffff;
+		background: var(--blue);
 	}
 
 	.panel-status.elevated {

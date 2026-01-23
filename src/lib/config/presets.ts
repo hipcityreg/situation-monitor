@@ -25,17 +25,7 @@ export const PRESETS: Record<string, Preset> = {
 		name: 'Trader',
 		icon: '📈',
 		description: 'Market-focused dashboard with stocks, crypto, and commodities',
-		panels: [
-			'markets',
-			'heatmap',
-			'commodities',
-			'crypto',
-			'polymarket',
-			'whales',
-			'printer',
-			'finance',
-			'map'
-		]
+		panels: ['polymarket', 'whales', 'printer', 'finance', 'map']
 	},
 	geopolitics: {
 		id: 'geopolitics',
@@ -67,7 +57,7 @@ export const PRESETS: Record<string, Preset> = {
 		name: 'Minimal',
 		icon: '⚡',
 		description: 'Just the essentials - map, news, and markets',
-		panels: ['map', 'politics', 'markets']
+		panels: ['map', 'politics']
 	},
 	everything: {
 		id: 'everything',
@@ -80,25 +70,21 @@ export const PRESETS: Record<string, Preset> = {
 			'tech',
 			'finance',
 			'gov',
-			'heatmap',
-			'markets',
 			'monitors',
-			'commodities',
-			'crypto',
 			'polymarket',
 			'whales',
 			'mainchar',
 			'printer',
 			'contracts',
 			'ai',
-			'layoffs',
 			'venezuela',
 			'greenland',
 			'iran',
 			'leaders',
 			'intel',
 			'correlation',
-			'narrative'
+			'narrative',
+			'fed'
 		]
 	}
 };

@@ -1,58 +1,56 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { Header, Dashboard } from '$lib/components/layout';
-	import { SettingsModal, MonitorFormModal, OnboardingModal } from '$lib/components/modals';
+	import type { Contract, Layoff, Prediction, WhaleTransaction } from '$lib/api';
 	import {
-		NewsPanel,
-		MarketsPanel,
-		HeatmapPanel,
-		CommoditiesPanel,
-		CryptoPanel,
-		MainCharPanel,
-		CorrelationPanel,
-		NarrativePanel,
-		MonitorsPanel,
-		MapPanel,
-		WhalePanel,
-		PolymarketPanel,
-		ContractsPanel,
-		LayoffsPanel,
-		IntelPanel,
-		SituationPanel,
-		WorldLeadersPanel,
-		PrinterPanel,
-		FedPanel
-	} from '$lib/components/panels';
-	import {
-		news,
-		markets,
-		monitors,
-		settings,
-		refresh,
-		allNewsItems,
-		fedIndicators,
-		fedNews
-	} from '$lib/stores';
-	import {
-		fetchAllNews,
 		fetchAllMarkets,
-		fetchPolymarket,
-		fetchWhaleTransactions,
+		fetchAllNews,
+		fetchFedIndicators,
+		fetchFedNews,
 		fetchGovContracts,
 		fetchLayoffs,
+		fetchMoneyPrinterData,
+		fetchPolymarket,
+		fetchWhaleTransactions,
 		fetchWorldLeaders,
-		fetchFedIndicators,
-		fetchFedNews
 	} from '$lib/api';
-	import type { Prediction, WhaleTransaction, Contract, Layoff } from '$lib/api';
-	import type { CustomMonitor, WorldLeader } from '$lib/types';
+	import BreakingNews from '$lib/components/common/BreakingNews.svelte';
+	import { Dashboard, Header } from '$lib/components/layout';
+	import { MonitorFormModal, OnboardingModal, SettingsModal } from '$lib/components/modals';
+	import {
+		ContractsPanel,
+		CorrelationPanel,
+		FedPanel,
+		GlobePanel,
+		IntelPanel,
+		MainCharPanel,
+		MonitorsPanel,
+		NarrativePanel,
+		NewsPanel,
+		PolymarketPanel,
+		PrinterPanel,
+		SituationPanel,
+		WhalePanel,
+		WorldLeadersPanel
+	} from '$lib/components/panels';
 	import type { PanelId } from '$lib/config';
+	import {
+		allNewsItems,
+		fedIndicators,
+		fedNews,
+		markets,
+		monitors,
+		news,
+		refresh,
+		settings
+	} from '$lib/stores';
+	import type { CustomMonitor, WorldLeader } from '$lib/types';
+	import { onMount } from 'svelte';
 
 	// Modal state
 	let settingsOpen = $state(false);
 	let monitorFormOpen = $state(false);
 	let onboardingOpen = $state(false);
 	let editingMonitor = $state<CustomMonitor | null>(null);
+	let printerData = $state<any>(null);
 
 	// Misc panel data
 	let predictions = $state<Prediction[]>([]);
@@ -120,19 +118,28 @@
 	}
 
 	async function loadFedData() {
-		if (!isPanelVisible('fed')) return;
-		fedIndicators.setLoading(true);
-		fedNews.setLoading(true);
-		try {
-			const [indicatorsData, newsData] = await Promise.all([fetchFedIndicators(), fetchFedNews()]);
-			fedIndicators.setData(indicatorsData);
-			fedNews.setItems(newsData);
-		} catch (error) {
-			console.error('Failed to load Fed data:', error);
-			fedIndicators.setError(String(error));
-			fedNews.setError(String(error));
-		}
-	}
+    if (!isPanelVisible('fed') && !isPanelVisible('printer')) return;
+    
+    fedIndicators.setLoading(true);
+    fedNews.setLoading(true);
+    
+    try {
+        // Add fetchMoneyPrinterData() to the array
+       const [indicatorsData, newsData, printerRes] = await Promise.all([
+            fetchFedIndicators(), 
+            fetchFedNews(),
+            fetchMoneyPrinterData() 
+        ]);
+        
+        fedIndicators.setData(indicatorsData);
+        fedNews.setItems(newsData);
+        printerData = printerRes;
+    } catch (error) {
+        console.error('Failed to load Fed data:', error);
+        fedIndicators.setError(String(error));
+        fedNews.setError(String(error));
+    }
+}
 
 	// Refresh handlers
 	async function handleRefresh() {
@@ -186,9 +193,13 @@
 
 	// Initial load
 	onMount(() => {
-		// Check if first visit
+		settings.init();
+
+		// If this is the first visit, silently apply the "Everything" preset
+		// and skip showing the onboarding modal.
 		if (!settings.isOnboardingComplete()) {
-			onboardingOpen = true;
+			settings.applyPreset('everything');
+			onboardingOpen = false;
 		}
 
 		// Load initial data and track as refresh
@@ -223,13 +234,14 @@
 
 <div class="app">
 	<Header onSettingsClick={() => (settingsOpen = true)} />
+	<BreakingNews />
 
 	<main class="main-content">
 		<Dashboard>
 			<!-- Map Panel - Full width -->
 			{#if isPanelVisible('map')}
 				<div class="panel-slot map-slot">
-					<MapPanel monitors={$monitors.monitors} />
+					<GlobePanel monitors={$monitors.monitors} {layoffs} {printerData} />
 				</div>
 			{/if}
 
@@ -264,30 +276,7 @@
 				</div>
 			{/if}
 
-			<!-- Markets Panels -->
-			{#if isPanelVisible('markets')}
-				<div class="panel-slot">
-					<MarketsPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('heatmap')}
-				<div class="panel-slot">
-					<HeatmapPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('commodities')}
-				<div class="panel-slot">
-					<CommoditiesPanel />
-				</div>
-			{/if}
-
-			{#if isPanelVisible('crypto')}
-				<div class="panel-slot">
-					<CryptoPanel />
-				</div>
-			{/if}
+			<!-- Markets data is now shown in the Globe mini dashboard (Time & Weather row) -->
 
 			<!-- Analysis Panels -->
 			{#if isPanelVisible('mainchar')}
@@ -415,17 +404,11 @@
 				</div>
 			{/if}
 
-			{#if isPanelVisible('layoffs')}
-				<div class="panel-slot">
-					<LayoffsPanel {layoffs} />
-				</div>
-			{/if}
-
 			<!-- Money Printer Panel -->
 			{#if isPanelVisible('printer')}
 				<div class="panel-slot">
-					<PrinterPanel />
-				</div>
+        			<PrinterPanel data={printerData} /> <!-- Pass the data prop -->
+    			</div>
 			{/if}
 
 			<!-- Custom Monitors (always last) -->
@@ -468,7 +451,7 @@
 
 	.main-content {
 		flex: 1;
-		padding: 0.5rem;
+		padding: 0.1rem;
 		overflow-y: auto;
 	}
 

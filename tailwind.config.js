@@ -4,17 +4,18 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				bg: '#0a0a0a',
-				surface: '#141414',
-				'surface-hover': '#1a1a1a',
-				border: '#2a2a2a',
-				'border-light': '#3a3a3a',
-				'text-primary': '#e8e8e8',
-				'text-dim': '#888888',
-				'text-muted': '#666666',
-				accent: '#ffffff',
+				// Use CSS variables so they swap instantly
+				bg: 'var(--bg)',
+				surface: 'var(--surface)',
+				'surface-hover': 'var(--surface-hover)',
+				border: 'var(--border)',
+				'border-light': 'var(--border-light)',
+				'text-primary': 'var(--text)',
+				'text-dim': 'var(--text-dim)',
+				'text-muted': 'var(--text-muted)',
+				accent: 'var(--accent)', // This stays white/black depending on theme
 				danger: '#ff4444',
-				success: '#44ff88',
+				success: '#00cc66', // Slightly darker green for visibility on white
 				warning: '#ffaa00',
 				info: '#4488ff'
 			},

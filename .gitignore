@@ -2,7 +2,7 @@
 node_modules/
 
 # Build output
-.svelte-kit/
+.svelte-kit/*
 build/
 dist/
 
@@ -36,3 +36,4 @@ Thumbs.db
 
 # Archive folder
 archive/
+.ignore/*

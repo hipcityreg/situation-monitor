@@ -13,10 +13,29 @@
 	--text-dim: #888;
 	--text-muted: #666;
 	--accent: #fff;
+	--accent-rgb: 255, 255, 255;
+	--panel-header-bg: #ffffff;
+	--panel-header-text: #000000;
 	--red: #ff4444;
 	--green: #44ff88;
 	--yellow: #ffaa00;
 	--blue: #4488ff;
+}
+
+/* Light Mode Overrides */
+[data-theme="light"] {
+	--bg: #f3f4f6;
+	--surface: #ffffff;
+	--surface-hover: #f9fafb;
+	--border: #e5e7eb;
+	--border-light: #d1d5db;
+	--text: #111827;
+	--text-dim: #4b5563;
+	--text-muted: #9ca3af;
+	--accent: #000000;
+	--accent-rgb: 0, 0, 0;
+	--panel-header-bg: #000000;
+	--panel-header-text: #ffffff;
 }
 
 /* Base styles */

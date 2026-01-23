@@ -1,5 +1,5 @@
 /**
- * Settings store - panel visibility, order, and sizes
+ * Settings store - panel visibility, order, sizes, and theme
  */
 
 import { writable, derived, get } from 'svelte/store';
@@ -17,7 +17,9 @@ import {
 const STORAGE_KEYS = {
 	panels: 'situationMonitorPanels',
 	order: 'panelOrder',
-	sizes: 'panelSizes'
+	sizes: 'panelSizes',
+	theme: 'theme',
+	tempUnit: 'temperatureUnit'
 } as const;
 
 // Types
@@ -29,33 +31,59 @@ export interface PanelSettings {
 
 export interface SettingsState extends PanelSettings {
 	initialized: boolean;
+	theme: 'dark' | 'light';
+	tempUnit: 'c' | 'f';
 }
 
 // Default settings
-function getDefaultSettings(): PanelSettings {
+function getDefaultSettings(): SettingsState {
 	const allPanelIds = Object.keys(PANELS) as PanelId[];
 
 	return {
-		enabled: Object.fromEntries(allPanelIds.map((id) => [id, true])) as Record<PanelId, boolean>,
+		enabled: {
+			...(Object.fromEntries(allPanelIds.map((id) => [id, true])) as Record<PanelId, boolean>),
+			printer: false,
+			correlation: false,
+			whales: false,
+			polymarket: false,
+			contracts: false,
+			layoffs: false
+		},
 		order: allPanelIds,
-		sizes: {} as Record<PanelId, { width?: number; height?: number }>
+		sizes: {} as Record<PanelId, { width?: number; height?: number }>,
+		theme: 'dark',
+		tempUnit: 'f',
+		initialized: false
 	};
 }
 
 // Load from localStorage
-function loadFromStorage(): Partial<PanelSettings> {
+function loadFromStorage(): Partial<SettingsState> {
 	if (!browser) return {};
 
 	try {
 		const panels = localStorage.getItem(STORAGE_KEYS.panels);
 		const order = localStorage.getItem(STORAGE_KEYS.order);
 		const sizes = localStorage.getItem(STORAGE_KEYS.sizes);
+		const theme = localStorage.getItem(STORAGE_KEYS.theme);
+		const tempUnit = localStorage.getItem(STORAGE_KEYS.tempUnit);
 
-		return {
-			enabled: panels ? JSON.parse(panels) : undefined,
-			order: order ? JSON.parse(order) : undefined,
-			sizes: sizes ? JSON.parse(sizes) : undefined
+		const result: Partial<SettingsState> = {
+			theme: theme === 'light' ? 'light' : 'dark',
+			tempUnit: tempUnit === 'c' ? 'c' : 'f'
 		};
+
+		if (panels) {
+			result.enabled = JSON.parse(panels);
+		}
+		if (order) {
+			result.order = JSON.parse(order);
+		}
+		if (sizes) {
+			result.sizes = JSON.parse(sizes);
+		}
+
+		return result;
 	} catch (e) {
 		console.warn('Failed to load settings from localStorage:', e);
 		return {};
@@ -79,8 +107,10 @@ function createSettingsStore() {
 	const saved = loadFromStorage();
 
 	const initialState: SettingsState = {
+		...defaults,
+		...saved,
+		// Ensure nested objects merge correctly if saved is partial
 		enabled: { ...defaults.enabled, ...saved.enabled },
-		order: saved.order ?? defaults.order,
 		sizes: { ...defaults.sizes, ...saved.sizes },
 		initialized: false
 	};
@@ -92,9 +122,37 @@ function createSettingsStore() {
 
 		/**
 		 * Initialize store (call after hydration)
+		 * Applies the theme to the document root
 		 */
 		init() {
-			update((state) => ({ ...state, initialized: true }));
+			update((state) => {
+				if (browser) {
+					document.documentElement.setAttribute('data-theme', state.theme);
+				}
+				return { ...state, initialized: true };
+			});
+		},
+
+		/**
+		 * Toggle Light/Dark Theme
+		 */
+		toggleTheme() {
+			update((state) => {
+				const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+				if (browser) {
+					document.documentElement.setAttribute('data-theme', newTheme);
+					localStorage.setItem(STORAGE_KEYS.theme, newTheme);
+				}
+				return { ...state, theme: newTheme };
+			});
+		},
+
+		setTempUnit(unit: 'c' | 'f') {
+			update((state) => {
+				const next = unit === 'c' ? 'c' : 'f';
+				saveToStorage('tempUnit', next);
+				return { ...state, tempUnit: next };
+			});
 		},
 
 		/**
@@ -194,6 +252,8 @@ function createSettingsStore() {
 				localStorage.removeItem(STORAGE_KEYS.panels);
 				localStorage.removeItem(STORAGE_KEYS.order);
 				localStorage.removeItem(STORAGE_KEYS.sizes);
+				localStorage.removeItem(STORAGE_KEYS.theme);
+				document.documentElement.setAttribute('data-theme', 'dark');
 			}
 			set({ ...defaults, initialized: true });
 		},
@@ -266,13 +326,15 @@ function createSettingsStore() {
 export const settings = createSettingsStore();
 
 // Derived stores for convenience
-export const enabledPanels = derived(settings, ($settings) =>
-	$settings.order.filter((id) => $settings.enabled[id])
-);
+export const enabledPanels = derived(settings, ($settings) => {
+	const order = Array.isArray($settings.order) ? $settings.order : [];
+	return order.filter((id) => $settings.enabled[id] ?? false);
+});
 
-export const disabledPanels = derived(settings, ($settings) =>
-	$settings.order.filter((id) => !$settings.enabled[id])
-);
+export const disabledPanels = derived(settings, ($settings) => {
+	const order = Array.isArray($settings.order) ? $settings.order : [];
+	return order.filter((id) => !($settings.enabled[id] ?? false));
+});
 
 export const draggablePanels = derived(enabledPanels, ($enabled) =>
 	$enabled.filter((id) => !NON_DRAGGABLE_PANELS.includes(id))

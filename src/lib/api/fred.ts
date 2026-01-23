@@ -5,7 +5,7 @@
  * Get your free API key at: https://fred.stlouisfed.org/docs/api/api_key.html
  */
 
-import { FRED_API_KEY, FRED_BASE_URL, logger, fetchWithProxy } from '$lib/config/api';
+import { fetchWithProxy, FRED_API_KEY, FRED_BASE_URL, logger } from '$lib/config/api';
 
 export interface FredObservation {
 	date: string;
@@ -39,6 +39,30 @@ export function isFredConfigured(): boolean {
 	return FRED_API_KEY.length > 0;
 }
 
+// Money Matters
+export async function fetchMoneyPrinterData() {
+    if (!isFredConfigured()) return null;
+    
+    // Series WALCL = Total Assets of the Federal Reserve (The "Printer")
+    const seriesId = 'WALCL'; 
+    const observations = await fetchFredSeries(seriesId);
+    
+    if (observations.length < 2) return null;
+    
+    const current = parseFloat(observations[0].value);
+    const previous = parseFloat(observations[1].value);
+    
+    // Hardcoded max for the gauge (e.g., 9 Trillion)
+    const maxAssets = 9000000; 
+    
+    return {
+        value: current / 1000000, // Convert Millions to Trillions
+        change: (current - previous) / 1000000,
+        changePercent: ((current - previous) / previous) * 100,
+        percentOfMax: (current / maxAssets) * 100
+    };
+}
+
 /**
  * Create an empty indicator (used for error/missing data states)
  */
@@ -60,7 +84,9 @@ function createEmptyIndicator(seriesId: string, name: string, unit: string): Eco
 async function fetchFredSeries(seriesId: string): Promise<FredObservation[]> {
 	try {
 		const url = `${FRED_BASE_URL}/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=2`;
-		const response = await fetch(url);
+		
+		// CHANGE: Use fetchWithProxy instead of fetch
+		const response = await fetchWithProxy(url);
 
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -127,7 +153,7 @@ async function fetchCPI(): Promise<EconomicIndicator> {
 	try {
 		// Fetch 14 observations: current + 12 months ago, plus previous month + 13 months ago
 		const url = `${FRED_BASE_URL}/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=14`;
-		const response = await fetch(url);
+    const response = await fetchWithProxy(url);
 
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -265,12 +291,13 @@ function hashString(str: string): string {
 function parseRssXml(xml: string, type: FedNewsType, typeLabel: string): FedNewsItem[] {
 	const items: FedNewsItem[] = [];
 
-	// Simple regex-based XML parsing for RSS items
+	// Robust regex to capture items
 	const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+	// Regex that handles CDATA or standard text for Title, Link, Desc, PubDate
 	const titleRegex = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i;
 	const linkRegex = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i;
 	const descRegex = /<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i;
-	const pubDateRegex = /<pubDate>([\s\S]*?)<\/pubDate>/i;
+	const pubDateRegex = /<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i;
 
 	let match;
 	while ((match = itemRegex.exec(xml)) !== null) {
@@ -283,8 +310,11 @@ function parseRssXml(xml: string, type: FedNewsType, typeLabel: string): FedNews
 
 		const title = titleMatch?.[1]?.trim() || '';
 		const link = linkMatch?.[1]?.trim() || '';
-		const description = descMatch?.[1]?.trim().replace(/<[^>]*>/g, '') || '';
-		const pubDate = pubDateMatch?.[1]?.trim() || '';
+		const description = descMatch?.[1]?.trim().replace(/<[^>]*>/g, '') || ''; // Strip HTML tags
+		
+		// Clean up date string (remove newlines/tabs)
+		let pubDateStr = pubDateMatch?.[1]?.trim() || '';
+		pubDateStr = pubDateStr.replace(/(\r\n|\n|\r)/gm, ""); 
 
 		if (!title || !link) continue;
 
@@ -292,13 +322,20 @@ function parseRssXml(xml: string, type: FedNewsType, typeLabel: string): FedNews
 		const isPowellRelated = type === 'powell' || /powell|chair(?:man)?/.test(fullText);
 		const hasVideo = /video|webcast|watch|broadcast|live/.test(fullText);
 
+        // Safely parse date
+        const timestamp = pubDateStr ? new Date(pubDateStr).getTime() : Date.now();
+        // If date parsing failed (NaN), fallback to now
+        const finalTimestamp = isNaN(timestamp) ? Date.now() : timestamp;
+        // Re-format valid date string for display
+        const displayDate = isNaN(timestamp) ? '' : new Date(timestamp).toISOString();
+
 		items.push({
 			id: `fed-${type}-${hashString(link)}`,
 			title,
 			link: link.startsWith('http') ? link : `${FED_BASE_URL}${link}`,
 			description,
-			pubDate,
-			timestamp: pubDate ? new Date(pubDate).getTime() : Date.now(),
+			pubDate: displayDate,
+			timestamp: finalTimestamp,
 			type,
 			typeLabel,
 			isPowellRelated,
