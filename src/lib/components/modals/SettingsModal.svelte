@@ -2,6 +2,7 @@
 	import Modal from './Modal.svelte';
 	import { settings } from '$lib/stores';
 	import { PANELS, type PanelId } from '$lib/config';
+	import { _ } from 'svelte-i18n';
 
 	interface Props {
 		open: boolean;
@@ -16,15 +17,17 @@
 	}
 
 	function handleResetPanels() {
-		settings.reset();
+		if (confirm($_('settings.resetConfirm'))) {
+			settings.reset();
+		}
 	}
 </script>
 
-<Modal {open} title="Settings" {onClose}>
+<Modal {open} title={$_('settings.title')} {onClose}>
 	<div class="settings-sections">
 		<section class="settings-section">
-			<h3 class="section-title">Enabled Panels</h3>
-			<p class="section-desc">Toggle panels on/off to customize your dashboard</p>
+			<h3 class="section-title">{$_('settings.enabledPanels')}</h3>
+			<p class="section-desc">{$_('settings.toggleDesc')}</p>
 
 			<div class="panels-grid">
 				{#each Object.entries(PANELS) as [id, config]}
@@ -36,7 +39,7 @@
 							checked={isEnabled}
 							onchange={() => handleTogglePanel(panelId)}
 						/>
-						<span class="panel-name">{config.name}</span>
+						<span class="panel-name">{$_(`panels.${panelId}`)}</span>
 						<span class="panel-priority">P{config.priority}</span>
 					</label>
 				{/each}
@@ -44,12 +47,12 @@
 		</section>
 
 		<section class="settings-section">
-			<h3 class="section-title">Dashboard</h3>
+			<h3 class="section-title">{$_('settings.dashboard')}</h3>
 			{#if onReconfigure}
-				<button class="reconfigure-btn" onclick={onReconfigure}> Reconfigure Dashboard </button>
+				<button class="reconfigure-btn" onclick={onReconfigure}>{$_('settings.reconfigure')}</button>
 				<p class="btn-hint">Choose a preset profile for your panels</p>
 			{/if}
-			<button class="reset-btn" onclick={handleResetPanels}> Reset All Settings </button>
+			<button class="reset-btn" onclick={handleResetPanels}>{$_('settings.resetAll')}</button>
 		</section>
 	</div>
 </Modal>

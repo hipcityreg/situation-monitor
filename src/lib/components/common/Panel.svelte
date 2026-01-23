@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { PanelId } from '$lib/config';
+	import { _ } from 'svelte-i18n';
 
 	interface Props {
 		id: PanelId;
@@ -78,7 +79,7 @@
 		{#if error}
 			<div class="error-msg">{error}</div>
 		{:else if loading}
-			<div class="loading-msg">Loading...</div>
+			<div class="loading-msg">{$_('common.loading')}</div>
 		{:else}
 			{@render children()}
 		{/if}

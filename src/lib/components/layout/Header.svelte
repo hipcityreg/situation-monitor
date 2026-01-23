@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { isRefreshing, lastRefresh } from '$lib/stores';
+	import { _ } from 'svelte-i18n';
+	import { settings } from '$lib/stores/settings';
+	import { SUPPORTED_LOCALES } from '$lib/i18n';
 
 	interface Props {
 		onSettingsClick?: () => void;
@@ -9,20 +12,28 @@
 
 	const lastRefreshText = $derived(
 		$lastRefresh
-			? `Last updated: ${new Date($lastRefresh).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+			? `${$_('common.lastUpdated')}: ${new Date($lastRefresh).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
 			: 'Never refreshed'
 	);
+
+	function toggleLanguage() {
+		const currentLocale = settings.getLocale();
+		const currentIndex = SUPPORTED_LOCALES.indexOf(currentLocale);
+		const nextIndex = (currentIndex + 1) % SUPPORTED_LOCALES.length;
+		const nextLocale = SUPPORTED_LOCALES[nextIndex];
+		settings.setLocale(nextLocale);
+	}
 </script>
 
 <header class="header">
 	<div class="header-left">
-		<h1 class="logo">SITUATION MONITOR</h1>
+		<h1 class="logo">{$_('header.title')}</h1>
 	</div>
 
 	<div class="header-center">
 		<div class="refresh-status">
 			{#if $isRefreshing}
-				<span class="status-text loading">Refreshing...</span>
+				<span class="status-text loading">{$_('common.refreshing')}</span>
 			{:else}
 				<span class="status-text">{lastRefreshText}</span>
 			{/if}
@@ -30,9 +41,13 @@
 	</div>
 
 	<div class="header-right">
-		<button class="header-btn settings-btn" onclick={onSettingsClick} title="Settings">
+		<button class="header-btn" onclick={toggleLanguage} title={$_('header.language')}>
+			<span class="btn-icon">🌐</span>
+			<span class="btn-label">{settings.getLocale().toUpperCase()}</span>
+		</button>
+		<button class="header-btn settings-btn" onclick={onSettingsClick} title={$_('header.settings')}>
 			<span class="btn-icon">⚙</span>
-			<span class="btn-label">Settings</span>
+			<span class="btn-label">{$_('header.settings')}</span>
 		</button>
 	</div>
 </header>

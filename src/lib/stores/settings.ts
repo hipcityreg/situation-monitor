@@ -12,12 +12,15 @@ import {
 	PRESET_STORAGE_KEY,
 	type PanelId
 } from '$lib/config';
+import { locale as i18nLocale } from 'svelte-i18n';
+import type { SupportedLocale } from '$lib/i18n';
 
 // Storage keys
 const STORAGE_KEYS = {
 	panels: 'situationMonitorPanels',
 	order: 'panelOrder',
-	sizes: 'panelSizes'
+	sizes: 'panelSizes',
+	locale: 'situationMonitorLocale'
 } as const;
 
 // Types
@@ -29,6 +32,7 @@ export interface PanelSettings {
 
 export interface SettingsState extends PanelSettings {
 	initialized: boolean;
+	locale: SupportedLocale;
 }
 
 // Default settings
@@ -43,18 +47,20 @@ function getDefaultSettings(): PanelSettings {
 }
 
 // Load from localStorage
-function loadFromStorage(): Partial<PanelSettings> {
+function loadFromStorage(): Partial<PanelSettings> & { locale?: SupportedLocale } {
 	if (!browser) return {};
 
 	try {
 		const panels = localStorage.getItem(STORAGE_KEYS.panels);
 		const order = localStorage.getItem(STORAGE_KEYS.order);
 		const sizes = localStorage.getItem(STORAGE_KEYS.sizes);
+		const locale = localStorage.getItem(STORAGE_KEYS.locale);
 
 		return {
 			enabled: panels ? JSON.parse(panels) : undefined,
 			order: order ? JSON.parse(order) : undefined,
-			sizes: sizes ? JSON.parse(sizes) : undefined
+			sizes: sizes ? JSON.parse(sizes) : undefined,
+			locale: locale ? (JSON.parse(locale) as SupportedLocale) : undefined
 		};
 	} catch (e) {
 		console.warn('Failed to load settings from localStorage:', e);
@@ -82,6 +88,7 @@ function createSettingsStore() {
 		enabled: { ...defaults.enabled, ...saved.enabled },
 		order: saved.order ?? defaults.order,
 		sizes: { ...defaults.sizes, ...saved.sizes },
+		locale: saved.locale ?? 'en',
 		initialized: false
 	};
 
@@ -195,7 +202,7 @@ function createSettingsStore() {
 				localStorage.removeItem(STORAGE_KEYS.order);
 				localStorage.removeItem(STORAGE_KEYS.sizes);
 			}
-			set({ ...defaults, initialized: true });
+			set({ ...defaults, locale: 'en', initialized: true });
 		},
 
 		/**
@@ -258,6 +265,25 @@ function createSettingsStore() {
 				localStorage.removeItem(ONBOARDING_STORAGE_KEY);
 				localStorage.removeItem(PRESET_STORAGE_KEY);
 			}
+		},
+
+		/**
+		 * Get current locale
+		 */
+		getLocale(): SupportedLocale {
+			const state = get({ subscribe });
+			return state.locale;
+		},
+
+		/**
+		 * Set locale and persist to storage
+		 */
+		setLocale(newLocale: SupportedLocale) {
+			update((state) => {
+				saveToStorage('locale', newLocale);
+				i18nLocale.set(newLocale);
+				return { ...state, locale: newLocale };
+			});
 		}
 	};
 }

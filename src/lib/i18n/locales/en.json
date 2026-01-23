@@ -1,0 +1,111 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "noData": "No data available",
+    "refreshing": "Refreshing...",
+    "lastUpdated": "Last updated",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "confirm": "Confirm"
+  },
+  "header": {
+    "title": "SITUATION MONITOR",
+    "settings": "Settings",
+    "language": "Language"
+  },
+  "panels": {
+    "map": "Global Map",
+    "politics": "World / Geopolitical",
+    "tech": "Technology / AI",
+    "finance": "Financial",
+    "gov": "Government / Policy",
+    "ai": "AI Arms Race",
+    "intel": "Intel Feed",
+    "markets": "Markets",
+    "heatmap": "Sector Heatmap",
+    "monitors": "My Monitors",
+    "crypto": "Crypto",
+    "commodities": "Commodities / VIX",
+    "contracts": "Gov Contracts",
+    "whales": "Whale Watch",
+    "layoffs": "Layoffs Tracker",
+    "polymarket": "Polymarket",
+    "fed": "Federal Reserve",
+    "mainchar": "Main Character",
+    "printer": "Money Printer",
+    "venezuela": "Venezuela Situation",
+    "greenland": "Greenland Situation",
+    "iran": "Iran Situation",
+    "leaders": "World Leaders",
+    "correlation": "Correlation Engine",
+    "narrative": "Narrative Tracker"
+  },
+  "settings": {
+    "title": "Settings",
+    "enabledPanels": "Enabled Panels",
+    "toggleDesc": "Toggle panels on/off to customize your dashboard",
+    "dashboard": "Dashboard",
+    "reconfigure": "Reconfigure Dashboard",
+    "resetAll": "Reset All Settings",
+    "resetConfirm": "Are you sure you want to reset all settings? This will restore all panels and clear your preferences.",
+    "appearance": "Appearance",
+    "language": "Language",
+    "notifications": "Notifications"
+  },
+  "markets": {
+    "indices": "Indices",
+    "sectors": "Sectors",
+    "commodities": "Commodities",
+    "crypto": "Crypto",
+    "change": "Change",
+    "price": "Price",
+    "volume": "Volume",
+    "marketCap": "Market Cap"
+  },
+  "news": {
+    "readMore": "Read more",
+    "source": "Source",
+    "published": "Published",
+    "category": "Category",
+    "noArticles": "No articles available"
+  },
+  "alerts": {
+    "title": "Alerts & Monitoring",
+    "addMonitor": "Add Monitor",
+    "editMonitor": "Edit Monitor",
+    "deleteMonitor": "Delete Monitor",
+    "noMonitors": "No monitors configured",
+    "keyword": "Keyword",
+    "source": "Source",
+    "lastTriggered": "Last Triggered",
+    "never": "Never"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Situation Monitor",
+    "description": "Your real-time intelligence dashboard for tracking global events, markets, and emerging patterns.",
+    "getStarted": "Get Started",
+    "skip": "Skip",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish"
+  },
+  "map": {
+    "hotspot": "Hotspot",
+    "conflict": "Conflict Zone",
+    "strategic": "Strategic Location",
+    "zoom": "Zoom",
+    "reset": "Reset View"
+  },
+  "analysis": {
+    "correlations": "Correlations",
+    "narratives": "Narratives",
+    "mainCharacter": "Main Character",
+    "severity": "Severity",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  }
+}
