@@ -14,7 +14,7 @@ This guide explains how to run the Situation Monitor in a Docker container, with
 docker-compose up -d
 ```
 
-The application will be available at `http://your-server-ip:8080`
+The application will be available at `http://your-server-ip:8034`
 
 ### Using Docker CLI
 
@@ -27,7 +27,7 @@ docker build -t situation-monitor .
 # Run the container
 docker run -d \
   --name situation-monitor \
-  -p 8080:80 \
+  -p 8034:80 \
   --restart unless-stopped \
   situation-monitor
 ```
@@ -52,7 +52,7 @@ docker run -d \
    - **Network Type:** `bridge`
    - **Port Mappings:**
      - Container Port: `80`
-     - Host Port: `8080` (or your preferred port)
+     - Host Port: `8034` (or your preferred port)
    - **Restart Policy:** `unless-stopped`
 
 4. Click **Apply**
@@ -75,11 +75,11 @@ docker run -d \
 
 ### Port Configuration
 
-By default, the container exposes port 80 internally and maps to port 8080 on the host. You can change the host port in `docker-compose.yml`:
+By default, the container exposes port 80 internally and maps to port 8034 on the host. You can change the host port in `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "8080:80"  # Change 8080 to your preferred port
+  - "8034:80"  # Change 8034 to your preferred port
 ```
 
 ### Timezone
@@ -149,7 +149,7 @@ docker rm situation-monitor
 cd /path/to/situation-monitor
 git pull
 docker build -t situation-monitor .
-docker run -d --name situation-monitor -p 8080:80 --restart unless-stopped situation-monitor
+docker run -d --name situation-monitor -p 8034:80 --restart unless-stopped situation-monitor
 ```
 
 ## Troubleshooting
@@ -169,8 +169,8 @@ docker-compose logs
 ### Application not accessible
 
 1. Verify the container is running: `docker ps`
-2. Check if the port is accessible: `curl http://localhost:8080`
-3. Ensure your firewall allows traffic on port 8080
+2. Check if the port is accessible: `curl http://localhost:8034`
+3. Ensure your firewall allows traffic on port 8034
 4. On Unraid, make sure the port isn't already in use
 
 ### Build fails

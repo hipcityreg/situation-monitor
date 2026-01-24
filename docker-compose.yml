@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: situation-monitor
     ports:
-      - "8080:80"
+      - "8034:80"
     restart: unless-stopped
     environment:
       - TZ=UTC
