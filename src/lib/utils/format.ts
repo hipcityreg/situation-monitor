@@ -10,10 +10,10 @@ export function timeAgo(dateInput: string | number | Date): string {
 	const now = new Date();
 	const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-	if (seconds < 60) return 'just now';
-	if (seconds < 3600) return Math.floor(seconds / 60) + 'm';
-	if (seconds < 86400) return Math.floor(seconds / 3600) + 'h';
-	return Math.floor(seconds / 86400) + 'd';
+	if (seconds < 60) return '刚刚';
+	if (seconds < 3600) return Math.floor(seconds / 60) + '分钟前';
+	if (seconds < 86400) return Math.floor(seconds / 3600) + '小时前';
+	return Math.floor(seconds / 86400) + '天前';
 }
 
 /**
@@ -26,9 +26,9 @@ export function getRelativeTime(dateInput: string | number | Date): string {
 	const hours = Math.floor(diff / (1000 * 60 * 60));
 	const days = Math.floor(hours / 24);
 
-	if (hours < 1) return 'Just now';
-	if (hours < 24) return `${hours}h ago`;
-	if (days < 7) return `${days}d ago`;
+	if (hours < 1) return '刚刚';
+	if (hours < 24) return `${hours}小时前`;
+	if (days < 7) return `${days}天前`;
 	return date.toLocaleDateString();
 }
 
@@ -73,8 +73,8 @@ export function formatPercentChange(value: number, decimals = 2): string {
  * Get CSS class for positive/negative change
  */
 export function getChangeClass(value: number): 'up' | 'down' | '' {
-	if (value > 0) return 'up';
-	if (value < 0) return 'down';
+	if (value > 0) return '上涨';
+	if (value < 0) return '下跌';
 	return '';
 }
 

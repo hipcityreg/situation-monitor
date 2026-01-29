@@ -72,49 +72,49 @@ export const HOTSPOTS: Hotspot[] = [
 		lat: 38.9,
 		lon: -77.0,
 		level: 'low',
-		desc: 'Washington DC — US political center, White House, Pentagon, Capitol'
+		desc: '华盛顿特区 — 美国政治中心，白宫，五角大楼，国会大厦'
 	},
 	{
 		name: 'Moscow',
 		lat: 55.75,
 		lon: 37.6,
 		level: 'elevated',
-		desc: 'Moscow — Kremlin, Russian military command, sanctions hub'
+		desc: '莫斯科 — 克里姆林宫，俄罗斯军事指挥中心，制裁中心'
 	},
 	{
 		name: 'Beijing',
 		lat: 39.9,
 		lon: 116.4,
 		level: 'elevated',
-		desc: 'Beijing — CCP headquarters, US-China tensions, tech rivalry'
+		desc: '北京 — 中国共产党总部，中美紧张关系，技术竞争'
 	},
 	{
 		name: 'Kyiv',
 		lat: 50.45,
 		lon: 30.5,
 		level: 'high',
-		desc: 'Kyiv — Active conflict zone, Russian invasion ongoing'
+		desc: '基辅 — 活跃冲突区，俄罗斯入侵持续中'
 	},
 	{
 		name: 'Taipei',
 		lat: 25.03,
 		lon: 121.5,
 		level: 'elevated',
-		desc: 'Taipei — Taiwan Strait tensions, TSMC, China threat'
+		desc: '台北 — 台湾海峡紧张局势，台积电，中国威胁'
 	},
 	{
 		name: 'Tehran',
 		lat: 35.7,
 		lon: 51.4,
 		level: 'critical',
-		desc: 'Tehran — ACTIVE UPRISING: 200+ cities, 26 provinces. Revolution protests, regime instability, nuclear program'
+		desc: '德黑兰 — 活跃起义：200+城市，26个省份。革命抗议，政权不稳定，核计划'
 	},
 	{
 		name: 'Tel Aviv',
 		lat: 32.07,
 		lon: 34.78,
 		level: 'high',
-		desc: 'Tel Aviv — Israel-Gaza conflict, active military operations'
+		desc: '特拉维夫 — 以色列-加沙冲突，活跃军事行动'
 	},
 	{
 		name: 'London',

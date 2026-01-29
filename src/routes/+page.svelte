@@ -217,8 +217,8 @@
 </script>
 
 <svelte:head>
-	<title>Situation Monitor</title>
-	<meta name="description" content="Real-time global situation monitoring dashboard" />
+	<title>态势监控</title>
+	<meta name="description" content="实时全球态势监控仪表板" />
 </svelte:head>
 
 <div class="app">
@@ -236,25 +236,25 @@
 			<!-- News Panels -->
 			{#if isPanelVisible('politics')}
 				<div class="panel-slot">
-					<NewsPanel category="politics" panelId="politics" title="Politics" />
+					<NewsPanel category="politics" panelId="politics" title="政治" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('tech')}
 				<div class="panel-slot">
-					<NewsPanel category="tech" panelId="tech" title="Tech" />
+					<NewsPanel category="tech" panelId="tech" title="技术" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('finance')}
 				<div class="panel-slot">
-					<NewsPanel category="finance" panelId="finance" title="Finance" />
+					<NewsPanel category="finance" panelId="finance" title="金融" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('gov')}
 				<div class="panel-slot">
-					<NewsPanel category="gov" panelId="gov" title="Government" />
+					<NewsPanel category="gov" panelId="gov" title="政府" />
 				</div>
 			{/if}
 
@@ -335,8 +335,8 @@
 					<SituationPanel
 						panelId="venezuela"
 						config={{
-							title: 'Venezuela Watch',
-							subtitle: 'Humanitarian crisis monitoring',
+							title: '委内瑞拉观察',
+							subtitle: '人道主义危机监控',
 							criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
 						}}
 						news={$allNewsItems.filter(
@@ -353,8 +353,8 @@
 					<SituationPanel
 						panelId="greenland"
 						config={{
-							title: 'Greenland Watch',
-							subtitle: 'Arctic geopolitics monitoring',
+							title: '格陵兰观察',
+							subtitle: '北极地缘政治监控',
 							criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
 						}}
 						news={$allNewsItems.filter(
@@ -371,8 +371,8 @@
 					<SituationPanel
 						panelId="iran"
 						config={{
-							title: 'Iran Crisis',
-							subtitle: 'Revolution protests, regime instability & nuclear program',
+							title: '伊朗危机',
+							subtitle: '革命抗议，政权不稳定与核计划',
 							criticalKeywords: [
 								'protest',
 								'uprising',

@@ -25,102 +25,102 @@ export const CORRELATION_TOPICS: CorrelationTopic[] = [
 	{
 		id: 'tariffs',
 		patterns: [/tariff/i, /trade war/i, /import tax/i, /customs duty/i],
-		category: 'Economy'
+		category: '经济'
 	},
 	{
 		id: 'fed-rates',
 		patterns: [/federal reserve/i, /interest rate/i, /rate cut/i, /rate hike/i, /powell/i, /fomc/i],
-		category: 'Economy'
+		category: '经济'
 	},
 	{
 		id: 'inflation',
 		patterns: [/inflation/i, /cpi/i, /consumer price/i, /cost of living/i],
-		category: 'Economy'
+		category: '经济'
 	},
 	{
 		id: 'ai-regulation',
 		patterns: [/ai regulation/i, /artificial intelligence.*law/i, /ai safety/i, /ai governance/i],
-		category: 'Tech'
+		category: '技术'
 	},
 	{
 		id: 'china-tensions',
 		patterns: [/china.*taiwan/i, /south china sea/i, /us.*china/i, /beijing.*washington/i],
-		category: 'Geopolitics'
+		category: '地缘政治'
 	},
 	{
 		id: 'russia-ukraine',
 		patterns: [/ukraine/i, /zelensky/i, /putin.*war/i, /crimea/i, /donbas/i],
-		category: 'Conflict'
+		category: '冲突'
 	},
 	{
 		id: 'israel-gaza',
 		patterns: [/gaza/i, /hamas/i, /netanyahu/i, /israel.*attack/i, /hostage/i],
-		category: 'Conflict'
+		category: '冲突'
 	},
 	{
 		id: 'iran',
 		patterns: [/iran.*nuclear/i, /tehran/i, /ayatollah/i, /iranian.*strike/i],
-		category: 'Geopolitics'
+		category: '地缘政治'
 	},
 	{
 		id: 'crypto',
 		patterns: [/bitcoin/i, /crypto.*regulation/i, /ethereum/i, /sec.*crypto/i],
-		category: 'Finance'
+		category: '金融'
 	},
 	{
 		id: 'housing',
 		patterns: [/housing market/i, /mortgage rate/i, /home price/i, /real estate.*crash/i],
-		category: 'Economy'
+		category: '经济'
 	},
 	{
 		id: 'layoffs',
 		patterns: [/layoff/i, /job cut/i, /workforce reduction/i, /downsizing/i],
-		category: 'Business'
+		category: '商业'
 	},
 	{
 		id: 'bank-crisis',
 		patterns: [/bank.*fail/i, /banking crisis/i, /fdic/i, /bank run/i],
-		category: 'Finance'
+		category: '金融'
 	},
 	{
 		id: 'election',
 		patterns: [/election/i, /polling/i, /campaign/i, /ballot/i, /voter/i],
-		category: 'Politics'
+		category: '政治'
 	},
 	{
 		id: 'immigration',
 		patterns: [/immigration/i, /border.*crisis/i, /migrant/i, /deportation/i, /asylum/i],
-		category: 'Politics'
+		category: '政治'
 	},
 	{
 		id: 'climate',
 		patterns: [/climate change/i, /wildfire/i, /hurricane/i, /extreme weather/i, /flood/i],
-		category: 'Environment'
+		category: '环境'
 	},
 	{
 		id: 'pandemic',
 		patterns: [/pandemic/i, /outbreak/i, /virus.*spread/i, /who.*emergency/i, /bird flu/i],
-		category: 'Health'
+		category: '健康'
 	},
 	{
 		id: 'nuclear',
 		patterns: [/nuclear.*threat/i, /nuclear weapon/i, /atomic/i, /icbm/i],
-		category: 'Security'
+		category: '安全'
 	},
 	{
 		id: 'supply-chain',
 		patterns: [/supply chain/i, /shipping.*delay/i, /port.*congestion/i, /logistics.*crisis/i],
-		category: 'Economy'
+		category: '经济'
 	},
 	{
 		id: 'big-tech',
 		patterns: [/antitrust.*tech/i, /google.*monopoly/i, /meta.*lawsuit/i, /apple.*doj/i],
-		category: 'Tech'
+		category: '技术'
 	},
 	{
 		id: 'deepfake',
 		patterns: [/deepfake/i, /ai.*misinformation/i, /synthetic media/i],
-		category: 'Tech'
+		category: '技术'
 	}
 ];
 
@@ -128,98 +128,98 @@ export const NARRATIVE_PATTERNS: NarrativePattern[] = [
 	{
 		id: 'deep-state',
 		keywords: ['deep state', 'shadow government', 'permanent state'],
-		category: 'Political',
-		severity: 'watch'
+		category: '政治',
+		severity: '观察'
 	},
 	{
 		id: 'cbdc-control',
 		keywords: ['cbdc control', 'digital currency surveillance', 'social credit'],
-		category: 'Finance',
-		severity: 'watch'
+		category: '金融',
+		severity: '观察'
 	},
 	{
 		id: 'wef-agenda',
 		keywords: ['great reset', 'wef agenda', 'world economic forum plot'],
-		category: 'Political',
-		severity: 'watch'
+		category: '政治',
+		severity: '观察'
 	},
 	{
 		id: 'bio-weapon',
 		keywords: ['lab leak', 'bioweapon', 'gain of function'],
-		category: 'Health',
-		severity: 'emerging'
+		category: '健康',
+		severity: '新兴'
 	},
 	{
 		id: 'election-fraud',
 		keywords: ['election fraud', 'rigged election', 'stolen election', 'mail ballot fraud'],
-		category: 'Political',
-		severity: 'watch'
+		category: '政治',
+		severity: '观察'
 	},
 	{
 		id: 'ai-doom',
 		keywords: ['ai doom', 'ai extinction', 'superintelligence risk', 'agi danger'],
-		category: 'Tech',
-		severity: 'emerging'
+		category: '技术',
+		severity: '新兴'
 	},
 	{
 		id: 'ai-consciousness',
 		keywords: ['ai sentient', 'ai conscious', 'ai feelings', 'ai alive'],
-		category: 'Tech',
-		severity: 'emerging'
+		category: '技术',
+		severity: '新兴'
 	},
 	{
 		id: 'robot-replacement',
 		keywords: ['robots replacing', 'automation unemployment', 'job automation'],
-		category: 'Economy',
-		severity: 'spreading'
+		category: '经济',
+		severity: '扩散'
 	},
 	{
 		id: 'china-invasion',
 		keywords: ['china taiwan invasion', 'china war', 'south china sea conflict'],
-		category: 'Geopolitical',
-		severity: 'watch'
+		category: '地缘政治',
+		severity: '观察'
 	},
 	{
 		id: 'nato-expansion',
 		keywords: ['nato provocation', 'nato aggression', 'nato encirclement'],
-		category: 'Geopolitical',
-		severity: 'watch'
+		category: '地缘政治',
+		severity: '观察'
 	},
 	{
 		id: 'dollar-collapse',
 		keywords: ['dollar collapse', 'dedollarization', 'brics currency', 'petrodollar death'],
-		category: 'Finance',
-		severity: 'spreading'
+		category: '金融',
+		severity: '扩散'
 	},
 	{
 		id: 'vaccine-injury',
 		keywords: ['vaccine injury', 'vaccine side effect', 'vaccine death', 'turbo cancer'],
-		category: 'Health',
-		severity: 'watch'
+		category: '健康',
+		severity: '观察'
 	},
 	{
 		id: 'next-pandemic',
 		keywords: ['next pandemic', 'disease x', 'bird flu pandemic'],
-		category: 'Health',
-		severity: 'emerging'
+		category: '健康',
+		severity: '新兴'
 	},
 	{
 		id: 'depopulation',
 		keywords: ['depopulation agenda', 'fertility crisis', 'population control'],
-		category: 'Society',
-		severity: 'disinfo'
+		category: '社会',
+		severity: '虚假信息'
 	},
 	{
 		id: 'food-crisis',
 		keywords: ['food shortage', 'engineered famine', 'food supply attack'],
-		category: 'Economy',
-		severity: 'emerging'
+		category: '经济',
+		severity: '新兴'
 	},
 	{
 		id: 'energy-war',
 		keywords: ['energy crisis manufactured', 'green agenda', 'energy shortage'],
-		category: 'Economy',
-		severity: 'spreading'
+		category: '经济',
+		severity: '扩散'
 	}
 ];
 

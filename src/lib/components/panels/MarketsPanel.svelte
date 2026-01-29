@@ -10,7 +10,7 @@
 
 <Panel id="markets" title="Markets" {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No market data available</div>
+		<div class="empty-state">暂无市场数据</div>
 	{:else}
 		<div class="markets-list">
 			{#each items as item (item.symbol)}
