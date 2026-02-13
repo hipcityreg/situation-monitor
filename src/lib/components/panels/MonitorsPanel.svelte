@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Panel, Badge } from '$lib/components/common';
 	import { timeAgo } from '$lib/utils';
+	import { t } from '$lib/stores';
 	import type { CustomMonitor } from '$lib/types';
 	import type { MonitorMatch } from '$lib/stores/monitors';
 
@@ -34,20 +35,20 @@
 	}
 </script>
 
-<Panel id="monitors" title="Custom Monitors" {count} {loading} {error}>
+<Panel id="monitors" title={$t('panels.monitors.name')} {count} {loading} {error}>
 	<div class="monitors-content">
 		{#if monitors.length === 0 && !loading && !error}
 			<div class="empty-state">
-				<p>No monitors configured</p>
+				<p>{$t('panels.monitors.empty')}</p>
 				{#if onCreateMonitor}
-					<button class="create-btn" onclick={onCreateMonitor}> + Create Monitor </button>
+					<button class="create-btn" onclick={onCreateMonitor}>+ {$t('panels.monitors.create')}</button>
 				{/if}
 			</div>
 		{:else}
 			<div class="monitors-header">
-				<span class="active-count">{activeMonitors.length} active</span>
+				<span class="active-count">{$t('panels.monitors.active', { count: activeMonitors.length })}</span>
 				{#if onCreateMonitor}
-					<button class="add-btn" onclick={onCreateMonitor}>+</button>
+					<button class="add-btn" onclick={onCreateMonitor} title={$t('panels.monitors.create')}>+</button>
 				{/if}
 			</div>
 
@@ -70,13 +71,13 @@
 										class="action-btn"
 										class:active={monitor.enabled}
 										onclick={() => onToggleMonitor?.(monitor.id)}
-										title={monitor.enabled ? 'Disable' : 'Enable'}
+										title={monitor.enabled ? $t('panels.monitors.disable') : $t('panels.monitors.enable')}
 									>
 										{monitor.enabled ? '●' : '○'}
 									</button>
 								{/if}
 								{#if onEditMonitor}
-									<button class="action-btn" onclick={() => onEditMonitor?.(monitor)} title="Edit">
+									<button class="action-btn" onclick={() => onEditMonitor?.(monitor)} title={$t('panels.monitors.edit')}>
 										✎
 									</button>
 								{/if}
@@ -84,7 +85,7 @@
 									<button
 										class="action-btn delete"
 										onclick={() => onDeleteMonitor?.(monitor.id)}
-										title="Delete"
+										title={$t('panels.monitors.delete')}
 									>
 										×
 									</button>
@@ -126,7 +127,7 @@
 											<span class="match-time">{timeAgo(match.item.timestamp)}</span>
 										</div>
 									</div>
-								{/each}
+									{/each}
 							</div>
 						{/if}
 					</div>

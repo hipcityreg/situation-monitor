@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
 	import { timeAgo } from '$lib/utils';
+	import { t } from '$lib/stores';
 
 	interface Layoff {
 		company: string;
@@ -20,16 +21,16 @@
 	const count = $derived(layoffs.length);
 </script>
 
-<Panel id="layoffs" title="Layoffs Tracker" {count} {loading} {error}>
+<Panel id="layoffs" title={$t('panels.layoffs.name')} {count} {loading} {error}>
 	{#if layoffs.length === 0 && !loading && !error}
-		<div class="empty-state">No recent layoffs data</div>
+		<div class="empty-state">{$t('panels.layoffs.empty')}</div>
 	{:else}
 		<div class="layoffs-list">
 			{#each layoffs as layoff, i (layoff.company + i)}
 				<div class="layoff-item">
 					<div class="layoff-company">{layoff.company}</div>
 					{#if layoff.count}
-						<div class="layoff-count">
+						<div class="layoff-count data-value">
 							{typeof layoff.count === 'string'
 								? parseInt(layoff.count).toLocaleString()
 								: layoff.count.toLocaleString()} jobs

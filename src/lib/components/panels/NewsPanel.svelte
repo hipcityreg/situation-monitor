@@ -2,15 +2,14 @@
 	import { Panel, NewsItem } from '$lib/components/common';
 	import type { NewsCategory } from '$lib/types';
 	import type { PanelId } from '$lib/config';
-	import { politicsNews, techNews, financeNews, govNews, aiNews, intelNews } from '$lib/stores';
+	import { politicsNews, techNews, financeNews, govNews, aiNews, intelNews, t } from '$lib/stores';
 
 	interface Props {
 		category: NewsCategory;
 		panelId: PanelId;
-		title: string;
 	}
 
-	let { category, panelId, title }: Props = $props();
+	let { category, panelId }: Props = $props();
 
 	// Get the appropriate derived store based on category
 	const categoryStores = {
@@ -29,12 +28,12 @@
 	const count = $derived(items.length);
 </script>
 
-<Panel id={panelId} {title} {count} {loading} {error}>
+<Panel id={panelId} title={$t(`panels.news.${category}`)} {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No news available</div>
+		<div class="empty-state">{$t('panels.news.empty')}</div>
 	{:else}
 		<div class="news-list">
-			{#each items.slice(0, 15) as item (item.id)}
+			{#each items.slice(0, 10) as item (item.id)}
 				<NewsItem {item} />
 			{/each}
 		</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Panel, MarketItem } from '$lib/components/common';
-	import { indices } from '$lib/stores';
+	import { indices, t } from '$lib/stores';
 
 	const items = $derived($indices.items);
 	const loading = $derived($indices.loading);
@@ -8,9 +8,9 @@
 	const count = $derived(items.length);
 </script>
 
-<Panel id="markets" title="Markets" {count} {loading} {error}>
+<Panel id="markets" title={$t('panels.markets.name')} {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No market data available</div>
+		<div class="empty-state">{$t('panels.markets.empty')}</div>
 	{:else}
 		<div class="markets-list">
 			{#each items as item (item.symbol)}

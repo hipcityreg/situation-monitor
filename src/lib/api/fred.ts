@@ -7,6 +7,10 @@
 
 import { FRED_API_KEY, FRED_BASE_URL, logger, fetchWithProxy } from '$lib/config/api';
 
+/**
+ * Use Nginx proxy for FRED API to bypass CORS
+ */
+
 export interface FredObservation {
 	date: string;
 	value: string;
@@ -56,10 +60,12 @@ function createEmptyIndicator(seriesId: string, name: string, unit: string): Eco
 
 /**
  * Fetch a single FRED series with the latest 2 observations
+ * Uses Nginx proxy (/api/fred/) to bypass CORS
  */
 async function fetchFredSeries(seriesId: string): Promise<FredObservation[]> {
 	try {
-		const url = `${FRED_BASE_URL}/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=2`;
+		// Use Nginx proxy to bypass CORS
+		const url = `/api/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=2`;
 		const response = await fetch(url);
 
 		if (!response.ok) {
@@ -126,7 +132,8 @@ async function fetchCPI(): Promise<EconomicIndicator> {
 
 	try {
 		// Fetch 14 observations: current + 12 months ago, plus previous month + 13 months ago
-		const url = `${FRED_BASE_URL}/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=14`;
+		// Use Nginx proxy to bypass CORS
+		const url = `/api/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=14`;
 		const response = await fetch(url);
 
 		if (!response.ok) {
@@ -261,12 +268,15 @@ function hashString(str: string): string {
 
 /**
  * Parse RSS XML and extract items
+ * Handles both regular tags and CDATA-wrapped content
  */
 function parseRssXml(xml: string, type: FedNewsType, typeLabel: string): FedNewsItem[] {
 	const items: FedNewsItem[] = [];
 
 	// Simple regex-based XML parsing for RSS items
 	const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+	
+	// Handle both regular and CDATA-wrapped content
 	const titleRegex = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i;
 	const linkRegex = /<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i;
 	const descRegex = /<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i;
@@ -281,10 +291,11 @@ function parseRssXml(xml: string, type: FedNewsType, typeLabel: string): FedNews
 		const descMatch = descRegex.exec(itemXml);
 		const pubDateMatch = pubDateRegex.exec(itemXml);
 
-		const title = titleMatch?.[1]?.trim() || '';
-		const link = linkMatch?.[1]?.trim() || '';
-		const description = descMatch?.[1]?.trim().replace(/<[^>]*>/g, '') || '';
-		const pubDate = pubDateMatch?.[1]?.trim() || '';
+		// Clean CDATA wrappers if present
+		const title = (titleMatch?.[1] || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+		const link = (linkMatch?.[1] || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+		const description = (descMatch?.[1] || '').replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]*>/g, '').trim();
+		const pubDate = (pubDateMatch?.[1] || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim();
 
 		if (!title || !link) continue;
 
@@ -311,6 +322,7 @@ function parseRssXml(xml: string, type: FedNewsType, typeLabel: string): FedNews
 
 /**
  * Fetch a single Fed RSS feed
+ * Limited to 5 items per feed to avoid overwhelming the UI
  */
 async function fetchFedRssFeed(
 	url: string,
@@ -326,7 +338,9 @@ async function fetchFedRssFeed(
 		}
 
 		const xml = await response.text();
-		return parseRssXml(xml, type, typeLabel);
+		// Parse and limit to 5 items per feed
+		const items = parseRssXml(xml, type, typeLabel);
+		return items.slice(0, 5);
 	} catch (error) {
 		logger.error('Fed RSS', `Error fetching ${typeLabel}:`, error);
 		return [];
@@ -335,6 +349,7 @@ async function fetchFedRssFeed(
 
 /**
  * Fetch all Fed news from RSS feeds
+ * Limited to 25 total items (5 per feed × 5 feeds)
  */
 export async function fetchFedNews(): Promise<FedNewsItem[]> {
 	logger.log('Fed RSS', 'Fetching all Fed news feeds');
@@ -356,12 +371,19 @@ export async function fetchFedNews(): Promise<FedNewsItem[]> {
 		}
 	}
 
+	// Filter to only show news from the last 2 months
+	const twoMonthsAgo = Date.now() - (60 * 24 * 60 * 60 * 1000);
+	const recentItems = allItems.filter((item) => item.timestamp > twoMonthsAgo);
+
 	// Sort by timestamp (newest first), with Powell items boosted
-	return allItems.sort((a, b) => {
+	const sorted = recentItems.sort((a, b) => {
 		// Powell items get priority
 		if (a.isPowellRelated && !b.isPowellRelated) return -1;
 		if (!a.isPowellRelated && b.isPowellRelated) return 1;
 		// Then by timestamp
 		return b.timestamp - a.timestamp;
 	});
+
+	// Limit to 25 total items
+	return sorted.slice(0, 25);
 }

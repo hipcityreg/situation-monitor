@@ -1,27 +1,78 @@
+/**
+ * Situation Monitor - Global Stylesheet
+ * 
+ * This file contains:
+ * - Financial-grade typography system with three complementary fonts
+ * - CSS custom properties (variables) for consistent theming
+ * - Utility classes for common patterns
+ * - Component-specific styles that don't fit in Tailwind
+ * 
+ * Font Stack:
+ * - JetBrains Mono: Monospace font for data/numbers (tabular nums aligned)
+ * - Inter: Modern sans-serif for English UI text
+ * - Noto Sans SC: Comprehensive Chinese character support
+ */
+
+/* ============================================================================
+   FONT IMPORTS
+   ============================================================================ */
+
+/**
+ * Load the complete font families from Google Fonts
+ * - Inter: 300-700 weights for UI text
+ * - JetBrains Mono: 400-700 weights for code/data display
+ * - Noto Sans SC: 300-700 weights for Chinese text
+ * - display=swap: Ensures text remains visible during font loading
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Custom Properties for theming */
+/* ============================================================================
+   CSS CUSTOM PROPERTIES (VARIABLES)
+   ============================================================================ */
+
 :root {
-	--bg: #0a0a0a;
-	--surface: #141414;
-	--surface-hover: #1a1a1a;
-	--border: #2a2a2a;
-	--border-light: #3a3a3a;
-	--text: #e8e8e8;
-	--text-dim: #888;
-	--text-muted: #666;
-	--accent: #fff;
-	--red: #ff4444;
-	--green: #44ff88;
-	--yellow: #ffaa00;
-	--blue: #4488ff;
+	/* Color Palette - Dark theme optimized for financial dashboards */
+	--bg: #0a0a0a;           /* Deep black background */
+	--surface: #141414;      /* Elevated surface color */
+	--surface-hover: #1a1a1a; /* Hover state for surfaces */
+	--border: #2a2a2a;       /* Subtle borders */
+	--border-light: #3a3a3a; /* Lighter border for emphasis */
+	--text: #e8e8e8;         /* Primary text - high contrast */
+	--text-dim: #888;        /* Secondary text */
+	--text-muted: #666;      /* Tertiary/hint text */
+	--accent: #fff;          /* Accent color (green in RGB vars) */
+	--red: #ff4444;          /* Negative/loss indicator */
+	--green: #44ff88;        /* Positive/gain indicator */
+	--yellow: #ffaa00;       /* Warning/caution indicator */
+	--blue: #4488ff;         /* Information/link indicator */
+	
+	/**
+	 * Font Family Stack
+	 * 
+	 * Design philosophy:
+	 * - Use monospace for all data/numbers to ensure alignment
+	 * - Use sans-serif for headings and UI labels
+	 * - Prioritize Noto Sans SC for Chinese content
+	 */
+	--font-sans: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+	--font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Fira Code', monospace;
+	--font-zh: 'Noto Sans SC', 'Inter', system-ui, sans-serif;
 }
 
-/* Base styles */
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
+/**
+ * Root element defaults
+ * Uses monospace as base to ensure numbers align properly by default
+ */
 html {
-	font-family: 'SF Mono', Monaco, Inconsolata, 'Fira Code', monospace;
+	font-family: var(--font-mono);
 	background-color: var(--bg);
 	color: var(--text);
 }
@@ -29,9 +80,45 @@ html {
 body {
 	margin: 0;
 	min-height: 100vh;
+	font-family: var(--font-mono);
 }
 
-/* Scrollbar styling */
+/**
+ * Chinese Language Optimization
+ * Automatically switches to Noto Sans SC when lang="zh" is set
+ * This ensures proper Chinese character rendering
+ */
+:lang(zh) {
+	font-family: var(--font-zh);
+}
+
+/**
+ * Financial Data Display
+ * Forces monospace and tabular numerals for all numeric data
+ * Ensures prices, percentages, and counts align in columns
+ */
+.numeric, .price, .change, .percentage, .count {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+}
+
+/**
+ * Typography Hierarchy
+ * Headings use sans-serif for better readability at larger sizes
+ * Panel titles keep monospace for the terminal/dashboard aesthetic
+ */
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-sans);
+}
+
+.panel-title {
+	font-family: var(--font-mono);
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
 ::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;
@@ -50,7 +137,10 @@ body {
 	background: var(--text-muted);
 }
 
-/* Link styles */
+/* ============================================================================
+   LINK & FOCUS STYLES
+   ============================================================================ */
+
 a {
 	color: inherit;
 	text-decoration: none;
@@ -60,13 +150,20 @@ a:hover {
 	text-decoration: underline;
 }
 
-/* Focus styles for accessibility */
+/* Accessibility: visible focus indicators */
 :focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
 }
 
-/* Utility classes that are hard to do in Tailwind */
+/* ============================================================================
+   UTILITY ANIMATIONS
+   ============================================================================ */
+
+/**
+ * Shimmer loading effect
+ * Used for skeleton screens during data loading
+ */
 .shimmer {
 	background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
 	background-size: 200% 100%;
@@ -82,7 +179,10 @@ a:hover {
 	}
 }
 
-/* D3 Map styles - keeping here since they're complex */
+/* ============================================================================
+   D3 MAP STYLES
+   ============================================================================ */
+
 .map-container {
 	position: relative;
 	background: var(--surface);
@@ -129,4 +229,35 @@ a:hover {
 	pointer-events: none;
 	z-index: 100;
 	max-width: 300px;
+}
+
+/* ============================================================================
+   FONT UTILITY CLASSES
+   ============================================================================ */
+
+/**
+ * Quick font family overrides
+ * Use these classes when you need explicit font control
+ */
+.font-sans {
+	font-family: var(--font-sans);
+}
+
+.font-mono {
+	font-family: var(--font-mono);
+}
+
+.font-zh {
+	font-family: var(--font-zh);
+}
+
+/**
+ * Data value styling
+ * Applies monospace + tabular numerals for perfect alignment
+ * Use for prices, statistics, financial data
+ */
+.data-value {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: 'tnum' 1;
 }

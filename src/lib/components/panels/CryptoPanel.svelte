@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
-	import { crypto } from '$lib/stores';
+	import { crypto, t } from '$lib/stores';
 	import { formatCurrency, formatPercentChange, getChangeClass } from '$lib/utils';
 
 	const items = $derived($crypto.items);
@@ -9,9 +9,9 @@
 	const count = $derived(items.length);
 </script>
 
-<Panel id="whales" title="Crypto" {count} {loading} {error}>
+<Panel id="crypto" title={$t('panels.crypto.name')} {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No crypto data available</div>
+		<div class="empty-state">{$t('panels.crypto.empty')}</div>
 	{:else}
 		<div class="crypto-list">
 			{#each items as coin (coin.id)}
@@ -22,8 +22,8 @@
 						<div class="crypto-symbol">{coin.symbol.toUpperCase()}</div>
 					</div>
 					<div class="crypto-data">
-						<div class="crypto-price">{formatCurrency(coin.current_price)}</div>
-						<div class="crypto-change {changeClass}">
+						<div class="crypto-price data-value">{formatCurrency(coin.current_price)}</div>
+						<div class="crypto-change {changeClass} data-value">
 							{formatPercentChange(coin.price_change_percentage_24h)}
 						</div>
 					</div>

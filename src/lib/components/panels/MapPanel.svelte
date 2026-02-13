@@ -209,6 +209,24 @@
 		}
 	}
 
+	/**
+	 * Create SVG path for a 5-pointed star
+	 * Used for capital city markers
+	 */
+	function createStarPath(cx: number, cy: number, outerRadius: number): string {
+		const innerRadius = outerRadius * 0.4;
+		let path = '';
+		for (let i = 0; i < 10; i++) {
+			const angle = (Math.PI / 5) * i - Math.PI / 2; // Start from top
+			const radius = i % 2 === 0 ? outerRadius : innerRadius;
+			const x = cx + Math.cos(angle) * radius;
+			const y = cy + Math.sin(angle) * radius;
+			path += (i === 0 ? 'M' : 'L') + `${x},${y}`;
+		}
+		path += 'Z';
+		return path;
+	}
+
 	// Initialize map
 	async function initMap(): Promise<void> {
 		const d3 = await import('d3');
@@ -293,7 +311,7 @@
 				.attr('stroke-width', 0.3)
 				.attr('stroke-dasharray', '2,2');
 
-			// Draw ocean labels
+			// Draw ocean labels (smaller, more subtle)
 			OCEANS.forEach((o) => {
 				const [x, y] = projection([o.lon, o.lat]) || [0, 0];
 				if (x && y) {
@@ -302,10 +320,11 @@
 						.attr('x', x)
 						.attr('y', y)
 						.attr('fill', '#1a4a40')
-						.attr('font-size', '10px')
+						.attr('font-size', '8px') // Reduced from 10px
 						.attr('font-family', 'monospace')
 						.attr('text-anchor', 'middle')
-						.attr('opacity', 0.6)
+						.attr('opacity', 0.4) // Reduced from 0.6 to be less distracting
+						.attr('class', 'ocean-label')
 						.text(o.name);
 				}
 			});
@@ -332,32 +351,26 @@
 					.attr('stroke-opacity', 0.4);
 			});
 
-			// Draw chokepoints
+				// Draw chokepoints - only show tooltip, no labels to reduce clutter
 			CHOKEPOINTS.forEach((cp) => {
 				const [x, y] = projection([cp.lon, cp.lat]) || [0, 0];
 				if (x && y) {
 					mapGroup
 						.append('rect')
-						.attr('x', x - 4)
-						.attr('y', y - 4)
-						.attr('width', 8)
-						.attr('height', 8)
+						.attr('x', x - 3)
+						.attr('y', y - 3)
+						.attr('width', 6)
+						.attr('height', 6)
 						.attr('fill', '#00aaff')
 						.attr('opacity', 0.8)
 						.attr('transform', `rotate(45,${x},${y})`);
-					mapGroup
-						.append('text')
-						.attr('x', x + 8)
-						.attr('y', y + 3)
-						.attr('fill', '#00aaff')
-						.attr('font-size', '7px')
-						.attr('font-family', 'monospace')
-						.text(cp.name);
+					
+					// Hit area for tooltip
 					mapGroup
 						.append('circle')
 						.attr('cx', x)
 						.attr('cy', y)
-						.attr('r', 10)
+						.attr('r', 8)
 						.attr('fill', 'transparent')
 						.attr('class', 'hotspot-hit')
 						.on('mouseenter', (event: MouseEvent) => showTooltip(event, `⬥ ${cp.desc}`, '#00aaff'))
@@ -442,32 +455,61 @@
 				}
 			});
 
-			// Draw hotspots
+				// Draw hotspots
 			HOTSPOTS.forEach((h) => {
 				const [x, y] = projection([h.lon, h.lat]) || [0, 0];
 				if (x && y) {
 					const color = THREAT_COLORS[h.level];
-					// Pulsing circle
-					mapGroup
-						.append('circle')
-						.attr('cx', x)
-						.attr('cy', y)
-						.attr('r', 6)
-						.attr('fill', color)
-						.attr('fill-opacity', 0.3)
-						.attr('class', 'pulse');
-					// Inner dot
-					mapGroup.append('circle').attr('cx', x).attr('cy', y).attr('r', 3).attr('fill', color);
-					// Label
-					mapGroup
-						.append('text')
-						.attr('x', x + 8)
-						.attr('y', y + 3)
-						.attr('fill', color)
-						.attr('font-size', '8px')
-						.attr('font-family', 'monospace')
-						.text(h.name);
-					// Hit area
+					
+					// Capitals use star marker, others use circle
+					if (h.isCapital) {
+						// Draw star for capitals (5-pointed star)
+						const starSize = 5;
+						const starPath = createStarPath(x, y, starSize);
+						mapGroup
+							.append('path')
+							.attr('d', starPath)
+							.attr('fill', color)
+							.attr('class', 'capital-star');
+					} else {
+						// Pulsing circle for non-capitals
+						mapGroup
+							.append('circle')
+							.attr('cx', x)
+							.attr('cy', y)
+							.attr('r', 5)
+							.attr('fill', color)
+							.attr('fill-opacity', 0.3)
+							.attr('class', 'pulse');
+						// Inner dot
+						mapGroup
+							.append('circle')
+							.attr('cx', x)
+							.attr('cy', y)
+							.attr('r', 2.5)
+							.attr('fill', color);
+					}
+					
+					// Only show label for major cities (showLabel=true)
+					// Use fixed offset to the right (x + 8, y + 3) for consistency
+					if (h.showLabel) {
+						const labelX = x + 8;
+						const labelY = y + 3;
+						const fontSize = 7;
+						
+						mapGroup
+							.append('text')
+							.attr('x', labelX)
+							.attr('y', labelY)
+							.attr('fill', color)
+							.attr('font-size', `${fontSize}px`)
+							.attr('font-family', 'monospace')
+							.attr('text-anchor', 'start')
+							.attr('class', 'hotspot-label')
+							.text(h.name);
+					}
+					
+					// Hit area for tooltip (invisible but larger for easier hovering)
 					mapGroup
 						.append('circle')
 						.attr('cx', x)
@@ -504,31 +546,37 @@
 				const [x, y] = projection([m.location.lon, m.location.lat]) || [0, 0];
 				if (x && y) {
 					const color = m.color || '#00ffff';
+					// Monitor marker circle
 					mapGroup
 						.append('circle')
 						.attr('class', 'monitor-marker')
 						.attr('cx', x)
 						.attr('cy', y)
-						.attr('r', 5)
+						.attr('r', 4)
 						.attr('fill', color)
 						.attr('fill-opacity', 0.6)
 						.attr('stroke', color)
-						.attr('stroke-width', 2);
+						.attr('stroke-width', 1.5);
+					
+					// Fixed position label to the right
 					mapGroup
 						.append('text')
 						.attr('class', 'monitor-marker')
-						.attr('x', x + 8)
-						.attr('y', y + 3)
+						.attr('x', x + 6)
+						.attr('y', y + 2)
 						.attr('fill', color)
-						.attr('font-size', '8px')
+						.attr('font-size', '6px')
 						.attr('font-family', 'monospace')
+						.attr('text-anchor', 'start')
 						.text(m.name);
+					
+					// Hit area for tooltip
 					mapGroup
 						.append('circle')
 						.attr('class', 'monitor-marker')
 						.attr('cx', x)
 						.attr('cy', y)
-						.attr('r', 10)
+						.attr('r', 8)
 						.attr('fill', 'transparent')
 						.on('mouseenter', (event: MouseEvent) =>
 							showTooltip(event, `📡 ${m.name}`, color, [
@@ -726,11 +774,30 @@
 	:global(.hotspot-hit) {
 		cursor: pointer;
 	}
-
+	
+	/* Capital star styling */
+	:global(.capital-star) {
+		filter: drop-shadow(0 0 2px currentColor);
+	}
+	
+	/* Small text optimization for map labels */
+	:global(.hotspot-label),
+	:global(.ocean-label) {
+		/* Ensure crisp rendering of small text */
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+	
 	/* Hide zoom controls on mobile where touch zoom is available */
 	@media (max-width: 768px) {
 		.zoom-controls {
 			display: flex;
+		}
+		
+		/* Hide some labels on small screens to reduce clutter */
+		:global(.ocean-label) {
+			display: none;
 		}
 	}
 </style>

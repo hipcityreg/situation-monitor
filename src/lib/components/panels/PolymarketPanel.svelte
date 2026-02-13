@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
-
-	interface Prediction {
-		id: string;
-		question: string;
-		yes: number;
-		volume: number | string;
-		url?: string;
-	}
+	import { t } from '$lib/stores';
+	import type { Prediction } from '$lib/api';
 
 	interface Props {
 		predictions?: Prediction[];
@@ -19,18 +13,15 @@
 
 	const count = $derived(predictions.length);
 
-	function formatVolume(v: number | string): string {
-		if (typeof v === 'string') return '$' + v;
+	function formatVolume(v: string): string {
 		if (!v) return '$0';
-		if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
-		if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
-		return '$' + v.toFixed(0);
+		return '$' + v;
 	}
 </script>
 
-<Panel id="polymarket" title="Polymarket" {count} {loading} {error}>
+<Panel id="polymarket" title={$t('panels.polymarket.name')} {count} {loading} {error}>
 	{#if predictions.length === 0 && !loading && !error}
-		<div class="empty-state">No predictions available</div>
+		<div class="empty-state">{$t('panels.polymarket.empty')}</div>
 	{:else}
 		<div class="predictions-list">
 			{#each predictions as pred (pred.id)}
@@ -40,7 +31,7 @@
 						<div class="prediction-volume">Vol: {formatVolume(pred.volume)}</div>
 					</div>
 					<div class="prediction-odds">
-						<span class="prediction-yes">{pred.yes}%</span>
+						<span class="prediction-yes data-value">{pred.yes}%</span>
 					</div>
 				</div>
 			{/each}

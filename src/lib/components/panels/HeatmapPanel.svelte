@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { Panel, HeatmapCell } from '$lib/components/common';
-	import { sectors } from '$lib/stores';
+	import { sectors, t } from '$lib/stores';
 
 	const items = $derived($sectors.items);
 	const loading = $derived($sectors.loading);
 	const error = $derived($sectors.error);
 </script>
 
-<Panel id="heatmap" title="Sector Heatmap" {loading} {error}>
+<Panel id="heatmap" title={$t('panels.heatmap.name')} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No sector data available</div>
+		<div class="empty-state">{$t('panels.heatmap.empty')}</div>
 	{:else}
 		<div class="heatmap-grid">
 			{#each items as sector (sector.symbol)}

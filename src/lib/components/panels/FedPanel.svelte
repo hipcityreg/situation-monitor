@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Panel, Badge } from '$lib/components/common';
 	import { getRelativeTime } from '$lib/utils';
-	import { fedNews, fedIndicators, fedVideos } from '$lib/stores';
+	import { fedNews, fedIndicators, fedVideos, t } from '$lib/stores';
 	import { isFredConfigured } from '$lib/api/fred';
 	import type { EconomicIndicator } from '$lib/api/fred';
 
@@ -55,9 +55,39 @@
 	function getTypeVariant(type: string): BadgeVariant {
 		return TYPE_VARIANTS[type] || 'default';
 	}
+
+	// Fed Countdown
+	const nextMeetingDate = new Date('2026-03-18T00:00:00Z');
+	
+	let countdown = $state<{ days: number; hours: number } | null>(null);
+	
+	$effect(() => {
+		const now = new Date();
+		const diff = nextMeetingDate.getTime() - now.getTime();
+		if (diff <= 0) {
+			countdown = null;
+		} else {
+			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+			const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+			countdown = { days, hours };
+		}
+	});
 </script>
 
-<Panel id="fed" title="Federal Reserve" count={newsState.items.length} {loading} {error}>
+<Panel id="fed" title={$t('panels.fed.name')} count={newsState.items.length} {loading} {error}>
+	<!-- Fed Meeting Countdown -->
+	<div class="countdown-section">
+		<div class="countdown-title">Next FOMC Meeting</div>
+		<div class="countdown-time">
+			{#if countdown}
+				{countdown.days} days, {countdown.hours} hours
+			{:else}
+				No upcoming meeting
+			{/if}
+		</div>
+		<div class="countdown-date">March 18, 2026 (Rate Decision)</div>
+	</div>
+
 	<!-- Economic Indicators -->
 	{#if hasApiKey && indicatorList.length > 0}
 		<div class="indicators-section">
@@ -75,7 +105,7 @@
 		</div>
 	{:else if !hasApiKey && !loading}
 		<div class="no-api-key">
-			<span class="no-api-key-text">Add VITE_FRED_API_KEY for economic indicators</span>
+			<span class="no-api-key-text">{$t('panels.fed.noApiKey')}</span>
 		</div>
 	{/if}
 
@@ -83,14 +113,14 @@
 	{#if videoItems.length > 0}
 		<div class="video-section">
 			<div class="section-header">
-				<span class="section-title">Speeches & Video</span>
+				<span class="section-title">{$t('panels.fed.speeches')}</span>
 				<a
 					href="https://www.federalreserve.gov/live-broadcast.htm"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="live-link"
 				>
-					Live Broadcast
+					{$t('panels.fed.liveBroadcast')}
 				</a>
 			</div>
 			<div class="video-list">
@@ -101,7 +131,7 @@
 							<div class="video-title">{item.title}</div>
 							<div class="video-meta">
 								{#if item.isPowellRelated}
-									<Badge text="POWELL" variant="warning" />
+									<Badge text={$t('badge.powell')} variant="warning" />
 								{/if}
 								<span>{getRelativeTime(item.pubDate)}</span>
 							</div>
@@ -115,7 +145,7 @@
 	<!-- News Feed -->
 	<div class="news-section">
 		{#if newsState.items.length === 0 && !loading && !error}
-			<div class="empty-state">No Fed news available</div>
+			<div class="empty-state">{$t('panels.fed.empty')}</div>
 		{:else}
 			<div class="fed-news-list">
 				{#each newsState.items as item (item.id)}
@@ -124,10 +154,10 @@
 							<div class="fed-news-badges">
 								<Badge text={item.typeLabel} variant={getTypeVariant(item.type)} />
 								{#if item.isPowellRelated && item.type !== 'powell'}
-									<Badge text="POWELL" variant="warning" />
+									<Badge text={$t('badge.powell')} variant="warning" />
 								{/if}
 								{#if item.hasVideo}
-									<Badge text="VIDEO" variant="info" />
+									<Badge text={$t('badge.video')} variant="info" />
 								{/if}
 							</div>
 							{#if item.pubDate}

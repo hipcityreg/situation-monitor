@@ -2,6 +2,9 @@
  * Stores barrel file - re-exports all stores
  */
 
+// i18n store
+export { locale, t, getTranslation, type Locale } from '$lib/i18n';
+
 // Settings store
 export {
 	settings,
@@ -77,3 +80,23 @@ export {
 	type FedIndicatorsState,
 	type FedNewsState
 } from './fed';
+
+// Fear & Greed store
+export {
+	fearGreed,
+	fearGreedValue,
+	fearGreedClassification,
+	isFearGreedLoading,
+	fearGreedLastUpdated,
+	type FearGreedState
+} from './feargreed';
+
+// Treasury/Yield Curve store
+export {
+	treasury,
+	yield2Y,
+	yield10Y,
+	yieldSpread,
+	isYieldCurveInverted,
+	type TreasuryState
+} from './treasury';

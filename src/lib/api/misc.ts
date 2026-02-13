@@ -1,13 +1,17 @@
 /**
  * Miscellaneous API functions for specialized panels
- * Note: Some of these use mock data as the original APIs require authentication
+ * Polymarket data: fetched server-side and saved to static JSON
  */
+
+import { LocalCache } from '$lib/utils/cache';
 
 export interface Prediction {
 	id: string;
 	question: string;
 	yes: number;
+	no: number;
 	volume: string;
+	updated: string;
 }
 
 export interface WhaleTransaction {
@@ -31,29 +35,102 @@ export interface Layoff {
 	date: string;
 }
 
+// Polymarket data endpoint (static JSON file)
+const POLYMARKET_DATA_URL = '/polymarket-data.json';
+
 /**
- * Fetch Polymarket predictions
- * Note: Polymarket API requires authentication - returns curated prediction data
+ * Fetch Polymarket predictions from static JSON file
+ * Data is fetched hourly by cron job on server
  */
 export async function fetchPolymarket(): Promise<Prediction[]> {
-	// These represent active prediction markets on major events
+	const cacheKey = 'polymarket_predictions';
+	const cacheTTLMinutes = 60; // 1 hour - matches cron schedule
+
+	// Check cache first
+	const cached = LocalCache.get<Prediction[]>(cacheKey);
+	if (cached) {
+		return cached;
+	}
+
+	try {
+		const response = await fetch(POLYMARKET_DATA_URL);
+		
+		if (!response.ok) {
+			// Fallback to empty array if file not found
+			console.warn('Polymarket data file not found, using fallback');
+			return getFallbackPredictions();
+		}
+
+		const data = await response.json();
+		
+		if (!data.data || !Array.isArray(data.data)) {
+			return getFallbackPredictions();
+		}
+
+		// Transform to Prediction format
+		const predictions: Prediction[] = data.data.map((item: any) => ({
+			id: item.id,
+			question: item.question,
+			yes: item.yes || 0,
+			no: item.no || 0,
+			volume: item.volume_str || formatVolume(item.volume),
+			updated: data.updated || new Date().toISOString()
+		}));
+
+		// Cache the result
+		LocalCache.set(cacheKey, predictions, cacheTTLMinutes);
+
+		return predictions;
+
+	} catch (error) {
+		console.error('Failed to fetch Polymarket data:', error);
+		return getFallbackPredictions();
+	}
+}
+
+/**
+ * Format volume number to human readable string
+ */
+function formatVolume(volume: number): string {
+	if (!volume) return '0';
+	
+	if (volume >= 1000000) {
+		return `$${(volume / 1000000).toFixed(1)}M`;
+	} else if (volume >= 1000) {
+		return `$${(volume / 1000).toFixed(0)}K`;
+	}
+	return `$${volume.toFixed(0)}`;
+}
+
+/**
+ * Fallback predictions when API is unavailable
+ * These are static examples - real data should come from JSON file
+ */
+function getFallbackPredictions(): Prediction[] {
 	return [
 		{
-			id: 'pm-1',
-			question: 'Will there be a US-China military incident in 2026?',
-			yes: 18,
-			volume: '2.4M'
+			id: 'fallback-1',
+			question: 'Will Bitcoin reach $150K by end of 2026?',
+			yes: 35,
+			no: 65,
+			volume: '$8.1M',
+			updated: new Date().toISOString()
 		},
-		{ id: 'pm-2', question: 'Will Bitcoin reach $150K by end of 2026?', yes: 35, volume: '8.1M' },
-		{ id: 'pm-3', question: 'Will Fed cut rates in Q1 2026?', yes: 42, volume: '5.2M' },
-		{ id: 'pm-4', question: 'Will AI cause major job losses in 2026?', yes: 28, volume: '1.8M' },
-		{ id: 'pm-5', question: 'Will Ukraine conflict end in 2026?', yes: 22, volume: '3.5M' },
-		{ id: 'pm-6', question: 'Will oil prices exceed $100/barrel?', yes: 31, volume: '2.1M' },
 		{
-			id: 'pm-7',
-			question: 'Will there be a major cyberattack on US infrastructure?',
-			yes: 45,
-			volume: '1.5M'
+			id: 'fallback-2',
+			question: 'Will Fed cut rates in Q1 2026?',
+			yes: 42,
+			no: 58,
+			volume: '$5.2M',
+			updated: new Date().toISOString()
+		},
+		{
+			id: 'fallback-3',
+			question: 'Will AI cause major job losses in 2026?',
+			yes: 28,
+			no: 72,
+			volume: '$1.8M',
+			updated: new Date().toISOString()
 		}
 	];
 }
@@ -63,7 +140,6 @@ export async function fetchPolymarket(): Promise<Prediction[]> {
  * Note: Would use Whale Alert API - returning sample data
  */
 export async function fetchWhaleTransactions(): Promise<WhaleTransaction[]> {
-	// Sample whale transaction data
 	return [
 		{ coin: 'BTC', amount: 1500, usd: 150000000, hash: '0x1a2b...3c4d' },
 		{ coin: 'ETH', amount: 25000, usd: 85000000, hash: '0x5e6f...7g8h' },
@@ -78,7 +154,6 @@ export async function fetchWhaleTransactions(): Promise<WhaleTransaction[]> {
  * Note: Would use USASpending.gov API - returning sample data
  */
 export async function fetchGovContracts(): Promise<Contract[]> {
-	// Sample government contract data
 	return [
 		{
 			agency: 'DOD',

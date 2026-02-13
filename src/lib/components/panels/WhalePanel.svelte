@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Panel } from '$lib/components/common';
+	import { t } from '$lib/stores';
 
 	interface WhaleTransaction {
 		coin: string;
@@ -29,19 +30,19 @@
 	}
 </script>
 
-<Panel id="whales" title="Whale Watch" {count} {loading} {error}>
+<Panel id="whales" title={$t('panels.whales.name')} {count} {loading} {error}>
 	{#if whales.length === 0 && !loading && !error}
-		<div class="empty-state">No whale transactions detected</div>
+		<div class="empty-state">{$t('panels.whales.empty')}</div>
 	{:else}
 		<div class="whale-list">
 			{#each whales as whale, i (whale.hash + i)}
 				<div class="whale-item">
 					<div class="whale-header">
 						<span class="whale-coin">{whale.coin}</span>
-						<span class="whale-amount">{formatAmount(whale.amount)} {whale.coin}</span>
+						<span class="whale-amount data-value">{formatAmount(whale.amount)} {whale.coin}</span>
 					</div>
 					<div class="whale-flow">
-						<span class="whale-usd">{formatUSD(whale.usd)}</span>
+						<span class="whale-usd data-value">{formatUSD(whale.usd)}</span>
 						<span class="arrow">→</span>
 						<span class="whale-hash">{whale.hash}</span>
 					</div>
@@ -103,7 +104,7 @@
 
 	.whale-hash {
 		color: var(--text-secondary);
-		font-family: monospace;
+		font-family: var(--font-mono);
 		font-size: 0.55rem;
 	}
 

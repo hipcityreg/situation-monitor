@@ -21,7 +21,11 @@
 		SituationPanel,
 		WorldLeadersPanel,
 		PrinterPanel,
-		FedPanel
+		FedPanel,
+		FearGreedPanel,
+		YieldCurvePanel,
+		MoveIndexPanel,
+		AiInvestmentChainPanel
 	} from '$lib/components/panels';
 	import {
 		news,
@@ -31,7 +35,10 @@
 		refresh,
 		allNewsItems,
 		fedIndicators,
-		fedNews
+		fedNews,
+		fearGreed,
+		treasury,
+		locale
 	} from '$lib/stores';
 	import {
 		fetchAllNews,
@@ -42,7 +49,10 @@
 		fetchLayoffs,
 		fetchWorldLeaders,
 		fetchFedIndicators,
-		fetchFedNews
+		fetchFedNews,
+		fetchFearGreedIndex,
+		fetchFearGreedHistory,
+		fetchYieldCurve
 	} from '$lib/api';
 	import type { Prediction, WhaleTransaction, Contract, Layoff } from '$lib/api';
 	import type { CustomMonitor, WorldLeader } from '$lib/types';
@@ -134,6 +144,45 @@
 		}
 	}
 
+	async function loadFearGreedData() {
+		if (!isPanelVisible('feargreed')) return;
+		fearGreed.setLoading(true);
+		try {
+			// Load historical data (includes current and percentile)
+			const historyResult = await fetchFearGreedHistory(365); // Last 365 days for percentile
+			
+			if (historyResult && historyResult.current) {
+				console.log('FearGreed data loaded:', {
+					current: historyResult.current.value,
+					percentile: historyResult.percentile,
+					historyLength: historyResult.history.length
+				});
+				fearGreed.setData(historyResult.current, historyResult.history, historyResult.percentile);
+			} else {
+				// Fallback to just current data if history fails
+				const currentData = await fetchFearGreedIndex();
+				if (currentData) {
+					fearGreed.setData(currentData);
+				}
+			}
+		} catch (error) {
+			console.error('Failed to load Fear & Greed data:', error);
+			fearGreed.setError(String(error));
+		}
+	}
+
+	async function loadTreasuryData() {
+		if (!isPanelVisible('yieldcurve')) return;
+		treasury.setLoading(true);
+		try {
+			const data = await fetchYieldCurve();
+			treasury.setData(data);
+		} catch (error) {
+			console.error('Failed to load Treasury data:', error);
+			treasury.setError(String(error));
+		}
+	}
+
 	// Refresh handlers
 	async function handleRefresh() {
 		refresh.startRefresh();
@@ -186,6 +235,8 @@
 
 	// Initial load
 	onMount(() => {
+		// Initialize locale
+		locale.init();
 		// Check if first visit
 		if (!settings.isOnboardingComplete()) {
 			onboardingOpen = true;
@@ -200,7 +251,9 @@
 					loadMarkets(),
 					loadMiscData(),
 					loadWorldLeaders(),
-					loadFedData()
+					loadFedData(),
+					loadFearGreedData(),
+					loadTreasuryData()
 				]);
 				refresh.endRefresh();
 			} catch (error) {
@@ -236,31 +289,31 @@
 			<!-- News Panels -->
 			{#if isPanelVisible('politics')}
 				<div class="panel-slot">
-					<NewsPanel category="politics" panelId="politics" title="Politics" />
+					<NewsPanel category="politics" panelId="politics" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('tech')}
 				<div class="panel-slot">
-					<NewsPanel category="tech" panelId="tech" title="Tech" />
+					<NewsPanel category="tech" panelId="tech" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('finance')}
 				<div class="panel-slot">
-					<NewsPanel category="finance" panelId="finance" title="Finance" />
+					<NewsPanel category="finance" panelId="finance" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('gov')}
 				<div class="panel-slot">
-					<NewsPanel category="gov" panelId="gov" title="Government" />
+					<NewsPanel category="gov" panelId="gov" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('ai')}
 				<div class="panel-slot">
-					<NewsPanel category="ai" panelId="ai" title="AI" />
+					<NewsPanel category="ai" panelId="ai" />
 				</div>
 			{/if}
 
@@ -286,6 +339,30 @@
 			{#if isPanelVisible('crypto')}
 				<div class="panel-slot">
 					<CryptoPanel />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('feargreed')}
+				<div class="panel-slot">
+					<FearGreedPanel />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('yieldcurve')}
+				<div class="panel-slot">
+					<YieldCurvePanel />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('moveindex')}
+				<div class="panel-slot">
+					<MoveIndexPanel />
+				</div>
+			{/if}
+
+			{#if isPanelVisible('aiinvestment')}
+				<div class="panel-slot">
+					<AiInvestmentChainPanel />
 				</div>
 			{/if}
 

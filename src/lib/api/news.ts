@@ -1,171 +1,126 @@
 /**
- * News API - Fetch news from GDELT and other sources
+ * News API - Fetch news from RSS feeds via rss2json
+ * Each category: max 10 latest articles
+ * Shows: source, time, link
  */
 
-import { FEEDS } from '$lib/config/feeds';
 import type { NewsItem, NewsCategory } from '$lib/types';
-import { containsAlertKeyword, detectRegion, detectTopics } from '$lib/config/keywords';
-import { fetchWithProxy, API_DELAYS, logger } from '$lib/config/api';
+import { logger } from '$lib/config/api';
 
-/**
- * Simple hash function to generate unique IDs from URLs
- */
-function hashCode(str: string): string {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = (hash << 5) - hash + char;
-		hash = hash & hash; // Convert to 32bit integer
-	}
-	return Math.abs(hash).toString(36);
+// RSS to JSON API (free tier: 10,000 requests/day)
+const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+// Primary RSS feeds for each category
+const RSS_FEEDS: Record<NewsCategory, string> = {
+	politics: 'https://feeds.bbci.co.uk/news/world/rss.xml',
+	tech: 'https://hnrss.org/frontpage',
+	finance: 'https://feeds.marketwatch.com/marketwatch/topstories',
+	gov: 'https://www.whitehouse.gov/news/feed/',
+	ai: 'https://openai.com/news/rss.xml',
+	intel: 'https://www.cisa.gov/uscert/ncas/alerts.xml'
+};
+
+function timeAgo(timestamp: number): string {
+	const seconds = Math.floor((Date.now() - timestamp) / 1000);
+	if (seconds < 60) return `${seconds}s ago`;
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) return `${minutes}m ago`;
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${hours}h ago`;
+	const days = Math.floor(hours / 24);
+	return `${days}d ago`;
 }
 
-/**
- * Delay helper
- */
-function delay(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Parse GDELT date format (20251202T224500Z) to valid Date
- */
-function parseGdeltDate(dateStr: string): Date {
-	if (!dateStr) return new Date();
-	// Convert 20251202T224500Z to 2025-12-02T22:45:00Z
-	const match = dateStr.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
-	if (match) {
-		const [, year, month, day, hour, min, sec] = match;
-		return new Date(`${year}-${month}-${day}T${hour}:${min}:${sec}Z`);
-	}
-	// Fallback to standard parsing
-	return new Date(dateStr);
-}
-
-interface GdeltArticle {
+interface RSSItem {
 	title: string;
-	url: string;
-	seendate: string;
-	domain: string;
-	socialimage?: string;
+	link: string;
+	description: string;
+	pubDate: string;
+	author?: string;
+	categories?: string[];
 }
 
-interface GdeltResponse {
-	articles?: GdeltArticle[];
-}
-
-/**
- * Transform GDELT article to NewsItem
- */
-function transformGdeltArticle(
-	article: GdeltArticle,
-	category: NewsCategory,
-	source: string,
-	index: number
-): NewsItem {
-	const title = article.title || '';
-	const alert = containsAlertKeyword(title);
-	// Generate unique ID using category, URL hash, and index
-	const urlHash = article.url ? hashCode(article.url) : Math.random().toString(36).slice(2);
-	const uniqueId = `gdelt-${category}-${urlHash}-${index}`;
-
-	const parsedDate = parseGdeltDate(article.seendate);
-
-	return {
-		id: uniqueId,
-		title,
-		link: article.url,
-		pubDate: article.seendate,
-		timestamp: parsedDate.getTime(),
-		source: source || article.domain || 'Unknown',
-		category,
-		isAlert: !!alert,
-		alertKeyword: alert?.keyword || undefined,
-		region: detectRegion(title) ?? undefined,
-		topics: detectTopics(title)
+interface RSSFeed {
+	status: string;
+	items: RSSItem[];
+	feed?: {
+		title: string;
+		description?: string;
+		image?: { url: string };
 	};
 }
 
 /**
- * Fetch news for a specific category using GDELT via proxy
+ * Fetch news for a category - max 10 articles
  */
 export async function fetchCategoryNews(category: NewsCategory): Promise<NewsItem[]> {
-	// Build query from category keywords (GDELT requires OR queries in parentheses)
-	const categoryQueries: Record<NewsCategory, string> = {
-		politics: '(politics OR government OR election OR congress)',
-		tech: '(technology OR software OR startup OR "silicon valley")',
-		finance: '(finance OR "stock market" OR economy OR banking)',
-		gov: '("federal government" OR "white house" OR congress OR regulation)',
-		ai: '("artificial intelligence" OR "machine learning" OR AI OR ChatGPT)',
-		intel: '(intelligence OR security OR military OR defense)'
-	};
+	const maxArticles = 10;
+	const rssUrl = RSS_FEEDS[category];
+
+	if (!rssUrl) {
+		logger.warn('News', `No RSS feed for ${category}`);
+		return [];
+	}
 
 	try {
-		// Add English language filter and timespan for fresh results
-		const baseQuery = categoryQueries[category];
-		const fullQuery = `${baseQuery} sourcelang:english`;
-		// Build the raw GDELT URL with timespan=7d to get recent articles
-		const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${fullQuery}&timespan=7d&mode=artlist&maxrecords=20&format=json&sort=date`;
+		const response = await fetch(RSS2JSON_API + encodeURIComponent(rssUrl), {
+			signal: AbortSignal.timeout(15000)
+		});
 
-		logger.log('News API', `Fetching ${category} from GDELT`);
-
-		const response = await fetchWithProxy(gdeltUrl);
 		if (!response.ok) {
-			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-		}
-
-		// Check content type before parsing as JSON
-		const contentType = response.headers.get('content-type');
-		if (!contentType?.includes('application/json')) {
-			logger.warn('News API', `Non-JSON response for ${category}:`, contentType);
+			logger.warn('News', `${category}: HTTP ${response.status}`);
 			return [];
 		}
 
-		const text = await response.text();
-		let data: GdeltResponse;
-		try {
-			data = JSON.parse(text);
-		} catch {
-			logger.warn('News API', `Invalid JSON for ${category}:`, text.slice(0, 100));
+		const data: RSSFeed = await response.json();
+
+		if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+			logger.warn('News', `${category}: No items or status failed`);
 			return [];
 		}
 
-		if (!data?.articles) return [];
+		// Get source name from feed title
+		const sourceName = data.feed?.title || category.charAt(0).toUpperCase() + category.slice(1);
 
-		// Get source names for this category
-		const categoryFeeds = FEEDS[category] || [];
-		const defaultSource = categoryFeeds[0]?.name || 'News';
-
-		return data.articles.map((article, index) =>
-			transformGdeltArticle(article, category, article.domain || defaultSource, index)
-		);
+		// Transform RSS items to NewsItem format
+		return data.items.slice(0, maxArticles).map((item, index) => {
+			const pubDate = new Date(item.pubDate);
+			
+			return {
+				id: `${category}-${index}-${Date.now()}`,
+				title: item.title || '',
+				link: item.link || '',
+				pubDate: item.pubDate,
+				timestamp: pubDate.getTime(),
+				source: sourceName,
+				category,
+				isAlert: false,
+				region: undefined,
+				topics: item.categories || []
+			};
+		});
 	} catch (error) {
-		logger.error('News API', `Error fetching ${category}:`, error);
+		logger.error('News', `Error fetching ${category}:`, error);
 		return [];
 	}
 }
 
-/** All news categories in fetch order */
-const NEWS_CATEGORIES: NewsCategory[] = ['politics', 'tech', 'finance', 'gov', 'ai', 'intel'];
-
-/** Create an empty news result object */
-function createEmptyNewsResult(): Record<NewsCategory, NewsItem[]> {
-	return { politics: [], tech: [], finance: [], gov: [], ai: [], intel: [] };
-}
-
 /**
- * Fetch all news - sequential with delays to avoid rate limiting
+ * Fetch all news - sequential to avoid rate limits
  */
 export async function fetchAllNews(): Promise<Record<NewsCategory, NewsItem[]>> {
-	const result = createEmptyNewsResult();
+	const categories: NewsCategory[] = ['politics', 'tech', 'finance', 'gov', 'ai', 'intel'];
+	const result: Record<NewsCategory, NewsItem[]> = {
+		politics: [],
+		tech: [],
+		finance: [],
+		gov: [],
+		ai: [],
+		intel: []
+	};
 
-	for (let i = 0; i < NEWS_CATEGORIES.length; i++) {
-		const category = NEWS_CATEGORIES[i];
-
-		if (i > 0) {
-			await delay(API_DELAYS.betweenCategories);
-		}
-
+	for (const category of categories) {
+		logger.log('News', `Fetching ${category}...`);
 		result[category] = await fetchCategoryNews(category);
 	}
 

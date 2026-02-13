@@ -18,3 +18,7 @@ export { default as MonitorsPanel } from './MonitorsPanel.svelte';
 export { default as MapPanel } from './MapPanel.svelte';
 export { default as WorldLeadersPanel } from './WorldLeadersPanel.svelte';
 export { default as FedPanel } from './FedPanel.svelte';
+export { default as FearGreedPanel } from './FearGreedPanel.svelte';
+export { default as YieldCurvePanel } from './YieldCurvePanel.svelte';
+export { default as MoveIndexPanel } from './MoveIndexPanel.svelte';
+export { default as AiInvestmentChainPanel } from './AiInvestmentChainPanel.svelte';
