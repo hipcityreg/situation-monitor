@@ -5,7 +5,8 @@
 import { FEEDS } from '$lib/config/feeds';
 import type { NewsItem, NewsCategory } from '$lib/types';
 import { containsAlertKeyword, detectRegion, detectTopics } from '$lib/config/keywords';
-import { fetchWithProxy, API_DELAYS, logger } from '$lib/config/api';
+import { fetchWithProxy, API_DELAYS, logger, USE_MOCK_DATA } from '$lib/config/api';
+import { mockNewsData } from '$lib/data/mock';
 
 /**
  * Simple hash function to generate unique IDs from URLs
@@ -156,6 +157,11 @@ export async function fetchCategoryNews(category: NewsCategory): Promise<NewsIte
 		);
 	} catch (error) {
 		logger.error('News API', `Error fetching ${category}:`, error);
+		// Return mock data if enabled
+		if (USE_MOCK_DATA && mockNewsData[category]) {
+			logger.log('News API', `Returning mock data for ${category}`);
+			return mockNewsData[category];
+		}
 		return [];
 	}
 }
