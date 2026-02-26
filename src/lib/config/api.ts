@@ -34,13 +34,12 @@ const isDev = browser ? (import.meta.env?.DEV ?? false) : false;
 
 /**
  * CORS proxy URLs for external API requests
- * Primary: Custom Cloudflare Worker
- * Fallback: Public CORS proxies
+ * Using public CORS proxies
  */
 export const CORS_PROXIES = {
-	primary: 'https://sitation-monitor-02.jwang287.workers.dev/?url=',
-	fallback: 'https://corsproxy.io/?url=',
-	backup: 'https://api.allorigins.win/raw?url='
+	primary: 'https://corsproxy.io/?url=',
+	fallback: 'https://api.allorigins.win/raw?url=',
+	backup: 'https://api.codetabs.com/v1/proxy?quest='
 } as const;
 
 // Default export for backward compatibility

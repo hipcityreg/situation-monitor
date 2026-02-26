@@ -11,21 +11,6 @@
  * 7. 更新api.ts中的CORS_PROXIES配置
  */
 
-// 允许访问的API域名白名单
-const ALLOWED_DOMAINS = [
-  'api.gdeltproject.org',      // GDELT新闻API
-  'finnhub.io',                // Finnhub金融API
-  'api.stlouisfed.org',        // FRED美联储API
-  'api.coingecko.com',         // CoinGecko加密货币API
-];
-
-// 允许的请求来源（你的GitHub Pages域名）
-const ALLOWED_ORIGINS = [
-  'https://jwang287.github.io',
-  'http://localhost:5173',     // 本地开发
-  'http://localhost:4173',     // 本地预览
-];
-
 export default {
   async fetch(request, env, ctx) {
     // 处理CORS预检请求
@@ -45,6 +30,8 @@ export default {
     const url = new URL(request.url);
     const targetUrl = url.searchParams.get('url');
 
+    console.log('Proxy request:', targetUrl);
+
     if (!targetUrl) {
       return new Response(
         JSON.stringify({ error: 'Missing url parameter' }),
@@ -58,13 +45,13 @@ export default {
       );
     }
 
-    // 验证目标域名
+    // 验证目标URL
     let targetDomain;
     try {
       targetDomain = new URL(targetUrl).hostname;
     } catch (e) {
       return new Response(
-        JSON.stringify({ error: 'Invalid URL' }),
+        JSON.stringify({ error: 'Invalid URL', url: targetUrl }),
         {
           status: 400,
           headers: {
@@ -75,26 +62,11 @@ export default {
       );
     }
 
-    // 检查域名白名单
-    const isAllowed = ALLOWED_DOMAINS.some(domain => 
-      targetDomain === domain || targetDomain.endsWith('.' + domain)
-    );
-
-    if (!isAllowed) {
-      return new Response(
-        JSON.stringify({ error: 'Domain not allowed', domain: targetDomain }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
-    }
+    console.log('Target domain:', targetDomain);
 
     // 转发请求
     try {
+      console.log('Fetching:', targetUrl);
       const response = await fetch(targetUrl, {
         method: request.method,
         headers: {
@@ -103,6 +75,8 @@ export default {
           'Accept-Language': 'en-US,en;q=0.9',
         },
       });
+
+      console.log('Response status:', response.status);
 
       // 创建新的响应，添加CORS头
       const newHeaders = new Headers(response.headers);
@@ -116,8 +90,9 @@ export default {
         headers: newHeaders,
       });
     } catch (error) {
+      console.error('Proxy error:', error);
       return new Response(
-        JSON.stringify({ error: 'Proxy error', message: error.message }),
+        JSON.stringify({ error: 'Proxy error', message: error.message, url: targetUrl }),
         {
           status: 500,
           headers: {
