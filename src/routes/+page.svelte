@@ -64,16 +64,20 @@
 
 	// Data fetching
 	async function loadNews() {
+		console.log('[Page] Starting loadNews...');
 		// Set loading for all categories
 		const categories = ['politics', 'tech', 'finance', 'gov', 'ai', 'intel'] as const;
 		categories.forEach((cat) => news.setLoading(cat, true));
 
 		try {
 			const data = await fetchAllNews();
+			console.log('[Page] fetchAllNews returned:', data);
 			Object.entries(data).forEach(([category, items]) => {
+				console.log(`[Page] Setting ${category} items:`, items.length);
 				news.setItems(category as keyof typeof data, items);
 			});
 		} catch (error) {
+			console.error('[Page] loadNews error:', error);
 			categories.forEach((cat) => news.setError(cat, String(error)));
 		}
 	}

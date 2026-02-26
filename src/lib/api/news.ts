@@ -111,27 +111,41 @@ export async function fetchCategoryNews(category: NewsCategory): Promise<NewsIte
 		logger.log('News API', `Fetching ${category} from GDELT: ${gdeltUrl.slice(0, 100)}...`);
 
 		const response = await fetchWithProxy(gdeltUrl);
+		logger.log('News API', `${category} response status: ${response.status}`);
+		
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 		}
 
 		// Check content type before parsing as JSON
 		const contentType = response.headers.get('content-type');
+		logger.log('News API', `${category} content-type: ${contentType}`);
+		
 		if (!contentType?.includes('application/json')) {
 			logger.warn('News API', `Non-JSON response for ${category}:`, contentType);
 			return [];
 		}
 
 		const text = await response.text();
+		logger.log('News API', `${category} response text length: ${text.length}`);
+		logger.log('News API', `${category} response preview: ${text.slice(0, 200)}`);
+		
 		let data: GdeltResponse;
 		try {
 			data = JSON.parse(text);
-		} catch {
-			logger.warn('News API', `Invalid JSON for ${category}:`, text.slice(0, 100));
+		} catch (e) {
+			logger.warn('News API', `Invalid JSON for ${category}:`, e);
 			return [];
 		}
 
-		if (!data?.articles) return [];
+		logger.log('News API', `${category} parsed data:`, data);
+		
+		if (!data?.articles) {
+			logger.warn('News API', `${category} no articles found in response`);
+			return [];
+		}
+		
+		logger.log('News API', `${category} found ${data.articles.length} articles`);
 
 		// Get source names for this category
 		const categoryFeeds = FEEDS[category] || [];
