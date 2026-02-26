@@ -68,7 +68,8 @@ const INDEX_ETF_MAP: Record<string, string> = {
 async function fetchFinnhubQuote(symbol: string): Promise<FinnhubQuote | null> {
 	try {
 		const url = `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_API_KEY}`;
-		const response = await fetch(url);
+		logger.log('Markets API', `Fetching quote for ${symbol} via proxy`);
+		const response = await fetchWithProxy(url);
 
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
