@@ -34,12 +34,12 @@ const isDev = browser ? (import.meta.env?.DEV ?? false) : false;
 
 /**
  * CORS proxy URLs for external API requests
- * Primary: AllOrigins (reliable, free)
- * Fallback: corsproxy.io (public, may rate limit)
+ * Using multiple fallback proxies for reliability
  */
 export const CORS_PROXIES = {
-	primary: 'https://api.allorigins.win/get?url=',
-	fallback: 'https://corsproxy.io/?url='
+	primary: 'https://api.allorigins.win/raw?url=',
+	fallback: 'https://corsproxy.io/?url=',
+	backup: 'https://api.codetabs.com/v1/proxy?quest='
 } as const;
 
 // Default export for backward compatibility
@@ -47,41 +47,41 @@ export const CORS_PROXY_URL = CORS_PROXIES.fallback;
 
 /**
  * Fetch with CORS proxy fallback
- * Tries primary proxy first, falls back to secondary on failure
+ * Tries multiple proxies in sequence
  */
 export async function fetchWithProxy(url: string): Promise<Response> {
 	const encodedUrl = encodeURIComponent(url);
+	const proxies = [
+		{ name: 'allorigins', url: CORS_PROXIES.primary + encodedUrl },
+		{ name: 'corsproxy', url: CORS_PROXIES.fallback + encodedUrl },
+		{ name: 'codetabs', url: CORS_PROXIES.backup + encodedUrl }
+	];
 
-	// Try primary proxy first (AllOrigins)
-	try {
-		const proxyUrl = CORS_PROXIES.primary + encodedUrl;
-		logger.log('API', `Trying primary proxy: ${proxyUrl.slice(0, 100)}...`);
-		const response = await fetch(proxyUrl);
-		if (response.ok) {
-			// AllOrigins wraps response in a JSON structure
-			const data = await response.json();
-			if (data.contents) {
-				// Create a new Response with the contents
-				return new Response(data.contents, {
-					status: 200,
-					statusText: 'OK',
-					headers: { 'Content-Type': 'application/json' }
-				});
-			}
-			return new Response(JSON.stringify(data), {
-				status: 200,
-				statusText: 'OK',
-				headers: { 'Content-Type': 'application/json' }
+	for (const proxy of proxies) {
+		try {
+			logger.log('API', `Trying ${proxy.name} proxy...`);
+			const response = await fetch(proxy.url, {
+				method: 'GET',
+				headers: {
+					'Accept': 'application/json'
+				}
 			});
+			
+			if (response.ok) {
+				logger.log('API', `${proxy.name} proxy succeeded`);
+				// For AllOrigins raw endpoint, return response directly
+				if (proxy.name === 'allorigins') {
+					return response;
+				}
+				return response;
+			}
+			logger.warn('API', `${proxy.name} proxy failed: ${response.status}`);
+		} catch (error) {
+			logger.warn('API', `${proxy.name} proxy error:`, error);
 		}
-		logger.warn('API', `Primary proxy failed (${response.status}), trying fallback`);
-	} catch (error) {
-		logger.warn('API', 'Primary proxy error, trying fallback:', error);
 	}
 
-	// Fallback to secondary proxy (corsproxy.io)
-	logger.log('API', 'Using fallback proxy');
-	return fetch(CORS_PROXIES.fallback + encodedUrl);
+	throw new Error('All CORS proxies failed');
 }
 
 /**
