@@ -36,6 +36,8 @@ jobs:
       - name: Build application
         env:
           BASE_PATH: '/situation-monitor-1'
+          VITE_FINNHUB_API_KEY: ${{ secrets.VITE_FINNHUB_API_KEY }}
+          VITE_FRED_API_KEY: ${{ secrets.VITE_FRED_API_KEY }}
         run: npm run build
 
       - name: List build directory
