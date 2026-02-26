@@ -64,9 +64,14 @@ export async function fetchWithProxy(url: string): Promise<Response> {
 		{ name: 'codetabs', url: CORS_PROXIES.backup + encodedUrl }
 	];
 
+	logger.log('API', `Starting proxy fetch for: ${url.slice(0, 50)}...`);
+	logger.log('API', `Primary Worker URL: ${CORS_PROXIES.primary}`);
+
 	for (const proxy of proxies) {
 		try {
-			logger.log('API', `Trying ${proxy.name} proxy...`);
+			logger.log('API', `Trying ${proxy.name} proxy: ${proxy.url.slice(0, 80)}...`);
+			const startTime = Date.now();
+			
 			const response = await fetch(proxy.url, {
 				method: 'GET',
 				headers: {
@@ -74,20 +79,20 @@ export async function fetchWithProxy(url: string): Promise<Response> {
 				}
 			});
 			
+			const duration = Date.now() - startTime;
+			logger.log('API', `${proxy.name} proxy responded in ${duration}ms with status: ${response.status}`);
+			
 			if (response.ok) {
-				logger.log('API', `${proxy.name} proxy succeeded`);
-				// For AllOrigins raw endpoint, return response directly
-				if (proxy.name === 'allorigins') {
-					return response;
-				}
+				logger.log('API', `${proxy.name} proxy succeeded!`);
 				return response;
 			}
-			logger.warn('API', `${proxy.name} proxy failed: ${response.status}`);
+			logger.warn('API', `${proxy.name} proxy failed with status: ${response.status}`);
 		} catch (error) {
-			logger.warn('API', `${proxy.name} proxy error:`, error);
+			logger.error('API', `${proxy.name} proxy error:`, error);
 		}
 	}
 
+	logger.error('API', 'All CORS proxies failed for URL:', url.slice(0, 50));
 	throw new Error('All CORS proxies failed');
 }
 
