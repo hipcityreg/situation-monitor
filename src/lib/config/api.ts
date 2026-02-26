@@ -38,7 +38,7 @@ const isDev = browser ? (import.meta.env?.DEV ?? false) : false;
  * Fallback: corsproxy.io (public, may rate limit)
  */
 export const CORS_PROXIES = {
-	primary: 'https://api.allorigins.win/raw?url=',
+	primary: 'https://api.allorigins.win/get?url=',
 	fallback: 'https://corsproxy.io/?url='
 } as const;
 
@@ -52,19 +52,35 @@ export const CORS_PROXY_URL = CORS_PROXIES.fallback;
 export async function fetchWithProxy(url: string): Promise<Response> {
 	const encodedUrl = encodeURIComponent(url);
 
-	// Try primary proxy first
+	// Try primary proxy first (AllOrigins)
 	try {
-		const response = await fetch(CORS_PROXIES.primary + encodedUrl);
+		const proxyUrl = CORS_PROXIES.primary + encodedUrl;
+		logger.log('API', `Trying primary proxy: ${proxyUrl.slice(0, 100)}...`);
+		const response = await fetch(proxyUrl);
 		if (response.ok) {
-			return response;
+			// AllOrigins wraps response in a JSON structure
+			const data = await response.json();
+			if (data.contents) {
+				// Create a new Response with the contents
+				return new Response(data.contents, {
+					status: 200,
+					statusText: 'OK',
+					headers: { 'Content-Type': 'application/json' }
+				});
+			}
+			return new Response(JSON.stringify(data), {
+				status: 200,
+				statusText: 'OK',
+				headers: { 'Content-Type': 'application/json' }
+			});
 		}
-		// If we get an error response, try fallback
 		logger.warn('API', `Primary proxy failed (${response.status}), trying fallback`);
 	} catch (error) {
 		logger.warn('API', 'Primary proxy error, trying fallback:', error);
 	}
 
-	// Fallback to secondary proxy
+	// Fallback to secondary proxy (corsproxy.io)
+	logger.log('API', 'Using fallback proxy');
 	return fetch(CORS_PROXIES.fallback + encodedUrl);
 }
 
@@ -88,21 +104,20 @@ export const CACHE_TTLS = {
 
 /**
  * Debug/logging configuration
+ * Enable logging in production for debugging API issues
  */
 export const DEBUG = {
-	enabled: isDev,
-	logApiCalls: isDev,
+	enabled: true,
+	logApiCalls: true,
 	logCacheHits: false
 } as const;
 
 /**
- * Conditional logger - only logs in development
+ * Logger - always logs for debugging
  */
 export const logger = {
 	log: (prefix: string, ...args: unknown[]) => {
-		if (DEBUG.logApiCalls) {
-			console.log(`[${prefix}]`, ...args);
-		}
+		console.log(`[${prefix}]`, ...args);
 	},
 	warn: (prefix: string, ...args: unknown[]) => {
 		console.warn(`[${prefix}]`, ...args);
