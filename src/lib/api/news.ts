@@ -105,9 +105,10 @@ export async function fetchCategoryNews(category: NewsCategory): Promise<NewsIte
 		const baseQuery = categoryQueries[category];
 		const fullQuery = `${baseQuery} sourcelang:english`;
 		// Build the raw GDELT URL with timespan=7d to get recent articles
-		const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${fullQuery}&timespan=7d&mode=artlist&maxrecords=20&format=json&sort=date`;
+		// Use encodeURIComponent for the query parameter
+		const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(fullQuery)}&timespan=7d&mode=artlist&maxrecords=20&format=json&sort=date`;
 
-		logger.log('News API', `Fetching ${category} from GDELT`);
+		logger.log('News API', `Fetching ${category} from GDELT: ${gdeltUrl.slice(0, 100)}...`);
 
 		const response = await fetchWithProxy(gdeltUrl);
 		if (!response.ok) {
