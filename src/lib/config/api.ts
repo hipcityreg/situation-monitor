@@ -53,9 +53,9 @@ export const CORS_PROXY_URL = CORS_PROXIES.fallback;
 export async function fetchWithProxy(url: string): Promise<Response> {
 	const encodedUrl = encodeURIComponent(url);
 	const proxies = [
-		{ name: 'corsproxy', url: CORS_PROXIES.primary + encodedUrl },
-		{ name: 'allorigins', url: CORS_PROXIES.fallback + encodedUrl },
-		{ name: 'codetabs', url: CORS_PROXIES.backup + encodedUrl }
+		{ name: 'worker', url: CORS_PROXIES.primary + encodedUrl },
+		{ name: 'corsproxy', url: CORS_PROXIES.fallback + encodedUrl },
+		{ name: 'allorigins', url: CORS_PROXIES.backup + encodedUrl }
 	];
 
 	for (const proxy of proxies) {
