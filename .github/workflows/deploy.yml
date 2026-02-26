@@ -39,7 +39,12 @@ jobs:
         run: npm run build
 
       - name: List build directory
-        run: ls -la build/
+        run: |
+          ls -la build/
+          echo "--- Checking for index.html ---"
+          ls -la build/index.html || echo "index.html not found!"
+          echo "--- Build directory contents ---"
+          find build -type f | head -20
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
