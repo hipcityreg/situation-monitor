@@ -31,7 +31,7 @@
 
 <Panel id={panelId} {title} {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No news available</div>
+		<div class="empty-state">暂无新闻</div>
 	{:else}
 		<div class="news-list">
 			{#each items.slice(0, 15) as item (item.id)}

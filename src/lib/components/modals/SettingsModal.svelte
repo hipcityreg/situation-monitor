@@ -20,11 +20,11 @@
 	}
 </script>
 
-<Modal {open} title="Settings" {onClose}>
+<Modal {open} title="设置" {onClose}>
 	<div class="settings-sections">
 		<section class="settings-section">
-			<h3 class="section-title">Enabled Panels</h3>
-			<p class="section-desc">Toggle panels on/off to customize your dashboard</p>
+			<h3 class="section-title">启用的面板</h3>
+			<p class="section-desc">开关面板以自定义您的仪表板</p>
 
 			<div class="panels-grid">
 				{#each Object.entries(PANELS) as [id, config]}
@@ -44,12 +44,12 @@
 		</section>
 
 		<section class="settings-section">
-			<h3 class="section-title">Dashboard</h3>
+			<h3 class="section-title">仪表板</h3>
 			{#if onReconfigure}
-				<button class="reconfigure-btn" onclick={onReconfigure}> Reconfigure Dashboard </button>
-				<p class="btn-hint">Choose a preset profile for your panels</p>
+				<button class="reconfigure-btn" onclick={onReconfigure}> 重新配置仪表板 </button>
+				<p class="btn-hint">为您的面板选择预设配置</p>
 			{/if}
-			<button class="reset-btn" onclick={handleResetPanels}> Reset All Settings </button>
+			<button class="reset-btn" onclick={handleResetPanels}> 重置所有设置 </button>
 		</section>
 	</div>
 </Modal>

@@ -12,9 +12,9 @@
 
 	function getVixStatus(level: number | undefined): string {
 		if (level === undefined) return '';
-		if (level >= 30) return 'HIGH FEAR';
-		if (level >= 20) return 'ELEVATED';
-		return 'LOW';
+		if (level >= 30) return '高度恐慌';
+		if (level >= 20) return '警惕';
+		return '低位';
 	}
 
 	function getVixClass(level: number | undefined): string {
@@ -27,14 +27,14 @@
 
 <Panel
 	id="commodities"
-	title="Commodities / VIX"
+	title="大宗商品 / VIX"
 	status={vixStatus}
 	statusClass={vixClass}
 	{loading}
 	{error}
 >
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No commodity data available</div>
+		<div class="empty-state">暂无大宗商品数据</div>
 	{:else}
 		<div class="commodities-list">
 			{#each items as item (item.symbol)}

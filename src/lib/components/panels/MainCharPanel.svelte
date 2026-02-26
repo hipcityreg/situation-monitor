@@ -9,14 +9,14 @@
 	const rankings = $derived(results.characters);
 </script>
 
-<Panel id="mainchar" title="Main Character">
+<Panel id="mainchar" title="主角">
 	{#if !topChar}
-		<div class="empty-state">No data yet</div>
+		<div class="empty-state">暂无数据</div>
 	{:else}
 		<div class="main-char-display">
-			<div class="main-char-label">Today's Main Character</div>
+			<div class="main-char-label">今日主角</div>
 			<div class="main-char-name">{topChar.name}</div>
-			<div class="main-char-count">{topChar.count} mentions in headlines</div>
+			<div class="main-char-count">{topChar.count} 次出现在头条</div>
 
 			{#if rankings.length > 1}
 				<div class="main-char-list">

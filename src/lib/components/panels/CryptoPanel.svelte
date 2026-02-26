@@ -9,9 +9,9 @@
 	const count = $derived(items.length);
 </script>
 
-<Panel id="whales" title="Crypto" {count} {loading} {error}>
+<Panel id="whales" title="加密货币" {count} {loading} {error}>
 	{#if items.length === 0 && !loading && !error}
-		<div class="empty-state">No crypto data available</div>
+		<div class="empty-state">暂无加密货币数据</div>
 	{:else}
 		<div class="crypto-list">
 			{#each items as coin (coin.id)}

@@ -217,8 +217,8 @@
 </script>
 
 <svelte:head>
-	<title>Situation Monitor</title>
-	<meta name="description" content="Real-time global situation monitoring dashboard" />
+	<title>态势监控</title>
+	<meta name="description" content="实时全球态势监控仪表板" />
 </svelte:head>
 
 <div class="app">
@@ -233,214 +233,214 @@
 				</div>
 			{/if}
 
-			<!-- News Panels -->
-			{#if isPanelVisible('politics')}
-				<div class="panel-slot">
-					<NewsPanel category="politics" panelId="politics" title="Politics" />
-				</div>
-			{/if}
+			<!-- 新闻面板 -->
+		{#if isPanelVisible('politics')}
+			<div class="panel-slot">
+				<NewsPanel category="politics" panelId="politics" title="政治" />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('tech')}
-				<div class="panel-slot">
-					<NewsPanel category="tech" panelId="tech" title="Tech" />
-				</div>
-			{/if}
+		{#if isPanelVisible('tech')}
+			<div class="panel-slot">
+				<NewsPanel category="tech" panelId="tech" title="科技" />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('finance')}
-				<div class="panel-slot">
-					<NewsPanel category="finance" panelId="finance" title="Finance" />
-				</div>
-			{/if}
+		{#if isPanelVisible('finance')}
+			<div class="panel-slot">
+				<NewsPanel category="finance" panelId="finance" title="财经" />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('gov')}
-				<div class="panel-slot">
-					<NewsPanel category="gov" panelId="gov" title="Government" />
-				</div>
-			{/if}
+		{#if isPanelVisible('gov')}
+			<div class="panel-slot">
+				<NewsPanel category="gov" panelId="gov" title="政府" />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('ai')}
-				<div class="panel-slot">
-					<NewsPanel category="ai" panelId="ai" title="AI" />
-				</div>
-			{/if}
+		{#if isPanelVisible('ai')}
+			<div class="panel-slot">
+				<NewsPanel category="ai" panelId="ai" title="人工智能" />
+			</div>
+		{/if}
 
-			<!-- Markets Panels -->
-			{#if isPanelVisible('markets')}
-				<div class="panel-slot">
-					<MarketsPanel />
-				</div>
-			{/if}
+			<!-- 市场面板 -->
+		{#if isPanelVisible('markets')}
+			<div class="panel-slot">
+				<MarketsPanel />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('heatmap')}
-				<div class="panel-slot">
-					<HeatmapPanel />
-				</div>
-			{/if}
+		{#if isPanelVisible('heatmap')}
+			<div class="panel-slot">
+				<HeatmapPanel />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('commodities')}
-				<div class="panel-slot">
-					<CommoditiesPanel />
-				</div>
-			{/if}
+		{#if isPanelVisible('commodities')}
+			<div class="panel-slot">
+				<CommoditiesPanel />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('crypto')}
-				<div class="panel-slot">
-					<CryptoPanel />
-				</div>
-			{/if}
+		{#if isPanelVisible('crypto')}
+			<div class="panel-slot">
+				<CryptoPanel />
+			</div>
+		{/if}
 
-			<!-- Analysis Panels -->
-			{#if isPanelVisible('mainchar')}
-				<div class="panel-slot">
-					<MainCharPanel />
-				</div>
-			{/if}
+		<!-- 分析面板 -->
+		{#if isPanelVisible('mainchar')}
+			<div class="panel-slot">
+				<MainCharPanel />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('correlation')}
-				<div class="panel-slot">
-					<CorrelationPanel news={$allNewsItems} />
-				</div>
-			{/if}
+		{#if isPanelVisible('correlation')}
+			<div class="panel-slot">
+				<CorrelationPanel news={$allNewsItems} />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('narrative')}
-				<div class="panel-slot">
-					<NarrativePanel news={$allNewsItems} />
-				</div>
-			{/if}
+		{#if isPanelVisible('narrative')}
+			<div class="panel-slot">
+				<NarrativePanel news={$allNewsItems} />
+			</div>
+		{/if}
 
-			<!-- Intel Panel -->
-			{#if isPanelVisible('intel')}
-				<div class="panel-slot">
-					<IntelPanel />
-				</div>
-			{/if}
+		<!-- 情报面板 -->
+		{#if isPanelVisible('intel')}
+			<div class="panel-slot">
+				<IntelPanel />
+			</div>
+		{/if}
 
-			<!-- Fed Panel -->
-			{#if isPanelVisible('fed')}
-				<div class="panel-slot">
-					<FedPanel />
-				</div>
-			{/if}
+		<!-- 美联储面板 -->
+		{#if isPanelVisible('fed')}
+			<div class="panel-slot">
+				<FedPanel />
+			</div>
+		{/if}
 
-			<!-- World Leaders Panel -->
-			{#if isPanelVisible('leaders')}
-				<div class="panel-slot">
-					<WorldLeadersPanel {leaders} loading={leadersLoading} />
-				</div>
-			{/if}
+		<!-- 世界各国领导人面板 -->
+		{#if isPanelVisible('leaders')}
+			<div class="panel-slot">
+				<WorldLeadersPanel {leaders} loading={leadersLoading} />
+			</div>
+		{/if}
 
-			<!-- Situation Panels -->
-			{#if isPanelVisible('venezuela')}
-				<div class="panel-slot">
-					<SituationPanel
-						panelId="venezuela"
-						config={{
-							title: 'Venezuela Watch',
-							subtitle: 'Humanitarian crisis monitoring',
-							criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
-						}}
-						news={$allNewsItems.filter(
-							(n) =>
-								n.title.toLowerCase().includes('venezuela') ||
-								n.title.toLowerCase().includes('maduro')
-						)}
-					/>
-				</div>
-			{/if}
+		<!-- 态势监控面板 -->
+		{#if isPanelVisible('venezuela')}
+			<div class="panel-slot">
+				<SituationPanel
+					panelId="venezuela"
+					config={{
+						title: '委内瑞拉监控',
+						subtitle: '人道主义危机监控',
+						criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
+					}}
+					news={$allNewsItems.filter(
+						(n) =>
+							n.title.toLowerCase().includes('venezuela') ||
+							n.title.toLowerCase().includes('maduro')
+					)}
+				/>
+			</div>
+		{/if}
 
-			{#if isPanelVisible('greenland')}
-				<div class="panel-slot">
-					<SituationPanel
-						panelId="greenland"
-						config={{
-							title: 'Greenland Watch',
-							subtitle: 'Arctic geopolitics monitoring',
-							criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
-						}}
-						news={$allNewsItems.filter(
-							(n) =>
-								n.title.toLowerCase().includes('greenland') ||
-								n.title.toLowerCase().includes('arctic')
-						)}
-					/>
-				</div>
-			{/if}
+		{#if isPanelVisible('greenland')}
+			<div class="panel-slot">
+				<SituationPanel
+					panelId="greenland"
+					config={{
+						title: '格陵兰监控',
+						subtitle: '北极地缘政治监控',
+						criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
+					}}
+					news={$allNewsItems.filter(
+						(n) =>
+							n.title.toLowerCase().includes('greenland') ||
+							n.title.toLowerCase().includes('arctic')
+					)}
+				/>
+			</div>
+		{/if}
 
 			{#if isPanelVisible('iran')}
-				<div class="panel-slot">
-					<SituationPanel
-						panelId="iran"
-						config={{
-							title: 'Iran Crisis',
-							subtitle: 'Revolution protests, regime instability & nuclear program',
-							criticalKeywords: [
-								'protest',
-								'uprising',
-								'revolution',
-								'crackdown',
-								'killed',
-								'nuclear',
-								'strike',
-								'attack',
-								'irgc',
-								'khamenei'
-							]
-						}}
-						news={$allNewsItems.filter(
-							(n) =>
-								n.title.toLowerCase().includes('iran') ||
-								n.title.toLowerCase().includes('tehran') ||
-								n.title.toLowerCase().includes('irgc')
-						)}
-					/>
-				</div>
-			{/if}
+			<div class="panel-slot">
+				<SituationPanel
+					panelId="iran"
+					config={{
+						title: '伊朗危机',
+						subtitle: '革命抗议、政权不稳定与核计划',
+						criticalKeywords: [
+							'protest',
+							'uprising',
+							'revolution',
+							'crackdown',
+							'killed',
+							'nuclear',
+							'strike',
+							'attack',
+							'irgc',
+							'khamenei'
+						]
+					}}
+					news={$allNewsItems.filter(
+						(n) =>
+							n.title.toLowerCase().includes('iran') ||
+							n.title.toLowerCase().includes('tehran') ||
+							n.title.toLowerCase().includes('irgc')
+					)}
+				/>
+			</div>
+		{/if}
 
-			<!-- Placeholder panels for additional data sources -->
-			{#if isPanelVisible('whales')}
-				<div class="panel-slot">
-					<WhalePanel {whales} />
-				</div>
-			{/if}
+		<!-- 其他数据源面板 -->
+		{#if isPanelVisible('whales')}
+			<div class="panel-slot">
+				<WhalePanel {whales} />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('polymarket')}
-				<div class="panel-slot">
-					<PolymarketPanel {predictions} />
-				</div>
-			{/if}
+		{#if isPanelVisible('polymarket')}
+			<div class="panel-slot">
+				<PolymarketPanel {predictions} />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('contracts')}
-				<div class="panel-slot">
-					<ContractsPanel {contracts} />
-				</div>
-			{/if}
+		{#if isPanelVisible('contracts')}
+			<div class="panel-slot">
+				<ContractsPanel {contracts} />
+			</div>
+		{/if}
 
-			{#if isPanelVisible('layoffs')}
-				<div class="panel-slot">
-					<LayoffsPanel {layoffs} />
-				</div>
-			{/if}
+		{#if isPanelVisible('layoffs')}
+			<div class="panel-slot">
+				<LayoffsPanel {layoffs} />
+			</div>
+		{/if}
 
-			<!-- Money Printer Panel -->
-			{#if isPanelVisible('printer')}
-				<div class="panel-slot">
-					<PrinterPanel />
-				</div>
-			{/if}
+		<!-- 印钞机面板 -->
+		{#if isPanelVisible('printer')}
+			<div class="panel-slot">
+				<PrinterPanel />
+			</div>
+		{/if}
 
-			<!-- Custom Monitors (always last) -->
-			{#if isPanelVisible('monitors')}
-				<div class="panel-slot">
-					<MonitorsPanel
-						monitors={$monitors.monitors}
-						matches={$monitors.matches}
-						onCreateMonitor={handleCreateMonitor}
-						onEditMonitor={handleEditMonitor}
-						onDeleteMonitor={handleDeleteMonitor}
-						onToggleMonitor={handleToggleMonitor}
-					/>
-				</div>
-			{/if}
+		<!-- 自定义监控（始终在最后） -->
+		{#if isPanelVisible('monitors')}
+			<div class="panel-slot">
+				<MonitorsPanel
+					monitors={$monitors.monitors}
+					matches={$monitors.matches}
+					onCreateMonitor={handleCreateMonitor}
+					onEditMonitor={handleEditMonitor}
+					onDeleteMonitor={handleDeleteMonitor}
+					onToggleMonitor={handleToggleMonitor}
+				/>
+			</div>
+		{/if}
 		</Dashboard>
 	</main>
 
