@@ -38,6 +38,9 @@ jobs:
           BASE_PATH: '/situation-monitor-1'
         run: npm run build
 
+      - name: List build directory
+        run: ls -la build/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
