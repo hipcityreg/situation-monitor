@@ -34,11 +34,11 @@ const isDev = browser ? (import.meta.env?.DEV ?? false) : false;
 
 /**
  * CORS proxy URLs for external API requests
- * Primary: Custom Cloudflare Worker (faster, dedicated)
+ * Primary: AllOrigins (reliable, free)
  * Fallback: corsproxy.io (public, may rate limit)
  */
 export const CORS_PROXIES = {
-	primary: 'https://situation-monitor-proxy.seanthielen-e.workers.dev/?url=',
+	primary: 'https://api.allorigins.win/raw?url=',
 	fallback: 'https://corsproxy.io/?url='
 } as const;
 
