@@ -39,7 +39,7 @@ const isDev = browser ? (import.meta.env?.DEV ?? false) : false;
 export const CORS_PROXIES = {
 	primary: 'https://corsproxy.io/?url=',
 	fallback: 'https://api.allorigins.win/raw?url=',
-	backup: 'https://api.codetabs.com/v1/proxy?quest='
+	backup: 'https://api.codetabs.com/v1/proxy?url='
 } as const;
 
 // Default export for backward compatibility
@@ -52,8 +52,8 @@ export const CORS_PROXY_URL = CORS_PROXIES.fallback;
 export async function fetchWithProxy(url: string): Promise<Response> {
 	const encodedUrl = encodeURIComponent(url);
 	const proxies = [
-		{ name: 'allorigins', url: CORS_PROXIES.primary + encodedUrl },
-		{ name: 'corsproxy', url: CORS_PROXIES.fallback + encodedUrl },
+		{ name: 'corsproxy', url: CORS_PROXIES.primary + encodedUrl },
+		{ name: 'allorigins', url: CORS_PROXIES.fallback + encodedUrl },
 		{ name: 'codetabs', url: CORS_PROXIES.backup + encodedUrl }
 	];
 
