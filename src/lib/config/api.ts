@@ -34,17 +34,16 @@ const isDev = browser ? (import.meta.env?.DEV ?? false) : false;
 
 /**
  * CORS proxy URLs for external API requests
- * Primary: New Cloudflare Worker
- * Fallback: Public CORS proxies
+ * Using reliable public CORS proxies
  */
 export const CORS_PROXIES = {
-	primary: 'https://situation-03.jwang287.workers.dev/?url=',
-	fallback: 'https://corsproxy.io/?url=',
-	backup: 'https://api.allorigins.win/raw?url='
+	primary: 'https://corsproxy.io/?url=',
+	fallback: 'https://api.codetabs.com/v1/proxy?url=',
+	backup: 'https://thingproxy.freeboard.io/fetch/'
 } as const;
 
 // Default export for backward compatibility
-export const CORS_PROXY_URL = CORS_PROXIES.fallback;
+export const CORS_PROXY_URL = CORS_PROXIES.primary;
 
 /**
  * Fetch with CORS proxy fallback
@@ -53,9 +52,9 @@ export const CORS_PROXY_URL = CORS_PROXIES.fallback;
 export async function fetchWithProxy(url: string): Promise<Response> {
 	const encodedUrl = encodeURIComponent(url);
 	const proxies = [
-		{ name: 'worker', url: CORS_PROXIES.primary + encodedUrl },
-		{ name: 'corsproxy', url: CORS_PROXIES.fallback + encodedUrl },
-		{ name: 'allorigins', url: CORS_PROXIES.backup + encodedUrl }
+		{ name: 'corsproxy', url: CORS_PROXIES.primary + encodedUrl },
+		{ name: 'codetabs', url: CORS_PROXIES.fallback + encodedUrl },
+		{ name: 'thingproxy', url: CORS_PROXIES.backup + url }
 	];
 
 	for (const proxy of proxies) {
