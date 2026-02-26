@@ -15,7 +15,7 @@ const config = {
 			strict: true
 		}),
 		paths: {
-			base: process.env.BASE_PATH || ''
+			base: process.env.BASE_PATH || '/situation-monitor-1'
 		},
 		alias: {
 			$lib: 'src/lib',
