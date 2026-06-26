@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Header, Dashboard } from '$lib/components/layout';
 	import { SettingsModal, MonitorFormModal, OnboardingModal } from '$lib/components/modals';
+
 	import {
 		NewsPanel,
 		MarketsPanel,
@@ -48,13 +49,13 @@
 	import type { CustomMonitor, WorldLeader } from '$lib/types';
 	import type { PanelId } from '$lib/config';
 
-	// Modal state
+	// Modal 彈窗狀態
 	let settingsOpen = $state(false);
 	let monitorFormOpen = $state(false);
 	let onboardingOpen = $state(false);
 	let editingMonitor = $state<CustomMonitor | null>(null);
 
-	// Misc panel data
+	// 其他面板數據
 	let predictions = $state<Prediction[]>([]);
 	let whales = $state<WhaleTransaction[]>([]);
 	let contracts = $state<Contract[]>([]);
@@ -62,9 +63,9 @@
 	let leaders = $state<WorldLeader[]>([]);
 	let leadersLoading = $state(false);
 
-	// Data fetching
+	// 數據抓取
 	async function loadNews() {
-		// Set loading for all categories
+		// 設定所有分類為載入中狀態
 		const categories = ['politics', 'tech', 'finance', 'gov', 'ai', 'intel'] as const;
 		categories.forEach((cat) => news.setLoading(cat, true));
 
@@ -86,7 +87,7 @@
 			markets.setCommodities(data.commodities);
 			markets.setCrypto(data.crypto);
 		} catch (error) {
-			console.error('Failed to load markets:', error);
+			console.error('無法載入市場數據：', error);
 		}
 	}
 
@@ -103,7 +104,7 @@
 			contracts = contractsData;
 			layoffs = layoffsData;
 		} catch (error) {
-			console.error('Failed to load misc data:', error);
+			console.error('無法載入其他數據：', error);
 		}
 	}
 
@@ -113,7 +114,7 @@
 		try {
 			leaders = await fetchWorldLeaders();
 		} catch (error) {
-			console.error('Failed to load world leaders:', error);
+			console.error('無法載入世界領袖數據：', error);
 		} finally {
 			leadersLoading = false;
 		}
@@ -128,13 +129,13 @@
 			fedIndicators.setData(indicatorsData);
 			fedNews.setItems(newsData);
 		} catch (error) {
-			console.error('Failed to load Fed data:', error);
+			console.error('無法載入美聯儲數據：', error);
 			fedIndicators.setError(String(error));
 			fedNews.setError(String(error));
 		}
 	}
 
-	// Refresh handlers
+	// 重新整理處理器
 	async function handleRefresh() {
 		refresh.startRefresh();
 		try {
@@ -145,7 +146,7 @@
 		}
 	}
 
-	// Monitor handlers
+	// 監控器處理器
 	function handleCreateMonitor() {
 		editingMonitor = null;
 		monitorFormOpen = true;
@@ -164,34 +165,34 @@
 		monitors.toggleMonitor(id);
 	}
 
-	// Get panel visibility
+	// 取得面板是否顯示
 	function isPanelVisible(id: PanelId): boolean {
 		return $settings.enabled[id] !== false;
 	}
 
-	// Handle preset selection from onboarding
+	// 處理新手導引的預設選擇
 	function handleSelectPreset(presetId: string) {
 		settings.applyPreset(presetId);
 		onboardingOpen = false;
-		// Refresh data after applying preset
+		// 套用預設後重新整理數據
 		handleRefresh();
 	}
 
-	// Show onboarding again (called from settings)
+	// 重新配置（從設定中觸發）
 	function handleReconfigure() {
 		settingsOpen = false;
 		settings.resetOnboarding();
 		onboardingOpen = true;
 	}
 
-	// Initial load
+	// 初始載入
 	onMount(() => {
-		// Check if first visit
+		// 檢查是否為首次造訪
 		if (!settings.isOnboardingComplete()) {
 			onboardingOpen = true;
 		}
 
-		// Load initial data and track as refresh
+		// 載入初始數據並視為重新整理
 		async function initialLoad() {
 			refresh.startRefresh();
 			try {
@@ -217,8 +218,8 @@
 </script>
 
 <svelte:head>
-	<title>Situation Monitor</title>
-	<meta name="description" content="Real-time global situation monitoring dashboard" />
+	<title>全球局勢監控儀表板</title>
+	<meta name="description" content="即時全球局勢與金融指數監控儀表板" />
 </svelte:head>
 
 <div class="app">
@@ -226,45 +227,45 @@
 
 	<main class="main-content">
 		<Dashboard>
-			<!-- Map Panel - Full width -->
+			<!-- 地圖面板 - 全寬 -->
 			{#if isPanelVisible('map')}
 				<div class="panel-slot map-slot">
 					<MapPanel monitors={$monitors.monitors} />
 				</div>
 			{/if}
 
-			<!-- News Panels -->
+			<!-- 新聞面板系列 -->
 			{#if isPanelVisible('politics')}
 				<div class="panel-slot">
-					<NewsPanel category="politics" panelId="politics" title="Politics" />
+					<NewsPanel category="politics" panelId="politics" title="政治動態" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('tech')}
 				<div class="panel-slot">
-					<NewsPanel category="tech" panelId="tech" title="Tech" />
+					<NewsPanel category="tech" panelId="tech" title="科技前沿" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('finance')}
 				<div class="panel-slot">
-					<NewsPanel category="finance" panelId="finance" title="Finance" />
+					<NewsPanel category="finance" panelId="finance" title="財經金融" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('gov')}
 				<div class="panel-slot">
-					<NewsPanel category="gov" panelId="gov" title="Government" />
+					<NewsPanel category="gov" panelId="gov" title="政府公告" />
 				</div>
 			{/if}
 
 			{#if isPanelVisible('ai')}
 				<div class="panel-slot">
-					<NewsPanel category="ai" panelId="ai" title="AI" />
+					<NewsPanel category="ai" panelId="ai" title="人工智慧" />
 				</div>
 			{/if}
 
-			<!-- Markets Panels -->
+			<!-- 金融市場面板系列 -->
 			{#if isPanelVisible('markets')}
 				<div class="panel-slot">
 					<MarketsPanel />
@@ -289,7 +290,7 @@
 				</div>
 			{/if}
 
-			<!-- Analysis Panels -->
+			<!-- 局勢分析面板系列 -->
 			{#if isPanelVisible('mainchar')}
 				<div class="panel-slot">
 					<MainCharPanel />
@@ -308,35 +309,35 @@
 				</div>
 			{/if}
 
-			<!-- Intel Panel -->
+			<!-- 情報面板 -->
 			{#if isPanelVisible('intel')}
 				<div class="panel-slot">
 					<IntelPanel />
 				</div>
 			{/if}
 
-			<!-- Fed Panel -->
+			<!-- 美聯儲 (Fed) 面板 -->
 			{#if isPanelVisible('fed')}
 				<div class="panel-slot">
 					<FedPanel />
 				</div>
 			{/if}
 
-			<!-- World Leaders Panel -->
+			<!-- 世界領袖面板 -->
 			{#if isPanelVisible('leaders')}
 				<div class="panel-slot">
 					<WorldLeadersPanel {leaders} loading={leadersLoading} />
 				</div>
 			{/if}
 
-			<!-- Situation Panels -->
+			<!-- 特定地區危機監控面板 -->
 			{#if isPanelVisible('venezuela')}
 				<div class="panel-slot">
 					<SituationPanel
 						panelId="venezuela"
 						config={{
-							title: 'Venezuela Watch',
-							subtitle: 'Humanitarian crisis monitoring',
+							title: '委內瑞拉觀測',
+							subtitle: '人道主義危機監控',
 							criticalKeywords: ['maduro', 'caracas', 'venezuela', 'guaido']
 						}}
 						news={$allNewsItems.filter(
@@ -353,8 +354,8 @@
 					<SituationPanel
 						panelId="greenland"
 						config={{
-							title: 'Greenland Watch',
-							subtitle: 'Arctic geopolitics monitoring',
+							title: '格陵蘭觀測',
+							subtitle: '北極地緣政治監控',
 							criticalKeywords: ['greenland', 'arctic', 'nuuk', 'denmark']
 						}}
 						news={$allNewsItems.filter(
@@ -371,8 +372,8 @@
 					<SituationPanel
 						panelId="iran"
 						config={{
-							title: 'Iran Crisis',
-							subtitle: 'Revolution protests, regime instability & nuclear program',
+							title: '伊朗危機觀測',
+							subtitle: '革命抗議、政權不穩定性與核計畫監控',
 							criticalKeywords: [
 								'protest',
 								'uprising',
@@ -396,7 +397,7 @@
 				</div>
 			{/if}
 
-			<!-- Placeholder panels for additional data sources -->
+			<!-- 額外數據源面板（巨鯨交易、預測市場、合約、裁員） -->
 			{#if isPanelVisible('whales')}
 				<div class="panel-slot">
 					<WhalePanel {whales} />
@@ -421,14 +422,14 @@
 				</div>
 			{/if}
 
-			<!-- Money Printer Panel -->
+			<!-- 印鈔機監控面板 -->
 			{#if isPanelVisible('printer')}
 				<div class="panel-slot">
 					<PrinterPanel />
 				</div>
 			{/if}
 
-			<!-- Custom Monitors (always last) -->
+			<!-- 自訂監控器 (一律置底) -->
 			{#if isPanelVisible('monitors')}
 				<div class="panel-slot">
 					<MonitorsPanel
@@ -444,7 +445,7 @@
 		</Dashboard>
 	</main>
 
-	<!-- Modals -->
+	<!-- 彈窗組件 -->
 	<SettingsModal
 		open={settingsOpen}
 		onClose={() => (settingsOpen = false)}
