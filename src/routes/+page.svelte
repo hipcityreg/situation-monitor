@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Header, Dashboard } from '$lib/components/layout';
 	import { SettingsModal, MonitorFormModal, OnboardingModal } from '$lib/components/modals';
+
 	import {
 		NewsPanel,
 		MarketsPanel,
